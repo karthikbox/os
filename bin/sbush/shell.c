@@ -11,10 +11,21 @@ void printPrompt(char* str);
 int main(int argc, char *argv[],char *envp[]){
   	char name[1000];
 	int token_len;
-	int i;
+	int i, key=0;
 	//char path
 	char prompt[500];
 	char *prompt_ret,**tokens;
+
+	while(envp[key] != '\0')
+	{
+		tokens = strtoken(envp[key],"=", &token_len);
+		if(strcmp(tokens[0], "PATH") == 0)
+		{
+			printf("PATH found : %s\n", tokens[1]);
+		}
+		key++;
+	}
+
   	while(1)
   	{
 	  //printf("sbush@cse506$ ");
@@ -67,6 +78,7 @@ void cmd_cd(char** tokens){
 }
 
 void cmd_set(char** tokens){
+	
 
 }
 
