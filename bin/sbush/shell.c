@@ -5,9 +5,11 @@ int strcmp(const char *s1,const char *s2);
 char** strtoken(const char *s, const char *delim,int *len);
 void free_array(char **tokens,int len);
 void cmd_cd(char** tokens);
-void cmd_set(char** tokens);
+void cmd_set(char** tokens,int token_len,char *envp[],int path_index);
 void cmd_binary(char** tokens,int len,char *envp[]);
 void cmd_script(char** tokens,int len,char *envp[]);
+int isBinary(char** tokens,int len);
+int isScript(char** tokens,int len);
 
 void printPrompt(char* str);
 char* getpath(int *index, char *envp[]);
@@ -15,10 +17,10 @@ char* getpath(int *index, char *envp[]);
 int main(int argc, char *argv[],char *envp[]){
   	char name[1000];
 	int token_len,index;
-	int i,env_len=0;
+	int i;
 	//char path
 	char prompt[500];
-	char *prompt_ret,**tokens,**env;
+	char *prompt_ret,**tokens,*path;
 	if (argc==2){
 	  //execute script
 	  
@@ -49,7 +51,7 @@ int main(int argc, char *argv[],char *envp[]){
 	      }
 	      else if(strcmp(tokens[i],"set")==0){
 		if(token_len==2||token_len==3){
-		  cmd_set(tokens,env,&env_len);
+		  cmd_set(tokens,token_len,envp,index);
 		}
 		else
 		  printf("incorrect syntax for set command\n");
@@ -57,10 +59,10 @@ int main(int argc, char *argv[],char *envp[]){
 	      else if(token_len == 1){
 		//binary or script
 		if(isBinary(tokens,token_len)){
-		  cmd_binary();
+		  cmd_binary(tokens,token_len,envp);
 		}
 		else if(isScript(tokens,token_len))
-		  cmd_script();
+		  cmd_script(tokens,token_len,envp);
 	      }
 	      else
 		printf("unknown command\n");
@@ -82,18 +84,20 @@ void printPrompt(char* str){
   printf("%s$ ",str);
 }
 
-void cmd_binary(char** tokens,int len,char *envp[]){
-  
+void cmd_binary(char** tokens,int token_len,char *envp[]){
+  int status,id;
   int pid=fork();
   if(pid==0){
     //child
     if(execve(tokens[0],tokens,envp)==-1){
       printf("binary file-execve-error\n");
     }
+    exit(0);
   }
   else if(pid > 0){
     //parent
-    
+    while ((id = waitpid(-1,&status,0)) != -1) /* pick up all the dead children */ 
+      printf("process %d exits\n", pid); 
   }
   else{
     //error on fork
@@ -102,8 +106,16 @@ void cmd_binary(char** tokens,int len,char *envp[]){
   
 }
 
-void cmd_script(char** tokens,int len){
+void cmd_script(char** tokens,int token_len,char *envp[]){
 
+}
+
+int isScript(char** tokens,int len){
+  return 1;
+}
+
+int isBinary(char** tokens,int len){
+  return 1;
 }
 
 
@@ -112,7 +124,7 @@ void cmd_cd(char** tokens){
     printf("error\n");
 }
 
-void cmd_set(char** tokens){
+void cmd_set(char** tokens,int token_len,char **envp,int path_index){
 	
 
 }
