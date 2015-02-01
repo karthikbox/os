@@ -3,6 +3,7 @@
 
 int strcmp(const char *s1,const char *s2);
 char** strtoken(const char *s, const char *delim,int *len);
+void free_array(char **tokens,int len);
 void cmd_cd(char** tokens);
 void cmd_set(char** tokens);
 void printPrompt(char* str);
@@ -13,7 +14,7 @@ int main(int argc, char *argv[],char *envp[]){
 	int i;
 	//char path
 	char prompt[500];
-	char *prompt_ret;
+	char *prompt_ret,**tokens;
   	while(1)
   	{
 	  //printf("sbush@cse506$ ");
@@ -26,7 +27,7 @@ int main(int argc, char *argv[],char *envp[]){
 	  		break;
 	  	}
 
-	  	char** tokens = strtoken(name, " ",&token_len);
+	  	tokens = strtoken(name, " ",&token_len);
 	  	i = 0;
 		if(strcmp(tokens[i],"cd")==0){
 		  if(token_len==2)
@@ -41,9 +42,19 @@ int main(int argc, char *argv[],char *envp[]){
 		  else
 		    printf("incorrect syntax for cd\n");
 		}
+		else
+		  printf("unknown command\n");
+		free_array(tokens,token_len);
 	}
   	return 1;
 
+}
+
+void free_array(char **tokens,int len){
+  int i;
+  for(i=0;i<len;i++)
+    free(tokens[i]);
+  free(tokens);
 }
 
 void printPrompt(char* str){
