@@ -10,10 +10,11 @@ void cmd_binary(char** tokens,int len,char *envp[]);
 void cmd_script(char** tokens,int len,char *envp[]);
 
 void printPrompt(char* str);
+char* getpath(int *index, char *envp[]);
 
 int main(int argc, char *argv[],char *envp[]){
   	char name[1000];
-	int token_len;
+	int token_len,index;
 	int i,env_len=0;
 	//char path
 	char prompt[500];
@@ -29,6 +30,9 @@ int main(int argc, char *argv[],char *envp[]){
 	      prompt_ret =getcwd(prompt,sizeof(prompt)+1);
 	      if(prompt_ret!=0)
 		printPrompt(prompt);
+	      path = getpath(&index, envp); //function to get the 'value' of PATH environment variable; gives the index of the same
+	      printf("path is %s\n", path);
+	      printf("index of path is %d\n", index);
 	      scanf(" %[^\n]s", name);
 	      if(strcmp(name, "exit") == 0)
 	  	{
@@ -109,7 +113,25 @@ void cmd_cd(char** tokens){
 }
 
 void cmd_set(char** tokens){
+	
 
+}
+
+char* getpath(int *index, char **envp){
+
+	int key=0, token_len;
+	char **tokens = (char**)malloc(100*sizeof(char*));
+	while(envp[key] != '\0')
+	{
+		tokens = strtoken(envp[key],"=", &token_len);
+		if(strcmp(tokens[0], "PATH") == 0)
+		{
+			*index = key;
+			break;
+		}
+		key++;
+	}
+	return tokens[1];
 }
 
 int strcmp(const char *s1,const char * s2){
