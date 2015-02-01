@@ -32,7 +32,7 @@ int main(int argc, char *argv[],char *envp[]){
 	  prompt_ret =getcwd(prompt,sizeof(prompt)+1);
 	  if(prompt_ret!=0)
 		printPrompt(prompt);
-	  	scanf(" %[^\n]s", name);
+	  	int result = scanf(" %[^\n]s", name);
 	  	if(strcmp(name, "exit") == 0)
 	  	{
 	  		break;
