@@ -13,22 +13,28 @@ void cmd_script(char** tokens,int len,char *envp[]);
 int isBinary(char** tokens,int len);
 int isScript(char** tokens,int len);
 
-void printPrompt(char* str);
+void printPrompt(char* str,int print_prompt_flag);
 char* getpath(int *index, char *envp[]);
 
 int main(int argc, char *argv[],char *envp[]){
   	char name[1000];
 	int token_len,index;
-	int i;
+	int i,PRINT_PROMPT_FLAG=1;
 	//char path
 	char prompt[500];
 	char *prompt_ret,**tokens,*path;
+	int in;
 	if (argc==2){
 	  //execute script
-	  
+	  printf("%s\n",argv[1]);
+	  int open(const char *pathname, int flags);
+	  if((in=open(argv[1],O_RDONLY))==-1){
+	    printf("unable to read file %s",argv[1]);
+	    exit(0);
+	  }
+	  dup2(in,0);
+	  PRINT_PROMPT_FLAG=0;
 	}
-	else
-    {
         while(1)
 	    {
 	      //printf("sbush@cse506$ ");
@@ -39,8 +45,9 @@ int main(int argc, char *argv[],char *envp[]){
             
           prompt_ret=getcwd(prompt,sizeof(prompt)+1);
           if(prompt_ret!=0)
-              printPrompt(prompt);
-	      scanf(" %[^\n]s", name);
+	    printPrompt(prompt,PRINT_PROMPT_FLAG);
+	  if(scanf(" %[^\n]s", name) == -1)
+	    break;
             
 	      if(strcmp(name, "exit") == 0)
           {
@@ -72,19 +79,22 @@ int main(int argc, char *argv[],char *envp[]){
 	      else if(token_len >= 1)
           {
               //binary or script
-              if(isBinary(tokens,token_len))
-              {
-                  cmd_binary(tokens,token_len,envp);
-              }
-              else if(isScript(tokens,token_len))
-                  cmd_script(tokens,token_len,envp);
+	    if(isScript(tokens,token_len)){
+	      if(token_len==2)
+		cmd_script(tokens,token_len,envp);
+	      else
+		printf("input filename\n");
+	    }
+	    else{
+	      //printf("binary\n");
+	      cmd_binary(tokens,token_len,envp);
+	    }
           }
           else
               printf("unknown command\n");
 	      free_array(tokens,token_len);
 	    }
 	free(path);
-	}
   	return 1;
 
 }
@@ -96,8 +106,9 @@ void free_array(char **tokens,int len){
   free(tokens);
 }
 
-void printPrompt(char* str){
-  printf("%s$ ",str);
+void printPrompt(char* str,int print_prompt_flag){
+  if(print_prompt_flag)
+    printf("%s$ ",str);
 }
 
 void cmd_binary(char** tokens,int token_len,char *envp[]){
@@ -107,6 +118,7 @@ void cmd_binary(char** tokens,int token_len,char *envp[]){
   int pid=fork();
   if(pid==0){
     //child
+    
     if(execve(tokens[0],tokens,envp)==-1){
       //printf("binary file-execve-error  %s\n",tokens[0]);;
       //trying path directories
@@ -123,11 +135,11 @@ void cmd_binary(char** tokens,int token_len,char *envp[]){
 	  ;
 	}
       }
-      //printf("number of paths is %d\n",tok_len);
-      printf("cannot execute %s\n",org[0]);
-      free_array(tokens,token_len);
-      free(org);
+      printf("cannot execute %s\n",org);
+      //free_array(tokens,token_len); //getting error double free 
+      //maybe because of copy on write which linux follows
       free_array(paths,path_len);
+      free(path_raw);
     }
     exit(0);
   }
@@ -145,11 +157,35 @@ void cmd_binary(char** tokens,int token_len,char *envp[]){
 }
 
 void cmd_script(char** tokens,int token_len,char *envp[]){
-
+  int status,id;
+  int pid=fork();
+  if(pid==0){
+    //child
+    char *params[]={"./rootfs/bin/sbush",0,0};
+    params[1]=tokens[1];
+    if(execve(params[0],params,envp)==-1){
+      printf("unable to create sbush child\n");
+    }
+    exit(0);
+  }
+  else if(pid > 0){
+    //parent
+    while ((id = waitpid(-1,&status,0)) != -1) /* pick up all the dead children */ 
+      //printf("process %d exits\n", pid); 
+      ;
+  }
+  else{
+    //error on fork
+    printf("error on fork...try again\n");
+  }
+  
 }
 
 int isScript(char** tokens,int len){
-  return 1;
+  if(strcmp(tokens[0],"sbush")==0)
+    return 1;
+  else 
+    return 0;
 }
 
 int isBinary(char** tokens,int len){
