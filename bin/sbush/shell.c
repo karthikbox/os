@@ -4,10 +4,11 @@
 int strcmp(const char *s1,const char *s2);
 char** strtoken(const char *s, const char *delim,int *len);
 void strcat(char* envPath, char* path);
+void strcpy(char* dest, char* src);
 void free_array(char **tokens,int len);
 void cmd_cd(char** tokens);
-void cmd_set_path(char* tokens,char *envp[],int path_index);
-void cmd_set_ps1(char** tokens);
+void cmd_set_path(char* tokens,char *envp[],int path_index,char* envpath);
+int cmd_set_ps1(char* command, char** ps1);
 void cmd_binary(char** tokens,int len,char *envp[]);
 void cmd_script(char** tokens,int len,char *envp[]);
 int isBinary(char** tokens,int len);
@@ -19,7 +20,7 @@ char* getpath(int *index, char *envp[]);
 int main(int argc, char *argv[],char *envp[]) {
     char name[1000];
     int token_len,index;
-    int i,PRINT_PROMPT_FLAG=1;
+    int i,PRINT_PROMPT_FLAG=1, ps1Flag=0, isValid;
     //char path
     char prompt[500];
     char *prompt_ret,**tokens,*path;
@@ -41,10 +42,19 @@ int main(int argc, char *argv[],char *envp[]) {
         path = getpath(&index, envp); //function to get the 'value' of PATH environment variable; gives the index of the same
         //printf("path is %s\n", path);
         //printf("index of path is %d\n", index);
+        if(ps1Flag == 0)
+        {
+            prompt_ret=getcwd(prompt,sizeof(prompt)+1);
+            if(prompt_ret!=0)
+            {
+                strcat(prompt,"$ ");
+                printPrompt(prompt,PRINT_PROMPT_FLAG);
+            }
+        }
+        else
+              printPrompt(prompt,PRINT_PROMPT_FLAG);
 
-        prompt_ret=getcwd(prompt,sizeof(prompt)+1);
-        if(prompt_ret!=0)
-            printPrompt(prompt,PRINT_PROMPT_FLAG);
+        
         if(scanf(" %[^\n]s", name) == -1)
             break;
 
@@ -65,15 +75,24 @@ int main(int argc, char *argv[],char *envp[]) {
         }
         else if(strcmp(tokens[i],"set")==0)
         {
-            if((strcmp(tokens[i+1], "PATH")==0) && (token_len==3))
+            if((strcmp(tokens[i+1], "PATH")==0) && (token_len == 3))
             {
-                cmd_set_path(tokens[i+2],envp,index);
-                printf("Path is %s\n", envp[index]);
+                  cmd_set_path(tokens[i+2],envp,index,path);
+                  printf("%s\n", envp[index]);
             }
-            else if((strcmp(tokens[i+1], "PS1")==0) && (token_len==2))
-                cmd_set_ps1(tokens);
+            else if(strcmp(tokens[i+1], "PS1")==0 && (token_len >=3))
+            {
+                isValid = cmd_set_ps1(name, tokens);
+                if(isValid)
+                {
+                    strcpy(prompt, tokens[0]);
+                    ps1Flag = 1;
+                }
+                else
+                    printf("Incorrect syntax for PS1 command\n");
+            }
             else
-                printf("incorrect syntax for set command\n");
+                  printf("incorrect syntax for set command\n");
         }
         else if(token_len >= 1)
         {
@@ -107,7 +126,7 @@ void free_array(char **tokens,int len) {
 
 void printPrompt(char* str,int print_prompt_flag) {
     if(print_prompt_flag)
-        printf("%s$ ",str);
+        printf("%s",str);
 }
 
 void cmd_binary(char** tokens,int token_len,char *envp[]) {
@@ -197,13 +216,47 @@ void cmd_cd(char** tokens) {
         printf("error\n");
 }
 
-void cmd_set_path(char* path, char **envp, int path_index) {
-    strcat(envp[path_index], path);
+void cmd_set_path(char* cmdpath, char **envp, int path_index, char* envpath)
+{
+    int token_len=0, i=0;
+    char **tokens = (char**)malloc(100*sizeof(char*));
+    char *sbushPath = (char*)malloc(300*sizeof(char));
+    
+    tokens = strtoken(cmdpath, ":", &token_len);
+
+    printf("path length is %d, %s\n", token_len, tokens[token_len-1]);
+    
+    for (i=0; i<token_len; i++)
+    {
+        if(i>0)
+            strcat(sbushPath, ":");
+        if(strcmp(tokens[i], "$PATH")!=0)
+            strcat(sbushPath, tokens[i]);
+        else
+            strcat(sbushPath, envpath);
+    }
+    
+    strcpy(envp[path_index], "PATH=");
+    strcat(envp[path_index], sbushPath);
+    
+    free(sbushPath);
+    free_array(tokens, token_len);
 }
 
-void cmd_set_ps1(char** tokens)
+int cmd_set_ps1(char* command, char** ps1)
 {
+    int token_len = 0;
+    char **tokens = (char**)malloc(100*sizeof(char*));
+  
+    tokens = strtoken(command, "\"", &token_len);
+    
+    if(token_len != 3)
+        return 0;
+    
+    strcpy(ps1[0], tokens[1]);
 
+    free_array(tokens, token_len);
+    return 1;
 }
 
 void strcat(char* s1, char* s2)
@@ -220,6 +273,17 @@ void strcat(char* s1, char* s2)
         j++;
     }
     s1[i] = '\0';
+}
+
+void strcpy(char* dest, char* src)
+{
+    int i=0;
+    while(src[i] != '\0')
+    {
+        dest[i] = src[i];
+        i++;
+    }
+    dest[i] = '\0';
 }
 
 char* getpath(int *index, char **envp) {
