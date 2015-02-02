@@ -86,12 +86,25 @@ void printPrompt(char* str){
 
 void cmd_binary(char** tokens,int token_len,char *envp[]){
   int status,id;
+  int path_index,tok_len;
+  
   int pid=fork();
   if(pid==0){
     //child
     if(execve(tokens[0],tokens,envp)==-1){
-      printf("binary file-execve-error\n");
+      printf("binary file-execve-error  %s\n",tokens[0]);;
+      //trying path directories
+      char* path_raw=getpath(&path_index,envp);
+      char** paths=strtoken(path_raw,":",&tok_len);
+      int i;
+      for(i=0;i<tok_len;i++){
+	if(execve(strcat(paths[i],tokens[0]),tokens,envp)==-1){
+	  printf("binary file-execve-error\n");
+	}
+      }
+      //printf("number of paths is %d\n",tok_len);
     }
+    printf("%s not found\n",tokens[0]);
     exit(0);
   }
   else if(pid > 0){
@@ -154,6 +167,7 @@ int strcmp(const char *s1,const char * s2){
 	}
 	return s1[i]-s2[i];
 }
+
 
 char** strtoken(const char *s, const char *delim,int *len){
   int i=0, j=0, k=0;
