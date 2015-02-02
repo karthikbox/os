@@ -3,9 +3,11 @@
 
 int strcmp(const char *s1,const char *s2);
 char** strtoken(const char *s, const char *delim,int *len);
+void strcat(char* envPath, char* path);
 void free_array(char **tokens,int len);
 void cmd_cd(char** tokens);
-void cmd_set(char** tokens,int token_len,char *envp[],int path_index);
+void cmd_set_path(char* tokens,char *envp[],int path_index);
+void cmd_set_ps1(char** tokens);
 void cmd_binary(char** tokens,int len,char *envp[]);
 void cmd_script(char** tokens,int len,char *envp[]);
 int isBinary(char** tokens,int len);
@@ -25,47 +27,60 @@ int main(int argc, char *argv[],char *envp[]){
 	  //execute script
 	  
 	}
-	else{
-	  while(1)
+	else
+    {
+        while(1)
 	    {
 	      //printf("sbush@cse506$ ");
-	      prompt_ret =getcwd(prompt,sizeof(prompt)+1);
-	      if(prompt_ret!=0)
-		printPrompt(prompt);
+            
 	      path = getpath(&index, envp); //function to get the 'value' of PATH environment variable; gives the index of the same
 	      printf("path is %s\n", path);
 	      printf("index of path is %d\n", index);
+            
+          prompt_ret=getcwd(prompt,sizeof(prompt)+1);
+          if(prompt_ret!=0)
+              printPrompt(prompt);
 	      scanf(" %[^\n]s", name);
+            
 	      if(strcmp(name, "exit") == 0)
-	  	{
-		  break;
-	  	}
+          {
+              break;
+          }
 
 	      tokens = strtoken(name, " ",&token_len);
-	      i = 0;
-	      if(strcmp(tokens[i],"cd")==0){
-		if(token_len==2)
-		  cmd_cd(tokens);
-		else
-		  printf("incorrect syntax for cd\n");
+          i = 0;
+            
+	      if(strcmp(tokens[i],"cd")==0)
+          {
+              if(token_len==2)
+                  cmd_cd(tokens);
+              else
+                  printf("incorrect syntax for cd\n");
 	      }
-	      else if(strcmp(tokens[i],"set")==0){
-		if(token_len==2||token_len==3){
-		  cmd_set(tokens,token_len,envp,index);
-		}
-		else
-		  printf("incorrect syntax for set command\n");
+	      else if(strcmp(tokens[i],"set")==0)
+          {
+              if((strcmp(tokens[i+1], "PATH")==0) && (token_len==3))
+              {
+                  cmd_set_path(tokens[i+2],envp,index);
+                  printf("Path is %s\n", envp[index]);
+              }
+              else if((strcmp(tokens[i+1], "PS1")==0) && (token_len==2))
+                  cmd_set_ps1(tokens);
+              else
+                  printf("incorrect syntax for set command\n");
 	      }
-	      else if(token_len == 1){
-		//binary or script
-		if(isBinary(tokens,token_len)){
-		  cmd_binary(tokens,token_len,envp);
-		}
-		else if(isScript(tokens,token_len))
-		  cmd_script(tokens,token_len,envp);
-	      }
-	      else
-		printf("unknown command\n");
+	      else if(token_len == 1)
+          {
+              //binary or script
+              if(isBinary(tokens,token_len))
+              {
+                  cmd_binary(tokens,token_len,envp);
+              }
+              else if(isScript(tokens,token_len))
+                  cmd_script(tokens,token_len,envp);
+          }
+          else
+              printf("unknown command\n");
 	      free_array(tokens,token_len);
 	    }
 	}
@@ -124,9 +139,29 @@ void cmd_cd(char** tokens){
     printf("error\n");
 }
 
-void cmd_set(char** tokens,int token_len,char **envp,int path_index){
-	
+void cmd_set_path(char* path, char **envp, int path_index){
+	strcat(envp[path_index], path);
+}
 
+void cmd_set_ps1(char** tokens)
+{
+    
+}
+
+void strcat(char* s1, char* s2)
+{
+    int i=0, j=0;
+    while (s1[i] != '\0')
+    {
+        i++;
+    }
+    while (s2[j] != '\0')
+    {
+        s1[i] = s2[j];
+        i++;
+        j++;
+    }
+    s1[i] = '\0';
 }
 
 char* getpath(int *index, char **envp){
