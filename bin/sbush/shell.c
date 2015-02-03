@@ -11,8 +11,10 @@ void cmd_set_path(char* tokens,char *envp[],int path_index,char* envpath);
 int cmd_set_ps1(char* command, char** ps1);
 void cmd_binary(char** tokens,int len,char *envp[]);
 void cmd_script(char** tokens,int len,char *envp[]);
+int cmd_pipe_init(char **tokens, int pipes, char **envp);
 int isBinary(char** tokens,int len);
 int isScript(char** tokens,int len);
+int runPipe(char *tokens[],char *envp[], int pipes);
 
 void printPrompt(char* str,int print_prompt_flag);
 char* getpath(int *index, char *envp[]);
@@ -62,55 +64,64 @@ int main(int argc, char *argv[],char *envp[]) {
         {
             break;
         }
-
-        tokens = strtoken(name, " ",&token_len);
-        i = 0;
-
-        if(strcmp(tokens[i],"cd")==0)
+        
+        tokens = strtoken(name, "|", &token_len);
+        if(token_len > 1) //pipes
         {
-            if(token_len==2)
-                cmd_cd(tokens);
-            else
-                printf("incorrect syntax for cd\n");
+            cmd_pipe_init(tokens, token_len-1, envp);
         }
-        else if(strcmp(tokens[i],"set")==0)
-        {
-            if((strcmp(tokens[i+1], "PATH")==0) && (token_len == 3))
+        
+        else //excluding pipes
+        {      
+            tokens = strtoken(name, " ",&token_len);
+            i = 0;
+
+            if(strcmp(tokens[i],"cd")==0)
             {
-                  cmd_set_path(tokens[i+2],envp,index,path);
-                  printf("%s\n", envp[index]);
+                if(token_len==2)
+                    cmd_cd(tokens);
+                else
+                    printf("incorrect syntax for cd\n");
             }
-            else if(strcmp(tokens[i+1], "PS1")==0 && (token_len >=3))
+            else if(strcmp(tokens[i],"set")==0)
             {
-                isValid = cmd_set_ps1(name, tokens);
-                if(isValid)
+                if((strcmp(tokens[i+1], "PATH")==0) && (token_len == 3))
                 {
-                    strcpy(prompt, tokens[0]);
-                    ps1Flag = 1;
+                      cmd_set_path(tokens[i+2],envp,index,path);
+                      printf("%s\n", envp[index]);
+                }
+                else if(strcmp(tokens[i+1], "PS1")==0 && (token_len >=3))
+                {
+                    isValid = cmd_set_ps1(name, tokens);
+                    if(isValid)
+                    {
+                        strcpy(prompt, tokens[0]);
+                        ps1Flag = 1;
+                    }
+                    else
+                        printf("Incorrect syntax for PS1 command\n");
                 }
                 else
-                    printf("Incorrect syntax for PS1 command\n");
+                      printf("incorrect syntax for set command\n");
+            }
+            else if(token_len >= 1)
+            {
+                //binary or script
+                if(isScript(tokens,token_len)) {
+                    if(token_len==2)
+                        cmd_script(tokens,token_len,envp);
+                    else
+                        printf("input filename\n");
+                }
+                else {
+                    //printf("binary\n");
+                    cmd_binary(tokens,token_len,envp);
+                }
             }
             else
-                  printf("incorrect syntax for set command\n");
+                printf("unknown command\n");
+            free_array(tokens,token_len);
         }
-        else if(token_len >= 1)
-        {
-            //binary or script
-            if(isScript(tokens,token_len)) {
-                if(token_len==2)
-                    cmd_script(tokens,token_len,envp);
-                else
-                    printf("input filename\n");
-            }
-            else {
-                //printf("binary\n");
-                cmd_binary(tokens,token_len,envp);
-            }
-        }
-        else
-            printf("unknown command\n");
-        free_array(tokens,token_len);
     }
     free(path);
     return 1;
@@ -257,6 +268,66 @@ int cmd_set_ps1(char* command, char** ps1)
 
     free_array(tokens, token_len);
     return 1;
+}
+
+int cmd_pipe_init(char **tokens, int pipes, char **envp) {
+
+    //fork a child and run that process
+    int pid,status;
+    int id;
+    pid=fork();
+    if(pid==-1) {
+        printf("main fork");
+    } else if(pid==0) {
+        //child
+      runPipe(tokens,envp,pipes);
+    } else {
+        //parent, do nothing
+        while ((id = waitpid(-1,&status,0)) != -1)
+            ;
+    }
+    return 0;
+}
+
+int runPipe(char *tokens[],char *envp[], int pipes) 
+{
+    int fd[2],pid,status,id;
+    int param_len;
+    char **params = (char**)malloc(100*sizeof(char*));
+    params = strtoken(tokens[pipes], " ", &param_len);
+    
+    pipe(fd);
+    if(pipes==0) //end case
+    {  
+        close(fd[0]);//close read end
+        //dup2(fd[1],1);//dup write end
+        cmd_binary(params,param_len,envp);
+        exit(0);
+    } 
+    else 
+    {
+        pid=fork();
+        if(pid==-1) 
+            printf("runpipe error fork\n");
+        else if(pid==0)
+        {
+            //child
+            close(fd[0]); //close read end
+            dup2(fd[1],1);
+            runPipe(tokens,envp,--pipes);
+        }
+        else
+        {
+            //parent
+            close(fd[1]); //close write end
+            dup2(fd[0],0);
+            while ((id = waitpid(-1,&status,0)) != -1)
+                ;
+            cmd_binary(params,param_len,envp);
+            exit(0);
+        }
+    }
+    return 0;
 }
 
 void strcat(char* s1, char* s2)

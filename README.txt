@@ -8,3 +8,10 @@ PS1 functionality
 command our sbush supports: set PS1 "<give a word>"
 example: set PS1 "sbush$ " -> this command changes the prompt to sbush$ 
 example: set PS1 sbush$ -> this command throws an error
+
+Pipe functionality
+command our sbush supports: <command1> [args]|<command2> [args][|<command3> [args]] (No leading spaces/trailing spaces
+example: ls|head|tail
+example: /bin/ls|head|tail
+example: ls -al|head -3|tail -1
+
