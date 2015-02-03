@@ -15,3 +15,15 @@ example: ls|head|tail
 example: /bin/ls|head|tail
 example: ls -al|head -3|tail -1
 
+EXECUTE BINARY functionality
+syntax 1:
+<filepath>
+our shell first tries to execute this file as is, if it fails, it tries to look in the PATH directories for file.
+example: sbush rootfs/bin/sbush -> executes the binary 
+example: sbush ls -> tries to execute the command as is, it fails if there is no file named ls in the current directory, then it looks for in all the PATH directories
+
+EXECUTE SCRIPT functionality
+syntax:
+sbush <filepath>
+example: sbush /rootfs/test.dat -> executes the commands in the file test.dat.
+NOTE: file CAN BE ANY extension.
