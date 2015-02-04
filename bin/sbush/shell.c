@@ -5,6 +5,7 @@ int strcmp(const char *s1,const char *s2);
 char** strtoken(const char *s, const char *delim,int *len);
 void strcat(char* envPath, char* path);
 void strcpy(char* dest, char* src);
+int strlen(char *s);
 void free_array(char **tokens,int len);
 void cmd_cd(char** tokens);
 void cmd_set_path(char* tokens,char *envp[],int path_index,char* envpath);
@@ -15,7 +16,7 @@ int cmd_pipe_init(char **tokens, int pipes, char **envp);
 int isBinary(char** tokens,int len);
 int isScript(char** tokens,int len);
 int runPipe(char *tokens[],char *envp[], int pipes);
-
+void trim(char *s);
 void printPrompt(char* str,int print_prompt_flag);
 char* getpath(int *index, char *envp[]);
 
@@ -42,8 +43,6 @@ int main(int argc, char *argv[],char *envp[]) {
         //printf("sbush@cse506$ ");
 
         path = getpath(&index, envp); //function to get the 'value' of PATH environment variable; gives the index of the same
-        //printf("path is %s\n", path);
-        //printf("index of path is %d\n", index);
         if(ps1Flag == 0)
         {
             prompt_ret=getcwd(prompt,sizeof(prompt)+1);
@@ -65,6 +64,7 @@ int main(int argc, char *argv[],char *envp[]) {
             break;
         }
         
+        trim(name);
         tokens = strtoken(name, "|", &token_len);
         if(token_len > 1) //pipes
         {
@@ -143,8 +143,8 @@ void printPrompt(char* str,int print_prompt_flag) {
 void cmd_binary(char** tokens,int token_len,char *envp[]) {
     int status,id;
     int path_index,path_len;
-
     int pid=fork();
+
     if(pid==0) {
         //child
 
@@ -152,6 +152,7 @@ void cmd_binary(char** tokens,int token_len,char *envp[]) {
             //printf("binary file-execve-error  %s\n",tokens[0]);;
             //trying path directories
             char* path_raw=getpath(&path_index,envp);
+            trim(path_raw);
             char** paths=strtoken(path_raw,":",&path_len);
             char *org=tokens[0];
             int i;
@@ -233,6 +234,7 @@ void cmd_set_path(char* cmdpath, char **envp, int path_index, char* envpath)
     char **tokens = (char**)malloc(100*sizeof(char*));
     char *sbushPath = (char*)malloc(300*sizeof(char));
     
+    trim(cmdpath);
     tokens = strtoken(cmdpath, ":", &token_len);
 
     printf("path length is %d, %s\n", token_len, tokens[token_len-1]);
@@ -259,9 +261,10 @@ int cmd_set_ps1(char* command, char** ps1)
     int token_len = 0;
     char **tokens = (char**)malloc(100*sizeof(char*));
   
+    trim(command);
     tokens = strtoken(command, "\"", &token_len);
     
-    if(token_len != 3)
+    if(token_len != 2)
         return 0;
     
     strcpy(ps1[0], tokens[1]);
@@ -294,6 +297,7 @@ int runPipe(char *tokens[],char *envp[], int pipes)
     int fd[2],pid,status,id;
     int param_len;
     char **params = (char**)malloc(100*sizeof(char*));
+    trim(tokens[pipes]);
     params = strtoken(tokens[pipes], " ", &param_len);
     
     pipe(fd);
@@ -363,6 +367,7 @@ char* getpath(int *index, char **envp) {
     char **tokens = (char**)malloc(100*sizeof(char*));
     while(envp[key] != '\0')
     {
+        trim(envp[key]);
         tokens = strtoken(envp[key],"=", &token_len);
         if(strcmp(tokens[0], "PATH") == 0)
         {
@@ -395,14 +400,15 @@ char** strtoken(const char *s, const char *delim,int *len) {
 
     tokens[j] = (char*)malloc(TOKEN_SIZE*sizeof(char));
 
-
-
     while(s[i] != '\0') {
         if(s[i] == *delim)
         {
             tokens[j][k] = '\0';
-            j++;
-            tokens[j] = (char*)malloc(TOKEN_SIZE*sizeof(char));
+            if(strlen(tokens[j]) > 0)
+            {
+                j++;
+                tokens[j] = (char*)malloc(TOKEN_SIZE*sizeof(char));
+            }
             k=0;
         }
         else
@@ -412,9 +418,44 @@ char** strtoken(const char *s, const char *delim,int *len) {
         }
         i++;
     }
-    tokens[j][k] = '\0';
-    tokens[++j] = 0;
+    if(strlen(tokens[j])>0)
+    {
+        tokens[j][k] = '\0';
+        tokens[++j] = 0;
+    }
+    else
+        tokens[j] = 0;
+    
     *len=j;
 
     return tokens;
+}
+
+int strlen(char *s)
+{
+    int i = 0;
+    while(s[i] != '\0')
+        i++;
+    return i;
+
+}
+
+void trim(char *s)
+{
+    int lead = 0, trail = 0, i=0,j=0;
+    trail = strlen(s);
+    char *temp = (char*)malloc(500*sizeof(char));
+
+    while(s[lead] == ' ')
+        lead++;
+
+    while(s[trail-1] == ' ')
+        trail--;
+
+    for(i=lead; i<trail; i++,j++)
+        temp[j] = s[i];
+
+    temp[j] = '\0';
+    strcpy(s, temp);
+    free(temp);
 }

@@ -27,3 +27,8 @@ syntax:
 sbush <filepath>
 example: sbush /rootfs/test.dat -> executes the commands in the file test.dat.
 NOTE: file CAN BE ANY extension.
+Interpreter working for scripts.
+Include the following line as the first line of the script and provide executable permissions to the script
+#! ./rootfs/bin/sbush
+example: ./script.sh -> Can be run from outside our shell as well
+example: script.sh -> Our shell can also run without ./ before the name of the script.
