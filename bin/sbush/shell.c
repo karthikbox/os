@@ -1,6 +1,8 @@
 #include<stdio.h>
 #include<stdlib.h>
 
+#define TOKEN_SIZE 20000
+#define TOKEN_ARRAY_SIZE 200
 int strcmp(const char *s1,const char *s2);
 char** strtoken(const char *s, const char *delim,int *len);
 void strcat(char* envPath, char* path);
@@ -58,6 +60,9 @@ int main(int argc, char *argv[],char *envp[]) {
         
         if(scanf(" %[^\n]s", name) == -1)
             break;
+
+	if(name[0]=='#')
+	  continue;//skip commented lines in input script file
 
         if(strcmp(name, "exit") == 0)
         {
@@ -144,9 +149,10 @@ void cmd_binary(char** tokens,int token_len,char *envp[]) {
     int status,id;
     int path_index,path_len;
     int pid=fork();
-
     if(pid==0) {
         //child
+      	
+      
 
         if(execve(tokens[0],tokens,envp)==-1) {
             //printf("binary file-execve-error  %s\n",tokens[0]);;
@@ -231,13 +237,13 @@ void cmd_cd(char** tokens) {
 void cmd_set_path(char* cmdpath, char **envp, int path_index, char* envpath)
 {
     int token_len=0, i=0;
-    char **tokens = (char**)malloc(100*sizeof(char*));
-    char *sbushPath = (char*)malloc(300*sizeof(char));
-    
+    char *sbushPath = (char*)malloc(TOKEN_SIZE*sizeof(char));
+    char **tokens;
+
     trim(cmdpath);
     tokens = strtoken(cmdpath, ":", &token_len);
 
-    printf("path length is %d, %s\n", token_len, tokens[token_len-1]);
+    //printf("path length is %d, %s\n", token_len, tokens[token_len-1]);
     
     for (i=0; i<token_len; i++)
     {
@@ -259,7 +265,7 @@ void cmd_set_path(char* cmdpath, char **envp, int path_index, char* envpath)
 int cmd_set_ps1(char* command, char** ps1)
 {
     int token_len = 0;
-    char **tokens = (char**)malloc(100*sizeof(char*));
+    char **tokens;
   
     trim(command);
     tokens = strtoken(command, "\"", &token_len);
@@ -296,7 +302,7 @@ int runPipe(char *tokens[],char *envp[], int pipes)
 {
     int fd[2],pid,status,id;
     int param_len;
-    char **params = (char**)malloc(100*sizeof(char*));
+    char **params = (char**)malloc(TOKEN_ARRAY_SIZE*sizeof(char*));
     trim(tokens[pipes]);
     params = strtoken(tokens[pipes], " ", &param_len);
     
@@ -364,7 +370,8 @@ void strcpy(char* dest, char* src)
 char* getpath(int *index, char **envp) {
 
     int key=0, token_len;
-    char **tokens = (char**)malloc(100*sizeof(char*));
+    char **tokens=(char **)malloc(TOKEN_ARRAY_SIZE*sizeof(char *));
+    char **temp=tokens;
     while(envp[key] != '\0')
     {
         trim(envp[key]);
@@ -375,8 +382,10 @@ char* getpath(int *index, char **envp) {
             break;
         }
         key++;
+	free_array(tokens,token_len);//free strtoken memory for not PATH env variables
     }
     free(tokens[0]);
+    free(temp);
     char *res=tokens[1];
     free(tokens);
     return res;
@@ -394,8 +403,6 @@ int strcmp(const char *s1,const char * s2) {
 
 char** strtoken(const char *s, const char *delim,int *len) {
     int i=0, j=0, k=0;
-    int TOKEN_ARRAY_SIZE=100;
-    int TOKEN_SIZE=300;
     char **tokens = (char**)malloc(TOKEN_ARRAY_SIZE*sizeof(char*));
 
     tokens[j] = (char*)malloc(TOKEN_SIZE*sizeof(char));
@@ -444,7 +451,7 @@ void trim(char *s)
 {
     int lead = 0, trail = 0, i=0,j=0;
     trail = strlen(s);
-    char *temp = (char*)malloc(500*sizeof(char));
+    char *temp = (char*)malloc(TOKEN_SIZE*sizeof(char));
 
     while(s[lead] == ' ')
         lead++;
