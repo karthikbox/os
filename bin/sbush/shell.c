@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-#define TOKEN_SIZE 20000
+#define TOKEN_SIZE 2000
 #define TOKEN_ARRAY_SIZE 200
 int strcmp(const char *s1,const char *s2);
 char** strtoken(const char *s, const char *delim,int *len);
