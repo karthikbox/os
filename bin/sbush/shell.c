@@ -61,9 +61,6 @@ int main(int argc, char *argv[],char *envp[]) {
         if(scanf(" %[^\n]s", name) == -1)
             break;
 
-	if(name[0]=='#')
-	  continue;//skip commented lines in input script file
-
         if(strcmp(name, "exit") == 0)
         {
             break;
