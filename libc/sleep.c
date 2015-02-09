@@ -6,12 +6,14 @@
 
 struct timespec{
     time_t tv_sec;//seconds
-    long tv_nsec;
+    time_t tv_nsec;
 };
 
 unsigned int sleep(unsigned int seconds){
 //    return (unsigned int)syscall_2()
-    struct timespec req={seconds,seconds*1000000000L};
+    struct timespec req;
+    req.tv_sec=seconds;
+    req.tv_nsec=seconds*1000000000L;
     struct timespec rem;
-    return (unsigned int)syscall(&req,&rem);
+    return (unsigned int)syscall_2(SYS_nanosleep,(uint64_t)&req,(uint64_t)&rem);
 }
