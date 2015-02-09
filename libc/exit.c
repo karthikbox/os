@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
-
-void exit(int status){
-    printf("exit status\n");
-    
+#include <sys/syscall.h>
+#include <syscall.h>
+void exit(int status) {
+  (void) syscall_1(SYS_exit, status);
 }
+

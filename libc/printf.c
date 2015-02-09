@@ -9,11 +9,12 @@ int printf(const char *format, ...) {
 	va_start(val, format);
 
 	while(*format) {
-	    if(write(1, format, 1)==-1)
-		return -1;
-	    ++printed;
-	    ++format;
+		write(1, format, 1);
+		++printed;
+		++format;
 	}
+
+	va_end(val);
 
 	return printed;
 }
