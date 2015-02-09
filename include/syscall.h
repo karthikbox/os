@@ -17,7 +17,15 @@ static __inline uint64_t syscall_2(uint64_t n, uint64_t a1, uint64_t a2) {
 }
 
 static __inline uint64_t syscall_3(uint64_t n, uint64_t a1, uint64_t a2, uint64_t a3) {
-	return 0;
+    uint64_t ret;
+    __asm volatile
+    (
+        "syscall"
+        : "=a" (ret)
+        : "0"(n), "D"(a1), "S"(a2), "d"(a3)
+        : "cc", "rcx", "r11", "memory"
+    );
+    return ret;
 }
 
 #endif
