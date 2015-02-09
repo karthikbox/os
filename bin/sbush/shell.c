@@ -60,6 +60,7 @@ int main(int argc, char *argv[],char *envp[]) {
         
         if(scanf(" %[^\n]s", name) == -1)
             break;
+        
 
         if(strcmp(name, "exit") == 0)
         {
