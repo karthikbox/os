@@ -18,8 +18,16 @@ ssize_t write(int fd, const void *buf, size_t count) {
 
 }
 
+off_t lseek(int fd, off_t offset, int whence) {
+	return (off_t) syscall_3(SYS_lseek, (uint64_t) fd, (uint64_t) offset, (uint64_t) whence);
+}
+
 int close(int fd) {
 	return (int) syscall_1(SYS_close, (uint64_t) fd);
+}
+
+int pipe(int filedes[2]) {
+	return (int) syscall_1(SYS_pipe, (uint64_t) filedes);
 }
 
 int dup(int oldfd) {
