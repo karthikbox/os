@@ -15,10 +15,13 @@ int main(int argc, char* argv[], char* envp[]) {
 	printf("Decimal - %d; Hexadecimal - %x\n", hex, hex);
 	printf("The character is %c\n", c);
     */
-    uint64_t a=(uint64_t)sbrk((void *)100);
-    uint64_t b=(uint64_t)sbrk((void *)0);
-    printf("%x\n",a);
-    printf("%x\n",b);
+    /*
+      uint64_t a=(uint64_t)sbrk(100);
+      uint64_t b=(uint64_t)sbrk(0);
+      printf("%x\n",a);
+      printf("%x\n",b);
+    */
+    malloc(10);
 	//test fork
 	/*int pid, ppid; //id, status;
 	ppid = getpid();

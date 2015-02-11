@@ -29,6 +29,7 @@ int printf(const char *format, ...) {
 				string = va_arg(val, char *);
 				printf(string);
 			}*/
+			//TODO add printf for unsigned long
 			else if(*format == 'd')
 			{
 				++format;
