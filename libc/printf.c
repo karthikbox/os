@@ -70,8 +70,9 @@ void itoa(int number, char *str, int base)
 			temp[i] = (digit-10) + 'a';
 		i++;
 	}
-
-	while(i > 0)
+	temp[i]='\0';
+	
+	while(i >= 0)
 	{
 		i--;
 		str[j] = temp[i];

@@ -4,6 +4,7 @@
 int main(int argc, char* argv[], char* envp[]) {
 	
 	//test printf
+    /*
 	char course[] = "Operating Systems";
 	char semester[] = "Spring";
 	int year = 2015;
@@ -13,6 +14,11 @@ int main(int argc, char* argv[], char* envp[]) {
 	printf("%s\t%s\t\t%d\n", course, semester, year);
 	printf("Decimal - %d; Hexadecimal - %x\n", hex, hex);
 	printf("The character is %c\n", c);
+    */
+    uint64_t a=(uint64_t)sbrk((void *)100);
+    uint64_t b=(uint64_t)sbrk((void *)0);
+    printf("%x\n",a);
+    printf("%x\n",b);
 	//test fork
 	/*int pid, ppid; //id, status;
 	ppid = getpid();
