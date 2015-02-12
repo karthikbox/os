@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include<stdio.h>
-uint64_t *get_rsp();
 
 void _start(void) {
 	uint64_t count,i;
@@ -20,7 +19,7 @@ void _start(void) {
 	count=*rsp;
 	i=1;
 	while(i<count){
-		printf("argc %s\n",*(rsp+i));
+//		printf("argc %s\n",*(rsp+i));
 		i++;
 	}
 	res = main(*rsp, argv, envp);
