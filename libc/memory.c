@@ -7,7 +7,6 @@
 int brk(void *end_data_segment){
     void * ret = (void *) syscall_1(SYS_brk,(uint64_t)end_data_segment);
     if((uint64_t)ret==(uint64_t)end_data_segment){
-	printf("success1\n");
 	return 0;
     }
     else{
@@ -25,21 +24,33 @@ void * sbrk(uint64_t offset){
     void * new_brk=(void *)((uint64_t)cur_brk+(uint64_t)offset);
     if(brk(new_brk)==-1){
 	//brk() did not set brk pointer to new_brk
-	printf("success2\n");
 	return (void *)-1;
     }
     else{
 	//brk() set the brk pointer to new_brk
-	printf("success3\n");
 	return cur_brk;
     }
     
 }
 
+
+/* malloc(size_t size) IMPLEMENTATION */
+/*
+
+THIS IMPLEMETATION OF MALLOC AND FREE IS AS FOLLOWS:
+1. IF NO SPACE, RAISE BRK I.E HEAP BY REQUIRED SIZE
+2. IF ANY NON-LAST BLOCK IS FREE'D, IT IS MARKED FREE AND WILL BE ALLOCATED
+   TO NEXT REQUEST IF SIZE IS SUFFICIENT. SO DECREASE IN BRK(HEAP)
+3. IF LAST NODE IS FREE'D, THEN DECREASE BRK(HEAP)
+4. IF ANY INTERMEDIATE IS BEING ALLOCATED TO A REQUEST AND THE BLOCK IS WAY BIGGER THAN REQUESTED SIZE, THEN SPLIT THIS BLK INTO 2 BLOCKS, ALLOCATE THE FIRST ONE TO REQUEST AND THE MARK THE SECOND ONE AS FREE AND ADD IT TO THE LIST.
+
+ */
 struct m_blk{
     size_t size;//8bytes
     struct m_blk * next;//8bytes
+    struct m_blk * prev;//8bytes
     size_t free;//8bytes
+    void * ptr;//8bytes
     char start[1];//1byte
 };
 
@@ -48,7 +59,7 @@ typedef struct m_blk * p_blk;
 p_blk head=NULL;//head points to the head of the memory linked list
 p_blk tail=NULL;//tail points to the last node of the linked list, brk is data chunk + meta
 
-#define M_BLK_SIZE 24 //define size as 24 eventhough 25
+#define M_BLK_SIZE 40 //define size as 24 eventhough 25
 //char temp is byte, it will help us do 1 byte pointer arithmetic
 //m_blk->temp is the start address of malloc'd memory to be returned
 
@@ -109,10 +120,6 @@ void *malloc(size_t size){
 
 }
 
-void free(void *ptr){
-    
-}
-
 
 p_blk expand_brk(size_t size){
     //expand_brk raises brk by size+metablock
@@ -128,10 +135,12 @@ p_blk expand_brk(size_t size){
     if(head){
 	//head is not NULL, list already initialized	
 	tail->next=temp;
+	temp->prev=tail;
 	tail=temp;
 	tail->size=size;
 	tail->free=0;
 	tail->next=NULL;
+	tail->ptr=tail->start;
     }
     else{
 	//head is null
@@ -140,6 +149,8 @@ p_blk expand_brk(size_t size){
 	tail->size=size;
 	tail->free=0;
 	tail->next=NULL;
+	tail->prev=NULL;
+	tail->ptr=tail->start;
     }
     return temp;
 
@@ -172,10 +183,73 @@ void split(p_blk t,size_t size){
     temp=(p_blk)(t->start+size);
     temp->size=t->size-M_BLK_SIZE-size;
     temp->free=1;
+    temp->ptr=temp->start;
     temp->next=t->next;
+    temp->prev=t;
+
+    t->next->prev=temp;
+
     t->next=temp;
     t->size=size;
     t->free=0;
 
     
+}
+
+
+/* free() IMPLEMENTATION */
+
+int valid_ptr(void *ptr);
+p_blk get_meta_ptr(void *ptr);
+int remove_last_blk(p_blk t);
+
+void free(void *ptr){
+    if(valid_ptr(ptr)){
+	p_blk temp=get_meta_ptr(ptr);
+	temp->free=1;
+	if(temp->next==NULL){
+	    //last block is being free'd
+	    //decrease the brk pointer to temp
+	   
+	    //sanity check
+	    if(temp!=tail)
+		printf("last node to remove is not same as tail\n");
+
+	    tail=temp->prev;
+	    tail->next=NULL;
+	    if(!remove_last_blk(temp))
+		printf("unable to remove last blk, just marking it as free\n");;
+	}
+	/*
+	  TODO
+	  1.implement coalascing
+	  2.check prev and next block if they are free then coalasce
+	  into 1 big block
+	 */
+    }
+}
+
+int remove_last_blk(p_blk t){
+    if(brk((void *)t)==-1){
+	printf("unable to decrease brk to remove last blk\n");
+	return 0;
+    }
+    
+    return 1;
+}
+
+p_blk get_meta_ptr(void *ptr){
+    char *temp=ptr;
+    temp-=M_BLK_SIZE;
+    return (p_blk)temp;
+}
+
+int valid_ptr(void *ptr){
+    p_blk p=ptr;
+    if(head && ptr &&  (p >=head) && (p < (p_blk)sbrk(0)) ) {
+	if( p == (get_meta_ptr(ptr))->ptr     ){
+	    return 1;
+	}
+    }
+    return 0;
 }

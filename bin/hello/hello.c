@@ -21,7 +21,34 @@ int main(int argc, char* argv[], char* envp[]) {
       printf("%x\n",a);
       printf("%x\n",b);
     */
-    malloc(10);
+    // MALLOC AND FREE TEST CASE 
+    char *temp=(char *)malloc(100);//blk 1 
+    /* if(temp==NULL) */
+    /* 	printf("error in malloc\n"); */
+    char *b=(char *)malloc(10);//blk 2 
+    /* int i=0; */
+    printf("%d\n",temp);
+    printf("%d\n",b);
+    free(temp);//free blk 1
+    char *c=(char *)malloc(10);//blk 1 is split as blk1.1 and blk1.2
+    printf("%d\n",c);//c gets blk1.1 and blk1.2 is marked free
+    char *d=(char *)malloc(10);//blk1.2 is d
+    printf("%d\n",d);
+    char *e=(char *)malloc(10);//blk 3 is e
+    printf("%d\n",e);
+    free(e);//free blk 3 and brk reduces as e is the last blk
+    e=(char *)malloc(10);//e gets again blk 3
+    printf("%d\n",e);//same address as blk 3
+    free(e);
+    e=(char *)malloc(10);//same as above
+    printf("%d\n",e);//same as above
+    free(e);//same
+    e=(char *)malloc(10);//same
+    printf("%d\n",e);//same
+    free(d);//free blk1.2
+    d=(char *)malloc(10);//d gets blk1.2 again
+    printf("%d\n",d);//same as previous address
+
 	//test fork
 	/*int pid, ppid; //id, status;
 	ppid = getpid();
