@@ -2,9 +2,20 @@
 #include <stdlib.h>
 
 int main(int argc, char* argv[], char* envp[]) {
-	
-	//test printf
-    
+    //TEST argv, argv, envp
+    int i=0;
+    printf("argc is %d \n",argc);
+    while(argv[i]){
+	printf("argv is %s \n",argv[i]);
+	i++;
+    }
+    i=0;
+    while(envp[i]){
+	printf("envp is %s \n",envp[i]);
+	i++;
+    }
+    //TEST PRINTF
+    /*
 	char course[] = "Operating Systems";
 	char semester[] = "%Spring";
 	int year = 2015;
@@ -14,7 +25,7 @@ int main(int argc, char* argv[], char* envp[]) {
 	printf("%s\t%s\t\t%d\n", course, semester, year);
 	printf("Decimal - %d; Hexadecimal - %x\n", hex, hex);
 	printf("The character is %c\n", c);
-    
+    */
     /*
       uint64_t a=(uint64_t)sbrk(100);
       uint64_t b=(uint64_t)sbrk(0);
