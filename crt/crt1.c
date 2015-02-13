@@ -3,9 +3,9 @@
 uint64_t *get_rsp();
 
 void _start(void) {
-	uint64_t count,i;
-	char* argv[0];
-	char* envp[0];
+	int argc,i;
+	char** argv;
+	char** envp;
 	int res;
 	uint64_t *rsp;
 	__asm__
@@ -13,21 +13,34 @@ void _start(void) {
 		"mov %%rsp,%0\n\t"
 		:"=r" (rsp)
 	);
-	printf("1) %x\n",&rsp);
-	printf("2) %d\n",*(rsp+5));
-	rsp=rsp+5;	//rsp+1 implies after 8 bits we have argc
-	printf("3) %d\n",*rsp);
-	printf("4) %x\n",*(rsp+5));
-	count=*rsp;
-	i=1;
-	while(i<=count){
-		printf("rsp val %s \n",*(rsp+i));
+	rsp=rsp+7;	//rsp+1 implies after 8 bits we have 
+//argc
+	argc=*rsp;
+	argv=(char **)rsp+1;
+	printf("argc val %d \n",argc);
+	i=0;
+	while(i<argc){
+		printf("rsp val %s \n",argv[i]);
 		i++;
 	}
 //	argv=*(rsp+1);
 
-	printf("%s\n",argv);
-	res = main(*rsp, argv, envp);
+	//printf("%s\n",argv);
+	//envp=rsp;
+	envp=(char **)rsp+(argc+2);
+	i=0;
+	printf("30 is %s \n",envp[30]);
+	printf("31 is %s \n",envp[31]);
+	while(envp[i]){
+	  printf("%d\n",i);
+	  if(i==30){
+	    i++;
+	    continue;
+	  }
+	  printf("rsp val %s \n",envp[i]);
+	  i++;
+	}
+	res = main(argc, argv, envp);
 	exit(res);
 }
 
