@@ -3,6 +3,7 @@
 #include <stdarg.h>
 
 void itoa(int number, char *str, int base);
+void printarg(char *str);
 
 int printf(const char *format, ...) {
 	va_list val;
@@ -21,7 +22,7 @@ int printf(const char *format, ...) {
 			{
 				++format;
 				string = va_arg(val, char *);
-				printf(string);
+				printarg(string);
 			}
 			/*else if(*format == 'c')
 			{
@@ -35,14 +36,14 @@ int printf(const char *format, ...) {
 				++format;
 				number = va_arg(val, int);
 				itoa(number, numberString, 10);
-				printf(numberString);
+				printarg(numberString);
 			}
 			else if(*format == 'x')
 			{
 				++format;
 				number = va_arg(val, int);
 				itoa(number, numberString, 16);
-				printf(numberString);
+				printarg(numberString);
 			}
 
 		}
@@ -81,4 +82,13 @@ void itoa(int number, char *str, int base)
 	}
 
 	str[j] = '\0';
+}
+
+void printarg(char *str) {
+	
+	while(*str)
+	{
+		write(1, str, 1);
+		str++;
+	}
 }

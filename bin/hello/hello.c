@@ -4,9 +4,9 @@
 int main(int argc, char* argv[], char* envp[]) {
 	
 	//test printf
-    /*
+    
 	char course[] = "Operating Systems";
-	char semester[] = "Spring";
+	char semester[] = "%Spring";
 	int year = 2015;
 	int hex = 255;
 	char c = 'a';
@@ -14,20 +14,21 @@ int main(int argc, char* argv[], char* envp[]) {
 	printf("%s\t%s\t\t%d\n", course, semester, year);
 	printf("Decimal - %d; Hexadecimal - %x\n", hex, hex);
 	printf("The character is %c\n", c);
-    */
+    
     /*
       uint64_t a=(uint64_t)sbrk(100);
       uint64_t b=(uint64_t)sbrk(0);
       printf("%x\n",a);
       printf("%x\n",b);
     */
+
     // MALLOC AND FREE TEST CASE 
-    char *temp=(char *)malloc(100);//blk 1 
+    //char *temp=(char *)malloc(100);//blk 1 
     /* if(temp==NULL) */
     /* 	printf("error in malloc\n"); */
-    char *b=(char *)malloc(10);//blk 2 
+    //char *b=(char *)malloc(10);//blk 2 
     /* int i=0; */
-    printf("%d\n",temp);
+/*  printf("%d\n",temp);
     printf("%d\n",b);
     free(temp);//free blk 1
     char *c=(char *)malloc(10);//blk 1 is split as blk1.1 and blk1.2
@@ -48,6 +49,7 @@ int main(int argc, char* argv[], char* envp[]) {
     free(d);//free blk1.2
     d=(char *)malloc(10);//d gets blk1.2 again
     printf("%d\n",d);//same as previous address
+*/
 
 	//test fork
 	/*int pid, ppid; //id, status;
