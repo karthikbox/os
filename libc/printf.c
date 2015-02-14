@@ -20,7 +20,6 @@ int printf(const char *format, ...) {
 			++format;
 			if(*format == 's')
 			{
-				++format;
 				string = va_arg(val, char *);
 				printarg(string);
 			}
@@ -33,18 +32,20 @@ int printf(const char *format, ...) {
 			//TODO add printf for unsigned long
 			else if(*format == 'd')
 			{
-				++format;
 				number = va_arg(val, int);
 				itoa(number, numberString, 10);
 				printarg(numberString);
 			}
 			else if(*format == 'x')
 			{
-				++format;
 				number = va_arg(val, int);
 				itoa(number, numberString, 16);
 				printarg(numberString);
 			}
+
+			++format;
+			if(*format == '\0')
+				break;
 
 		}
 		write(1, format, 1);

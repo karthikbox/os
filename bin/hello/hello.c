@@ -5,15 +5,30 @@ int main(int argc, char* argv[], char* envp[]) {
 	
 	//test printf
     
-	char course[] = "Operating Systems";
-	char semester[] = "%Spring";
-	int year = 2015;
-	int hex = 255;
-	char c = 'a';
+	//char course[] = "Operating Systems";
+	//char semester[] = "%Spring";
+	//int year = 2015;
+	//int hex = 255;
+	/*char c = 'a';
 	printf("Course\t\t\tSemester\tYear\n");
 	printf("%s\t%s\t\t%d\n", course, semester, year);
 	printf("Decimal - %d; Hexadecimal - %x\n", hex, hex);
-	printf("The character is %c\n", c);
+	printf("The character is %c\n", c);*/
+	/*printf("\n%d", year);
+	printf("\nbetween");
+	printf("\n%d", hex);*/
+
+	//test scanf
+	/*char buf[100];
+	printf("Enter a string\n");
+	scanf("%s", buf);
+	printf("Entered string is %s\n", buf);*/
+
+	//test execve
+	printf("argc is %d\n", argc);
+	if(execve(argv[0], &argv[0], envp)==-1) {
+		printf("execve errorn\n");
+	}
     
     /*
       uint64_t a=(uint64_t)sbrk(100);

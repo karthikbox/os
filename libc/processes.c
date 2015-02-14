@@ -16,6 +16,10 @@ pid_t getppid(void) {
 	return  (pid_t) syscall_0(SYS_getppid);
 }
 
+int execve(const char *filename, char *const argv[], char *const envp[]) {
+	return (int) syscall_3(SYS_execve, (uint64_t) filename, (uint64_t) argv, (uint64_t) envp);
+}
+
 pid_t waitpid(pid_t pid, int *status, int options) {
 	return (pid_t) syscall_3(SYS_wait4, (uint64_t) pid, (uint64_t) status, (uint64_t) options);
 }
