@@ -52,6 +52,7 @@ struct dirent
 	unsigned short d_reclen;
 	char d_name [NAME_MAX+1];
 };
+#define DIR_BUF_SIZE  1024
 void *opendir(const char *name);
 struct dirent *readdir(void *dir);
 int closedir(void *dir);
