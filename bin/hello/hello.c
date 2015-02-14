@@ -25,11 +25,13 @@ int main(int argc, char* argv[], char* envp[]) {
 	printf("Entered string is %s\n", buf);*/
 
 	//test execve
+/*
 	printf("argc is %d\n", argc);
-	if(execve(argv[0], &argv[0], envp)==-1) {
+	char *tokens[] = {"/bin/ls", "-alh", 0};
+	if(execve(tokens[0], tokens, envp)==-1) {
 		printf("execve errorn\n");
 	}
-
+*/
     //TEST FOR opendir,readdir,closedir
     /*void *dirp=opendir(argv[1]);
     if(!dirp){
@@ -124,20 +126,22 @@ int main(int argc, char* argv[], char* envp[]) {
 */
 
 	//test fork
-	/*int pid, ppid; //id, status;
+    int pid, ppid,status; //id, status;
 	ppid = getpid();
 	pid = fork();
 	if(pid == 0) {
 		if(ppid == getppid())
 			printf("getppid() working\n");
+		sleep(5);
 		printf("This is child process\n");
 		return 0;
 	}
 	else if(pid>0) {
+		waitpid(pid,&status,0);
 		printf("This is parent process\n");
 	}
 	else
-		printf("Fork error\n");*/
+		printf("Fork error\n");
 		
 
 	//test getcwd
