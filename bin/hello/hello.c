@@ -2,7 +2,22 @@
 #include <stdlib.h>
 
 int main(int argc, char* argv[], char* envp[]) {
+    //TEST FOR opendir,readdir,closedir
+    void *dirp=opendir(argv[1]);
+    if(!dirp){
+	printf("opendir failed\n");
+	exit(1);
+    }
+    struct dirent *ptr;
+    while((ptr=readdir(dirp))){
+	printf("%s\n",ptr->d_name);
+    }
+    if(closedir(dirp)==-1){
+	printf("closedir failed\n");
+	exit(1);
+    }
     //TEST argv, argv, envp
+    /*
     int i=0;
     printf("argc is %d \n",argc);
     while(argv[i]){
@@ -14,6 +29,7 @@ int main(int argc, char* argv[], char* envp[]) {
 	printf("envp is %s \n",envp[i]);
 	i++;
     }
+    */
     //TEST PRINTF
     /*
 	char course[] = "Operating Systems";

@@ -216,7 +216,12 @@ void free(void *ptr){
 		printf("last node to remove is not same as tail\n");
 
 	    tail=temp->prev;
-	    tail->next=NULL;
+	    if(tail!=NULL){
+		tail->next=NULL;
+	    }
+	    else{
+		head=tail;
+	    }
 	    if(!remove_last_blk(temp))
 		printf("unable to remove last blk, just marking it as free\n");;
 	}
