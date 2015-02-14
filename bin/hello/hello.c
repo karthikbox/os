@@ -2,7 +2,66 @@
 #include <stdlib.h>
 
 int main(int argc, char* argv[], char* envp[]) {
+	
+	//test printf
+    
+	//char course[] = "Operating Systems";
+	//char semester[] = "%Spring";
+	//int year = 2015;
+	//int hex = 255;
+	/*char c = 'a';
+	printf("Course\t\t\tSemester\tYear\n");
+	printf("%s\t%s\t\t%d\n", course, semester, year);
+	printf("Decimal - %d; Hexadecimal - %x\n", hex, hex);
+	printf("The character is %c\n", c);*/
+	/*printf("\n%d", year);
+	printf("\nbetween");
+	printf("\n%d", hex);*/
+
+	//test scanf
+	/*char buf[100];
+	printf("Enter a string\n");
+	scanf("%s", buf);
+	printf("Entered string is %s\n", buf);*/
+
+	//test execve
+	printf("argc is %d\n", argc);
+	if(execve(argv[0], &argv[0], envp)==-1) {
+		printf("execve errorn\n");
+	}
+
+    //TEST FOR opendir,readdir,closedir
+    /*void *dirp=opendir(argv[1]);
+    if(!dirp){
+	printf("opendir failed\n");
+	exit(1);
+    }
+    struct dirent *ptr;
+    while((ptr=readdir(dirp))){
+	printf("%s\n",ptr->d_name);
+    }
+    printf("\n\n");
+    void *dirp2=opendir(argv[2]);
+    if(!dirp2){
+	printf("opendir failed\n");
+	exit(1);
+    }
+    struct dirent *ptr2;
+    while((ptr2=readdir(dirp2))){
+	printf("%s\n",ptr2->d_name);
+    }
+
+    if(closedir(dirp)==-1){
+	printf("closedir failed\n");
+	exit(1);
+    }
+    if(closedir(dirp2)==-1){
+	printf("closedir failed\n");
+	exit(1);
+    }*/
+
     //TEST argv, argv, envp
+    /*
     int i=0;
     printf("argc is %d \n",argc);
     while(argv[i]){
@@ -14,6 +73,7 @@ int main(int argc, char* argv[], char* envp[]) {
 	printf("envp is %s \n",envp[i]);
 	i++;
     }
+    */
     //TEST PRINTF
     /*
 	char course[] = "Operating Systems";
@@ -26,6 +86,7 @@ int main(int argc, char* argv[], char* envp[]) {
 	printf("Decimal - %d; Hexadecimal - %x\n", hex, hex);
 	printf("The character is %c\n", c);
     */
+
     /*
       uint64_t a=(uint64_t)sbrk(100);
       uint64_t b=(uint64_t)sbrk(0);
