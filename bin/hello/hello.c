@@ -12,10 +12,26 @@ int main(int argc, char* argv[], char* envp[]) {
     while((ptr=readdir(dirp))){
 	printf("%s\n",ptr->d_name);
     }
+    printf("\n\n");
+    void *dirp2=opendir(argv[2]);
+    if(!dirp2){
+	printf("opendir failed\n");
+	exit(1);
+    }
+    struct dirent *ptr2;
+    while((ptr2=readdir(dirp2))){
+	printf("%s\n",ptr2->d_name);
+    }
+
     if(closedir(dirp)==-1){
 	printf("closedir failed\n");
 	exit(1);
     }
+    if(closedir(dirp2)==-1){
+	printf("closedir failed\n");
+	exit(1);
+    }
+
     //TEST argv, argv, envp
     /*
     int i=0;
