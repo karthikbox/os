@@ -40,11 +40,12 @@ int scanf(const char *format, ...) {
 				string[i]='\0';//when EOF comes, end the string
 			}
 
-			//check if the first argument of scanf is terminated or not
-			++format;
-			if(*format == '\0')
-				break;
 		}
+		//check if the first argument of scanf is terminated or not
+		++format;
+		if(*format == '\0')
+		    break;
+
 	}
 	va_end(val);
 	return 0;

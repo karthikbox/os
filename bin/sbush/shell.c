@@ -58,7 +58,8 @@ int main(int argc, char *argv[],char *envp[]) {
               printPrompt(prompt,PRINT_PROMPT_FLAG);
 
         
-        if(scanf(" %[^\n]s", name) == -1)
+        //if(scanf(" %[^\n]s", name) == -1)
+	if(scanf(" %s", name) == -1)
             break;
 
 	if(name[0]=='#')
@@ -159,9 +160,9 @@ void cmd_binary(char** tokens,int token_len,char *envp[]) {
         //child
       	
       
-
+	printf("child\n");
         if(execve(tokens[0],tokens,envp)==-1) {
-            //printf("binary file-execve-error  %s\n",tokens[0]);;
+            printf("binary file-execve-error  %s\n",tokens[0]);;
             //trying path directories
             char* path_raw=getpath(&path_index,envp);
             trim(path_raw);
@@ -188,8 +189,10 @@ void cmd_binary(char** tokens,int token_len,char *envp[]) {
     else if(pid > 0) {
         //parent
         while ((id = waitpid(-1,&status,0)) != -1) /* pick up all the dead children */
-            //printf("process %d exits\n", pid);
+	{
+            printf("process %d exits\n", id);
             ;
+	}
     }
     else {
         //error on fork
