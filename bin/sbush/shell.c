@@ -32,7 +32,7 @@ int main(int argc, char *argv[],char *envp[]) {
     int in;
     if (argc==2) {
         //execute script
-        int open(const char *pathname, int flags);
+        //int open(const char *pathname, int flags);
         if((in=open(argv[1],O_RDONLY))==-1) {
             printf("unable to read file %s\n",argv[1]);
             exit(0);
@@ -129,6 +129,12 @@ int main(int argc, char *argv[],char *envp[]) {
         }
     }
     free(path);
+    if(PRINT_PROMPT_FLAG==0){
+	if(close(in)!=0){
+	    printf("close failed\n");
+	    exit(1);
+	}
+    }
     return 1;
 
 }
