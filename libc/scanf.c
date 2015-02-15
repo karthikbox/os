@@ -37,6 +37,7 @@ int scanf(const char *format, ...) {
 			   		string[i] = buf[0];
 			   		i++;
 		   		}
+				string[i]='\0';//when EOF comes, end the string
 			}
 
 			//check if the first argument of scanf is terminated or not

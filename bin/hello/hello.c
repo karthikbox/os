@@ -19,10 +19,10 @@ int main(int argc, char* argv[], char* envp[]) {
 	printf("\n%d", hex);*/
 
 	//test scanf
-	/*char buf[100];
+	char buf[100];
 	printf("Enter a string\n");
 	scanf("%s", buf);
-	printf("Entered string is %s\n", buf);*/
+	printf("Entered string is %s\n", buf);
 
 	//test execve
 /*
