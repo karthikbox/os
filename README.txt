@@ -17,21 +17,25 @@ example: ls -al|head -3|tail -1
 
 EXECUTE BINARY functionality
 syntax 1:
-<filepath>
-our shell first tries to execute this file as is, if it fails, it tries to look in the PATH directories for file.
-example: sbush rootfs/bin/sbush -> executes the binary 
-example: sbush ls -> tries to execute the command as is, it fails if there is no file named ls in the current directory, then it looks for in all the PATH directories
+        <filepath>
+	If given input is a path(i.e contains '/') then it executes given filepath.
+	If given input is just a filename(i.e no '/') then shell searches for given filename in every path dir and tries to execute
+	example: sbush-shell$ rootfs/bin/sbush -> since input is a path, shell executes the given filepath.
+	example: sbush-shell$ ls -> looks up ls in every path directory and executes it, if found.
 
 EXECUTE SCRIPT functionality
-syntax:
-sbush <filepath>
-example: sbush /rootfs/test.dat -> executes the commands in the file test.dat.
+
+syntax 1:
+       sbush <filepath>
+       example: sbush /rootfs/test.dat -> executes the commands in the file test.dat.
 NOTE: file CAN BE ANY extension.
-Interpreter working for scripts.
-Include the following line as the first line of the script and provide executable permissions to the script
-#! ./rootfs/bin/sbush
-example: ./script.sh -> Can be run from outside our shell as well
-example: script.sh -> Our shell can also run without ./ before the name of the script.
+
+syntax 2:
+       Interpreter working for scripts.
+       Include the following line as the first line of the script and provide executable permissions to the script
+       #! ./rootfs/bin/sbush
+       example: bash-shell$ ./script.sh -> Can be run from outside our shell(sbush) as well
+       example: sbush-shell$ ./script.sh -> can be given interactively within shell. Please note that it should be a filepath and not just a filename.
 
 int main(int argc, char* argv[], char* envp[]);  
 void exit(int status); -- code done and working

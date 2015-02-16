@@ -21,6 +21,7 @@ int runPipe(char *tokens[],char *envp[], int pipes);
 void trim(char *s);
 void printPrompt(char* str,int print_prompt_flag);
 char* getpath(int *index, char *envp[]);
+int is_path(char *str);
 
 int main(int argc, char *argv[],char *envp[]) {
     char name[1000];
@@ -152,39 +153,63 @@ void printPrompt(char* str,int print_prompt_flag) {
         printf("%s",str);
 }
 
+int is_path(char *str){
+  int i=0;
+  while(str[i]!='\0' && str[i]!='/' ){
+    i++;
+  }
+  if(str[i]=='\0')
+    return 0;
+  return 1;
+  
+}
+
 void cmd_binary(char** tokens,int token_len,char *envp[]) {
     int status;
     int path_index,path_len;
     int pid=fork();
     if(pid==0) {
         //child
-      	
-      
+      /*is_path() then
+	do execve(path)
+	if execve fails then do printf('no such file\n') and exit(1);child
+
+	else
+	then its filename to be searched in path variables
+       */
+
+      if(is_path(tokens[0])){
+	if(execve(tokens[0],tokens,envp)==-1){
+	  printf("unable to execute %s\n",tokens[0]);
+	  exit(1);
+	}
+      }
+      else{
 	//printf("child\n");
-        if(execve(tokens[0],tokens,envp)==-1) {
-            //printf("binary file-execve-error  %s\n",tokens[0]);;
-            //trying path directories
-            char* path_raw=getpath(&path_index,envp);
-            trim(path_raw);
-            char** paths=strtoken(path_raw,":",&path_len);
-            char *org=tokens[0];
-            int i;
-            for(i=0; i<path_len; i++) {
-                strcat(paths[i],"/");
-                strcat(paths[i],org);
-                tokens[0]=paths[i];
-                if(execve(paths[i],tokens,envp)==-1) {
-                    //printf("binary file-execve-error %s\n",paths[i]);
-                    ;
-                }
-            }
-            printf("cannot execute %s\n",org);
-            //free_array(tokens,token_len); //getting error double free
-            //maybe because of copy on write which linux follows
-            free_array(paths,path_len);
-            free(path_raw);
-        }
-        exit(0);
+	//printf("binary file-execve-error  %s\n",tokens[0]);;
+	//trying path directories
+	char* path_raw=getpath(&path_index,envp);
+	trim(path_raw);
+	char** paths=strtoken(path_raw,":",&path_len);
+	char *org=tokens[0];
+	int i;
+	for(i=0; i<path_len; i++) {
+	  strcat(paths[i],"/");
+	  strcat(paths[i],org);
+	  tokens[0]=paths[i];
+	  if(execve(paths[i],tokens,envp)==-1) {
+	    //printf("binary file-execve-error %s\n",paths[i]);
+	    ;
+	  }
+	}
+	printf("cannot execute %s by path dirs\n",org);
+	//free_array(tokens,token_len); //getting error double free
+	//maybe because of copy on write which linux follows
+	tokens[0]=org;
+	free_array(paths,path_len);
+	free(path_raw);
+	exit(1);
+      }
     }
     else if(pid > 0) {
         if(pid == waitpid(pid,&status,0)){ /* pick up all the dead children */ 
