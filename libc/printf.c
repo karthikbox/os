@@ -10,7 +10,7 @@ int printf(const char *format, ...) {
 	int printed = 0, number;
 	char *string = NULL;
 	char numberString[10];
-
+	char c[2];
 	va_start(val, format);
 
 	while(*format) {
@@ -23,12 +23,13 @@ int printf(const char *format, ...) {
 				string = va_arg(val, char *);
 				printarg(string);
 			}
-			/*else if(*format == 'c')
+			else if(*format == 'c')
 			{
-				++format;
-				string = va_arg(val, char *);
-				printf(string);
-			}*/
+				char d = va_arg(val, int);
+				c[0]=d;
+				c[1]='\0';
+				printf(c);
+			}
 			//TODO add printf for unsigned long
 			else if(*format == 'd')
 			{

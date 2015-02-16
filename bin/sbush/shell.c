@@ -45,9 +45,11 @@ int main(int argc, char *argv[],char *envp[]) {
         //printf("sbush@cse506$ ");
 
         path = getpath(&index, envp); //function to get the 'value' of PATH environment variable; gives the index of the same
+	//free path in every iteration
         if(ps1Flag == 0)
         {
-            prompt_ret=getcwd(prompt,sizeof(prompt)+1);
+	  prompt_ret=getcwd(prompt,sizeof(prompt)+1);//no need to free prompt
+	  //prompt_ret is pointer to prompt
             if(prompt_ret!=NULL)
             {
                 strcat(prompt,"$ ");
@@ -64,7 +66,10 @@ int main(int argc, char *argv[],char *envp[]) {
         
         if(scanf("%s", name) == -1)
             break;
-        
+        if((strlen(name)==0) || (name[0]=='#')){
+	  free(path);
+	  continue;
+	}
 
         if(strcmp(name, "exit") == 0)
         {

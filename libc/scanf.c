@@ -9,7 +9,7 @@ int scanf(const char *format, ...) {
 	va_list val;
 	va_start(val, format);
 	int i = 0;
-
+	int num_iters=0;
 	while(*format) {
 		i=0;
 		if(*format == '%')
@@ -22,9 +22,11 @@ int scanf(const char *format, ...) {
 
 				//store the next argument in string variable
 				string = va_arg(val, char *);
+				num_iters=0;
 				while(read(0, buf, sizeof(buf))>0) {
 			   		//read() here read from stdin character by character
 			   		//the buf[0] contains the character got by read()
+				  num_iters+=1;
 		   			if(buf[0] == '\n')
 			   		{
 			   			//break the loop if input hits a new line character
@@ -37,7 +39,16 @@ int scanf(const char *format, ...) {
 			   		string[i] = buf[0];
 			   		i++;
 		   		}
-				string[i]='\0';//when EOF comes, end the string
+				string[i]='\0';								  
+				if(num_iters==0){
+				  //EOF
+				  return -1;
+				}
+				else{
+				  //num_iters letters have been read
+				  return num_iters;
+				}
+				
 			}
 
 		}

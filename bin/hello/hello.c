@@ -17,13 +17,13 @@ int main(int argc, char* argv[], char* envp[]) {
 	/*printf("\n%d", year);
 	printf("\nbetween");
 	printf("\n%d", hex);*/
-
+  printf("%d %s %x %c\n",1,"karthik",10,'k');
 	//test scanf
-	char buf[100];
+	/*char buf[100];
 	printf("Enter a string\n");
 	scanf("%s", buf);
 	printf("Entered string is %s\n", buf);
-
+	*/
 	//test execve
 /*
 	printf("argc is %d\n", argc);
