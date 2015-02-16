@@ -22,7 +22,10 @@ pid_t getppid(void) {
 }
 
 int execve(const char *filename, char *const argv[], char *const envp[]) {
-	return (int) syscall_3(SYS_execve, (uint64_t) filename, (uint64_t) argv, (uint64_t) envp);
+	int ret= (int) syscall_3(SYS_execve, (uint64_t) filename, (uint64_t) argv, (uint64_t) envp);
+	if(ret < 0)
+	    return -1;
+	return 0;
 }
 
 pid_t waitpid(pid_t pid, int *status, int options) {

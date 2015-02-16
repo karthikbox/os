@@ -48,11 +48,15 @@ int main(int argc, char *argv[],char *envp[]) {
         if(ps1Flag == 0)
         {
             prompt_ret=getcwd(prompt,sizeof(prompt)+1);
-            if(prompt_ret!=0)
+            if(prompt_ret!=NULL)
             {
                 strcat(prompt,"$ ");
                 printPrompt(prompt,PRINT_PROMPT_FLAG);
             }
+	    else{
+		printf("getcwd failed.\n");
+		exit(1);
+	    }
         }
         else
               printPrompt(prompt,PRINT_PROMPT_FLAG);
@@ -93,7 +97,7 @@ int main(int argc, char *argv[],char *envp[]) {
                       cmd_set_path(tokens[i+2],envp,index,path);
                       printf("%s\n", envp[index]);
                 }
-                else if(strcmp(tokens[i+1], "PS1")==0 && (token_len >=3))
+                else if((strcmp(tokens[i+1], "PS1")==0) && (token_len >=3))
                 {
                     isValid = cmd_set_ps1(name, tokens);
                     if(isValid)
@@ -151,7 +155,7 @@ void cmd_binary(char** tokens,int token_len,char *envp[]) {
         //child
       	
       
-
+	//printf("child\n");
         if(execve(tokens[0],tokens,envp)==-1) {
             //printf("binary file-execve-error  %s\n",tokens[0]);;
             //trying path directories
@@ -247,7 +251,7 @@ void cmd_set_path(char* cmdpath, char **envp, int path_index, char* envpath)
     char *sbushPath = (char*)malloc(TOKEN_SIZE*sizeof(char));
     char **tokens;
 
-    trim(cmdpath);
+    trim(cmdpath);//removes leading and trailing white spaces
     tokens = strtoken(cmdpath, ":", &token_len);
 
     //printf("path length is %d, %s\n", token_len, tokens[token_len-1]);
@@ -290,7 +294,6 @@ int cmd_pipe_init(char **tokens, int pipes, char **envp) {
 
     //fork a child and run that process
     int pid,status;
-    int id;
     pid=fork();
     if(pid==-1) {
         printf("main fork");
@@ -299,15 +302,21 @@ int cmd_pipe_init(char **tokens, int pipes, char **envp) {
       runPipe(tokens,envp,pipes);
     } else {
         //parent, do nothing
-        while ((id = waitpid(-1,&status,0)) != -1)
-            ;
+	if(pid == waitpid(pid,&status,0)){ /* pick up all the dead children */ 
+	    //printf("child exit successful\n");
+	    ;
+	}
+	else{
+	    printf("error in waitpid. Error no is %d\n",status);
+	    exit(1);
+	}
     }
     return 0;
 }
 
 int runPipe(char *tokens[],char *envp[], int pipes) 
 {
-    int fd[2],pid,status,id;
+    int fd[2],pid,status;
     int param_len;
     char **params = (char**)malloc(TOKEN_ARRAY_SIZE*sizeof(char*));
     trim(tokens[pipes]);
@@ -338,8 +347,15 @@ int runPipe(char *tokens[],char *envp[], int pipes)
             //parent
             close(fd[1]); //close write end
             dup2(fd[0],0);
-            while ((id = waitpid(-1,&status,0)) != -1)
-                ;
+	    if(pid == waitpid(pid,&status,0)){ /* pick up all the dead children */ 
+		//printf("child exit successful\n");
+		;
+	    }
+	    else{
+		printf("error in waitpid. Error no is %d\n",status);
+		exit(1);
+	    }
+
             cmd_binary(params,param_len,envp);
             exit(0);
         }
