@@ -202,7 +202,7 @@ void cmd_binary(char** tokens,int token_len,char *envp[]) {
 	    ;
 	  }
 	}
-	perror("cannot execute %s by path dirs\n",org);
+	perror("cannot execute %s by looking up all directories in PATH\n",org);
 	//free_array(tokens,token_len); //getting error double free
 	//maybe because of copy on write which linux follows
 	tokens[0]=org;
