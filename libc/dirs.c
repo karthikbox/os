@@ -20,7 +20,7 @@ void *opendir(const char *name){
     if(dirp->fd < 0){
 	//open failed
 	free(dirp);
-	printf("unable to open directory %s\n",name);
+	perror("unable to open directory\n");
 	return NULL;
     }
     //open was successful
@@ -28,13 +28,13 @@ void *opendir(const char *name){
     //dirp->nreads=syscall_3((uint64_t)SYS_getdents,(uint64_t)dirp->fd,(uint64_t)dirp->buf,(uint64_t)DIR_BUF_SIZE);
     if(dirp->nreads==-1){
 	//error reading dir entries
-	printf("unable to get dirents for %s\n",name);
+	perror("unable to get dirents\n");
 	free(dirp);
 	return NULL;
     }
     else if(dirp->nreads==0){
 	//no entries in directory
-	printf("end of dirents for %s in opendir\n",name);
+	perror("end of dirents for in opendir\n");
 	free(dirp);
 	return NULL;
     }
@@ -61,7 +61,7 @@ struct dirent *readdir(void *dir){
     dirp->nreads=getdents(dirp);
     if(dirp->nreads==-1){
 	//unable to read dir entries
-	printf("unable to get dirents in readdir\n");
+	perror("unable to get dirents in readdir\n");
 	return NULL;
 
     }
@@ -80,7 +80,7 @@ int closedir(void *dir){
     DIR dirp = (DIR)dir;
     //close file descriptor
     if(close(dirp->fd)<0){
-	printf("close(fd) failed\n");
+	perror("close(fd) failed\n");
 	return -1;//failure
     }
     free(dirp);//deallicate stream

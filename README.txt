@@ -37,6 +37,19 @@ syntax 2:
        example: bash-shell$ ./script.sh -> Can be run from outside our shell(sbush) as well
        example: sbush-shell$ ./script.sh -> can be given interactively within shell. Please note that it should be a filepath and not just a filename.
 
+
+
+LS functionality
+syntax 1:
+	./rootfs/bin/ls <directory path 1> <directory path 2> ...
+	example: ./rootfs/bin/ls .. ./rootfs
+	Prints contents of specified directories
+syntax 2:
+       ./rootfs/bin/ls
+       Prints contents of current working directory by default
+
+
+
 int main(int argc, char* argv[], char* envp[]);  
 void exit(int status); -- code done and working
 

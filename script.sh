@@ -12,4 +12,4 @@ pwd
 
 
 
-ls
+./rootfs/bin/ls
