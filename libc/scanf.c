@@ -2,14 +2,18 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
+void atoi(char *numberString, int *number, int base);
+
 int scanf(const char *format, ...) {
 
 	char buf[1];
 	char *string;
+	char numberString[20];
 	va_list val;
 	va_start(val, format);
-	int i = 0;
+	int i = 0, *number = 0;
 	int num_iters=0;
+
 	while(*format) {
 		i=0;
 		if(*format == '%')
@@ -50,7 +54,36 @@ int scanf(const char *format, ...) {
 				}
 				
 			}
+			else if(*format == 'd') 
+			{
+				number = va_arg(val, int* );
+				while(read(0, buf, sizeof(buf) > 0)) {
 
+					if(buf[0] == '\n') {
+						numberString[i] = '\0';
+						atoi(numberString, number, 10);
+						break;
+					}
+
+					numberString[i] = buf[0];
+					i++;
+				}
+			}
+			else if(*format == 'x')
+			{
+				number = va_arg(val, int*);
+				while(read(0, buf, sizeof(buf) > 0)) {
+
+					if(buf[0] == '\n') {
+						numberString[i] = '\0';
+						atoi(numberString, number, 16);
+						break;
+					}
+
+					numberString[i] = buf[0];
+					i++;
+				}
+			}
 		}
 		//check if the first argument of scanf is terminated or not
 		++format;
@@ -60,4 +93,16 @@ int scanf(const char *format, ...) {
 	}
 	va_end(val);
 	return 0;
+}
+
+void atoi(char *numberString, int *number, int base) {
+	int i;
+	*number = 0;
+
+	for (i = 0; numberString[i] != '\0'; i++) {
+		if((numberString[i] >= '0') && (numberString[i] < 'a'))
+			*number = (*number)*base + numberString[i] - '0';
+		else if(numberString[i] >='a' && (numberString[i] <='f'))
+			*number = (*number)*base + numberString[i] - 'a' + 10;
+	}
 }
