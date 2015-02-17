@@ -279,6 +279,7 @@ void cmd_set_path(char* cmdpath, char **envp, int path_index, char* envpath)
 {
     int token_len=0, i=0;
     char *sbushPath = (char*)malloc(TOKEN_SIZE*sizeof(char));
+    sbushPath[0] = '\0';
     char **tokens;
 
     trim(cmdpath);//removes leading and trailing white spaces
