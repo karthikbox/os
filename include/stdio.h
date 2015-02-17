@@ -3,5 +3,5 @@
 
 int printf(const char *format, ...);
 int scanf(const char *format, ...);
-
+int perror(const char *format,...);
 #endif

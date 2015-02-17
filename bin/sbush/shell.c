@@ -35,7 +35,7 @@ int main(int argc, char *argv[],char *envp[]) {
         //execute script
         int open(const char *pathname, int flags);
         if((in=open(argv[1],O_RDONLY))==-1) {
-            printf("unable to read file %s\n",argv[1]);
+            perror("unable to read file %s\n",argv[1]);
             exit(0);
         }
         dup2(in,0);
@@ -57,7 +57,7 @@ int main(int argc, char *argv[],char *envp[]) {
                 printPrompt(prompt,PRINT_PROMPT_FLAG);
             }
 	    else{
-		printf("getcwd failed.\n");
+		perror("getcwd failed.\n");
 		exit(1);
 	    }
         }
@@ -94,7 +94,7 @@ int main(int argc, char *argv[],char *envp[]) {
                 if(token_len==2)
                     cmd_cd(tokens);
                 else
-                    printf("incorrect syntax for cd\n");
+                    perror("incorrect syntax for cd\n");
             }
             else if(strcmp(tokens[i],"set")==0)
             {
@@ -112,10 +112,10 @@ int main(int argc, char *argv[],char *envp[]) {
                         ps1Flag = 1;
                     }
                     else
-                        printf("Incorrect syntax for PS1 command\n");
+                        perror("Incorrect syntax for PS1 command\n");
                 }
                 else
-                      printf("incorrect syntax for set command\n");
+                      perror("incorrect syntax for set command\n");
             }
             else if(token_len >= 1)
             {
@@ -124,7 +124,7 @@ int main(int argc, char *argv[],char *envp[]) {
                     if(token_len==2)
                         cmd_script(tokens,token_len,envp);
                     else
-                        printf("input filename\n");
+                        perror("input filename missing\n");
                 }
                 else {
                     //printf("binary\n");
@@ -132,7 +132,7 @@ int main(int argc, char *argv[],char *envp[]) {
                 }
             }
             else
-                printf("unknown command\n");
+                perror("unknown command\n");
             free_array(tokens,token_len);
         }
     }
@@ -180,7 +180,7 @@ void cmd_binary(char** tokens,int token_len,char *envp[]) {
 
       if(is_path(tokens[0])){
 	if(execve(tokens[0],tokens,envp)==-1){
-	  printf("unable to execute %s\n",tokens[0]);
+	  perror("unable to execute %s\n",tokens[0]);
 	  exit(1);
 	}
       }
@@ -202,7 +202,7 @@ void cmd_binary(char** tokens,int token_len,char *envp[]) {
 	    ;
 	  }
 	}
-	printf("cannot execute %s by path dirs\n",org);
+	perror("cannot execute %s by path dirs\n",org);
 	//free_array(tokens,token_len); //getting error double free
 	//maybe because of copy on write which linux follows
 	tokens[0]=org;
@@ -217,13 +217,13 @@ void cmd_binary(char** tokens,int token_len,char *envp[]) {
 	    ;
 	}
 	else{
-	    printf("error in waitpid. Error no is %d\n",status);
+	    perror("error in waitpid. Error no is %d\n",status);
 	    exit(1);
 	}
     }
     else {
         //error on fork
-        printf("error on fork...try again\n");
+        perror("error on fork...try again\n");
     }
 
 }
@@ -236,7 +236,7 @@ void cmd_script(char** tokens,int token_len,char *envp[]) {
         char *params[]= {"./rootfs/bin/sbush",0,0}; //hardode must fix this
         params[1]=tokens[1];
         if(execve(params[0],params,envp)==-1) {
-            printf("unable to create sbush child\n");
+            perror("unable to fork sbush child\n");
         }
         exit(0);
     }
@@ -247,13 +247,13 @@ void cmd_script(char** tokens,int token_len,char *envp[]) {
 	    ;
 	}
 	else{
-	    printf("error in waitpid. Error no is %d\n",status);
+	    perror("error in waitpid. Error no is %d\n",status);
 	    exit(1);
 	}
     }
     else {
         //error on fork
-        printf("error on fork...try again\n");
+        perror("error on fork...try again\n");
     }
 
 }
@@ -272,7 +272,7 @@ int isBinary(char** tokens,int len) {
 
 void cmd_cd(char** tokens) {
     if(chdir(tokens[1])<0)
-        printf("error\n");
+        perror("error in chdir\n");
 }
 
 void cmd_set_path(char* cmdpath, char **envp, int path_index, char* envpath)
@@ -326,7 +326,7 @@ int cmd_pipe_init(char **tokens, int pipes, char **envp) {
     int pid,status;
     pid=fork();
     if(pid==-1) {
-        printf("main fork");
+        perror("unable to fork child\n");
     } else if(pid==0) {
         //child
       runPipe(tokens,envp,pipes);
@@ -337,7 +337,7 @@ int cmd_pipe_init(char **tokens, int pipes, char **envp) {
 	    ;
 	}
 	else{
-	    printf("error in waitpid. Error no is %d\n",status);
+	    perror("error in waitpid. Error no is %d\n",status);
 	    exit(1);
 	}
     }
@@ -364,7 +364,7 @@ int runPipe(char *tokens[],char *envp[], int pipes)
     {
         pid=fork();
         if(pid==-1) 
-            printf("runpipe error fork\n");
+            perror("unable to fork child\n");
         else if(pid==0)
         {
             //child
@@ -382,7 +382,7 @@ int runPipe(char *tokens[],char *envp[], int pipes)
 		;
 	    }
 	    else{
-		printf("error in waitpid. Error no is %d\n",status);
+		perror("error in waitpid. Error no is %d\n",status);
 		exit(1);
 	    }
 
