@@ -5,7 +5,9 @@
 void itoa(int number, char *str, int base);
 void printarg(char *str,int fd);
 
-int printf(const char *format, ...) {
+
+
+int perror(const char *format, ...) {
 	va_list val;
 	int printed = 0, number;
 	char *string = NULL;
@@ -21,27 +23,27 @@ int printf(const char *format, ...) {
 			if(*format == 's')
 			{
 				string = va_arg(val, char *);
-				printarg(string,1);
+				printarg(string,2);
 			}
 			else if(*format == 'c')
 			{
 				char d = va_arg(val, int);
 				c[0]=d;
 				c[1]='\0';
-				printarg(c,1);
+				printarg(c,2);
 			}
 			//TODO add printf for unsigned long
 			else if(*format == 'd')
 			{
 				number = va_arg(val, int);
 				itoa(number, numberString, 10);
-				printarg(numberString,1);
+				printarg(numberString,2);
 			}
 			else if(*format == 'x')
 			{
 				number = va_arg(val, int);
 				itoa(number, numberString, 16);
-				printarg(numberString,1);
+				printarg(numberString,2);
 			}
 
 			++format;
@@ -49,7 +51,7 @@ int printf(const char *format, ...) {
 				break;
 
 		}
-		write(1, format, 1);
+		write(2, format, 1);
 		++printed;
 		++format;
 	}
@@ -59,39 +61,4 @@ int printf(const char *format, ...) {
 	return printed;
 }
 
-void itoa(int number, char *str, int base)
-{
-	int digit, i=0, j=0;
-	char temp[10];
 
-	while(number > 0)
-	{
-		digit = number%base;
-		number = number/base;
-		if(digit <= 9)
-			temp[i] = digit + '0';
-		else
-			temp[i] = (digit-10) + 'a';
-		i++;
-	}
-	temp[i]='\0';
-	
-	while(i >= 0)
-	{
-		i--;
-		str[j] = temp[i];
-		j++;
-	}
-
-	str[j] = '\0';
-}
-
-
-void printarg(char *str,int fd) {
-	
-	while(*str)
-	{
-		write(fd, str, 1);
-		str++;
-	}
-}
