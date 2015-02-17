@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+unsigned int abc();
+
 int main(int argc, char* argv[], char* envp[]) {
 	
 	//test printf
@@ -17,13 +19,32 @@ int main(int argc, char* argv[], char* envp[]) {
 	/*printf("\n%d", year);
 	printf("\nbetween");
 	printf("\n%d", hex);*/
-  printf("%d %s %x %c\n",1,"karthik",10,'k');
+  	//printf("%d %s %x %c\n",1,"karthik",10,'k');
+
 	//test scanf
 	/*char buf[100];
-	printf("Enter a string\n");
+	int a = 0;
+	int b = 123;
+	int c = -123;*/
+	char ch;
+	/*printf("Enter a string ");
 	scanf("%s", buf);
-	printf("Entered string is %s\n", buf);
-	*/
+	printf("Enter a positive hexa decimal number ");
+	scanf("%x", &a);
+	printf("Positive decimal number is %d\n", a);
+	printf("Positive hexa decimal number is %x\n", a);
+	printf("Enter a negative hexa decimal number ");
+	scanf("%x", &a);
+	printf("Negative decimal number is %d\n", a);
+	printf("Negative hexa decimal number is %x\n", a);
+	printf("a, b, c --> %d, %d, %d\n", a, b, c*2);*/
+	printf("Enter a character ");
+	scanf("%c", &ch);
+	printf("Entered character is %c\n", ch);
+	printf("%d\n", abc());
+	alarm(1);
+	printf("%d", sleep(2));
+	
 	//test execve
 /*
 	printf("argc is %d\n", argc);
@@ -126,7 +147,7 @@ int main(int argc, char* argv[], char* envp[]) {
 */
 
 	//test fork
-    int pid, ppid,status; //id, status;
+    /*int pid, ppid,status; //id, status;
 	ppid = getpid();
 	pid = fork();
 	if(pid == 0) {
@@ -141,7 +162,7 @@ int main(int argc, char* argv[], char* envp[]) {
 		printf("This is parent process\n");
 	}
 	else
-		printf("Fork error\n");
+		printf("Fork error\n");*/
 		
 
 	//test getcwd
@@ -207,4 +228,9 @@ int main(int argc, char* argv[], char* envp[]) {
 	printf("\n");*/
 
 	return 0;
+}
+
+unsigned int abc()
+{
+	return -1;
 }

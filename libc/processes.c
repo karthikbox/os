@@ -44,6 +44,8 @@ unsigned int sleep(unsigned int seconds){
     req.tv_nsec=0L;
     struct timespec rem;
     ret=syscall_2(SYS_nanosleep,(uint64_t)&req,(uint64_t)&rem);
+    if(ret < 0)
+      ret = -1;
     return ret;
 }
 
