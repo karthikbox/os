@@ -84,6 +84,24 @@ int scanf(const char *format, ...) {
 					i++;
 				}
 			}
+			else if(*format == 'c')
+			{
+				i=1;
+				number = va_arg(val, int*);
+				while(read(0, buf, sizeof(buf) > 0))
+				{	
+					//scanf should only read first character and skip all the other characters
+					if(i==1)
+					{
+						*number = buf[0];
+						i=0;
+					}
+					//read the characters till new line
+					if(buf[0] == '\n')
+						break;
+					
+				}
+			}
 		}
 		//check if the first argument of scanf is terminated or not
 		++format;
@@ -96,13 +114,27 @@ int scanf(const char *format, ...) {
 }
 
 void atoi(char *numberString, int *number, int base) {
-	int i;
+	int i = 0, sign = 1;
 	*number = 0;
 
-	for (i = 0; numberString[i] != '\0'; i++) {
+	//check if the number is negative or not
+	if(numberString[i] == '-')
+	{
+		sign = -1;
+		i++;
+	}
+
+	while(numberString[i] != '\0') {
+
+		//if the number is between 0 and a, subtract the ascii value of '0'
 		if((numberString[i] >= '0') && (numberString[i] < 'a'))
 			*number = (*number)*base + numberString[i] - '0';
+		//if the number is between a and f subtract the ascii value of 'a' and add 10
 		else if(numberString[i] >='a' && (numberString[i] <='f'))
 			*number = (*number)*base + numberString[i] - 'a' + 10;
+
+		i++;
 	}
+
+	*number = *number * sign;
 }

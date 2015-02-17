@@ -64,6 +64,19 @@ void itoa(int number, char *str, int base)
 	int digit, i=0, j=0;
 	char temp[10];
 
+	if(number == 0)
+	{
+			temp[i] = '0';
+			i++;
+	}
+
+	else if(number < 0)
+	{
+		str[j] = '-';
+		j++;
+		number = -number;
+	}
+
 	while(number > 0)
 	{
 		digit = number%base;
