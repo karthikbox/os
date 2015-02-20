@@ -2,6 +2,8 @@
 #include<stdio.h>
 uint64_t *get_rsp();
 
+int main(int argc, char* argv[], char* envp[]);
+
 void _start(void) {
 	int argc;
 	char** argv;

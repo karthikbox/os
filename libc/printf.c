@@ -14,7 +14,6 @@ int printf(const char *format, ...) {
 	va_start(val, format);
 
 	while(*format) {
-
 		if(*format == '%')
 		{	
 			++format;
