@@ -1,0 +1,54 @@
+Team: 
+1. Karthik Reddy (109721778)
+2. Sree Harsha Subraveti (109748906)
+3. Pavan Maguluri (109892313)
+
+Path functionality
+command our sbush supports: set PATH <give a path>
+case1: set PATH $PATH:/usr/bin/abc -> this command appends /usr/bin/abc to the existing path
+case2: set PATH /usr/bin/abc:$PATH -> this command prepends /usr/bin/abc to the existing path
+case3: set PATH /usr/bin/abc -> this command removes the existing path and sets to /usr/bin/abc
+case4: set PATH $PATH -> this command prints the current PATH
+
+PS1 functionality
+command our sbush supports: set PS1 "<give a word>"
+example: set PS1 "sbush$ " -> this command changes the prompt to sbush$ 
+example: set PS1 sbush$ -> this command throws an error
+
+Pipe functionality
+command our sbush supports: <command1> [args]|<command2> [args][|<command3> [args]] 
+example: ls | head | tail
+example: /bin/ls | head | tail 
+example: ls -a -l  | head -3  |   tail -1
+
+EXECUTE BINARY functionality
+syntax 1:
+        <filepath>
+	If given input is a path(i.e contains '/') then it executes given filepath.
+	If given input is just a filename(i.e no '/') then shell searches for given filename in every path dir and tries to execute
+	example: sbush-shell$ rootfs/bin/sbush -> since input is a path, shell executes the given filepath.
+	example: sbush-shell$ ls -> looks up ls in every path directory and executes it, if found.
+
+EXECUTE SCRIPT functionality
+syntax 1:
+       Include the following line as the first line of the script and provide executable permissions to the script
+       #! ./rootfs/bin/sbush
+       example: bash-shell$ ./script.sh -> Can be run from outside our shell(sbush) as well
+       example: sbush-shell$ ./script.sh -> can be given interactively within shell. Please note that it should be a filepath and not just a filename.
+       Please make sure that the given file should have EXECUTE permissions set.
+syntax 2:
+       sbush <filepath>
+       example: sbish-shell$ sbush /rootfs/test.dat -> executes the commands in the file test.dat.
+       Please make sure that the given file should have READ permissions set.
+
+NOTE: file CAN BE ANY extension.
+
+LS functionality
+syntax 1:
+	./rootfs/bin/ls <directory path 1> <directory path 2> ...
+	example: ./rootfs/bin/ls .. ./rootfs
+	Prints contents of specified directories
+syntax 2:
+       ./rootfs/bin/ls
+       Prints contents of current working directory by default
+NOTE: This is implemented to test our stdlib.h. 
