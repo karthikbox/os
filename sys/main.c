@@ -14,8 +14,12 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 			printf("Available Physical Memory [%x-%x]\n", smap->base, smap->base + smap->length);
 		}
 	}
-	while(1)
-	  printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
+	/* %p is for uint64_t values -> prints pointer address in hex without overflow */
+	/* %x is for 32 bit signed values */
+	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
+	/* blue background and white foreground */
+	/* set_color(0x1F); */
+	/* clear_screen(); */	
 	// kernel starts here
 }
 
