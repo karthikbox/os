@@ -14,7 +14,8 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 			printf("Available Physical Memory [%x-%x]\n", smap->base, smap->base + smap->length);
 		}
 	}
-	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
+	while(1)
+	  printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 	// kernel starts here
 }
 
