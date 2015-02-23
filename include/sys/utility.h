@@ -2,6 +2,7 @@
 #define _UTILITY_H
 
 void *memcpy(void *dest,const void *src,size_t len);
+void *memset1(char *dest,int c,size_t len);
 void *memset2(uint16_t *dest,int c,size_t len);
 
 /* declarations for varargs */

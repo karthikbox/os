@@ -13,6 +13,17 @@ void *memcpy(void *dest,const void *src,size_t len){
 	return (void *)dest;
 }
 
+void *memset1(char *dest,int c,size_t len){
+	/* memset() function fills the first len bytes of memory area pointed to by dest with the constant shortint c */
+	size_t i=0;
+	char *d=dest;
+	for(;i<len;i++){
+		*d++=(char)c;//write one byte of memory
+	}
+	return dest;
+}
+
+
 void *memset2(uint16_t *dest,int c,size_t len){
 	/* memset() function fills the first len shortint of memory area pointed to by dest with the constant shortint c */
 	size_t i=0;
