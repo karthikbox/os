@@ -42,8 +42,25 @@
 isr0:
 		# cli		from mike's anser here piazza.com/class/i5glak0eumz4g9?cid=168
 		# push is 8byte op, i.e stack pointer is decreased by 8bytes
-		push 0
+		# first push is errono, which maybe dummy(0)
+		# second push is interrupt number
+		pushq 0
+		pushq 0
+		jmp isr_common
+
+# isr1 debug exception
+isr1:
+		pushq 0
+		pushq 1
+		jmp isr_common
 		
+# isr2 debug exception
+isr2:
+		pushq 0
+		pushq 2
+		jmp isr_common
+
+
 		
 .global idt_load
 		.extern idt_pointer
@@ -53,4 +70,30 @@ idt_load:
 		# () deferences the pointer to access contents
 		lidt (idt_pointer)
 		ret
-		
+
+.global isr_common
+# from https://code.google.com/p/shovelos/source/browse/trunk/kernel/arch/x86_64/isr.c?r=182
+isr_common:
+		pushq %rax
+		pushq %rcx
+		pushq %rdx
+		pushq %rsi
+		pushq %rdi
+		pushq %r8
+		pushq %r9
+		pushq %r10
+		pushq %r11
+		movq %rsp, %rdi
+		call isr_handler
+		popq %r11
+		popq %r10
+		popq %r9
+		popq %r8
+		popq %rdi
+		popq %rsi
+		popq %rdx
+		popq %rcx
+		popq %rax
+		add 0x10,%rsp
+		iretq
+
