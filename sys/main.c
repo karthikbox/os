@@ -1,6 +1,7 @@
 #include <sys/sbunix.h>
 #include <sys/gdt.h>
 #include <sys/tarfs.h>
+extern void idt_init();
 
 void start(uint32_t* modulep, void* physbase, void* physfree)
 {
@@ -17,6 +18,11 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	/* %p is for uint64_t values -> prints pointer address in hex without overflow */
 	/* %x is for 32 bit signed values */
 	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
+	idt_init();
+	int temp=1;
+	int temp2=0;
+	temp=temp/temp2;
+	printf("%d\n",temp);
 	/* blue background and white foreground */
 	/* set_color(0x1F); */
 	/* clear_screen(); */	
