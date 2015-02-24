@@ -44,215 +44,215 @@ isr0:
 		# push is 8byte op, i.e stack pointer is decreased by 8bytes
 		# first push is errono, which maybe dummy(0)
 		# second push is interrupt number
-		pushq 0
-		pushq 0
+		pushq $0
+		pushq $0
 		jmp isr_common
 
 # isr1 debug exception
 isr1:
-		pushq 0
-		pushq 1
+		pushq $0
+		pushq $1
 		jmp isr_common
 		
 # isr2 debug exception
 isr2:
-		pushq 0
-		pushq 2
+		pushq $0
+		pushq $2
 		jmp isr_common
 
 # Int 3 Exception
 isr3:
-		    pushq 0
-		    pushq 3
+		    pushq $0
+		    pushq $3
 		    jmp isr_common
 
 # INTO Exception
 isr4:
-		    pushq 0
-		    pushq 4
+		    pushq $0
+		    pushq $4
 		    jmp isr_common
 
 #   5: Out of Bounds Exception
 isr5:
 		    
-		    pushq 0
-		    pushq 5
+		    pushq $0
+		    pushq $5
 		    jmp isr_common
 
 #   6: Invalid Opcode Exception
 isr6:
 		    
-		    pushq 0
-		    pushq 6
+		    pushq $0
+		    pushq $6
 		    jmp isr_common
 
 #   7: Coprocessor Not Available Exception
 isr7:
 		    
-		    pushq 0
-		    pushq 7
+		    pushq $0
+		    pushq $7
 		    jmp isr_common
 
 #   8: Double Fault Exception (With Error Code!)
 isr8:
 		    
-		    pushq 8
+		    pushq $8
 		    jmp isr_common
 
 #   9: Coprocessor Segment Overrun Exception
 isr9:
 		    
-		    pushq 0
-		    pushq 9
+		    pushq $0
+		    pushq $9
 		    jmp isr_common
 
 #  10: Bad TSS Exception (With Error Code!)
 isr10:
 		    
-		    pushq 10
+		    pushq $10
 		    jmp isr_common
 
 #  11: Segment Not Present Exception (With Error Code!)
 isr11:
 		    
-		    pushq 11
+		    pushq $11
 		    jmp isr_common
 
 #  12: Stack Fault Exception (With Error Code!)
 isr12:
 		    
-		    pushq 12
+		    pushq $12
 		    jmp isr_common
 
 #  13: General Protection Fault Exception (With Error Code!)
 isr13:
 		    
-		    pushq 13
+		    pushq $13
 		    jmp isr_common
 
 #  14: Page Fault Exception (With Error Code!)
 isr14:
 		    
-		    pushq 14
+		    pushq $14
 		    jmp isr_common
 
 #  15: Reserved Exception
 isr15:
 		    
-		    pushq 0
-		    pushq 15
+		    pushq $0
+		    pushq $15
 		    jmp isr_common
 
 #  16: Floating Point Exception
 isr16:
 		    
-		    pushq 0
-		    pushq 16
+		    pushq $0
+		    pushq $16
 		    jmp isr_common
 
 #  17: Alignment Check Exception
 isr17:
 		    
-		    pushq 0
-		    pushq 17
+		    pushq $0
+		    pushq $17
 		    jmp isr_common
 
 #  18: Machine Check Exception
 isr18:
 		    
-		    pushq 0
-		    pushq 18
+		    pushq $0
+		    pushq $18
 		    jmp isr_common
 
 #  19: Reserved
 isr19:
 		    
-		    pushq 0
-		    pushq 19
+		    pushq $0
+		    pushq $19
 		    jmp isr_common
 
 #  20: Reserved
 isr20:
 		    
-		    pushq 0
-		    pushq 20
+		    pushq $0
+		    pushq $20
 		    jmp isr_common
 
 #  21: Reserved
 isr21:
 		    
-		    pushq 0
-		    pushq 21
+		    pushq $0
+		    pushq $21
 		    jmp isr_common
 
 #  22: Reserved
 isr22:
 		    
-		    pushq 0
-		    pushq 22
+		    pushq $0
+		    pushq $22
 		    jmp isr_common
 
 #  23: Reserved
 isr23:
 		    
-		    pushq 0
-		    pushq 23
+		    pushq $0
+		    pushq $23
 		    jmp isr_common
 
 #  24: Reserved
 isr24:
 		    
-		    pushq 0
-		    pushq 24
+		    pushq $0
+		    pushq $24
 		    jmp isr_common
 
 #  25: Reserved
 isr25:
 		    
-		    pushq 0
-		    pushq 25
+		    pushq $0
+		    pushq $25
 		    jmp isr_common
 
 #  26: Reserved
 isr26:
 		    
-		    pushq 0
-		    pushq 26
+		    pushq $0
+		    pushq $26
 		    jmp isr_common
 
 #  27: Reserved
 isr27:
 		    
-		    pushq 0
-		    pushq 27
+		    pushq $0
+		    pushq $27
 		    jmp isr_common
 
 #  28: Reserved
 isr28:
 		    
-		    pushq 0
-		    pushq 28
+		    pushq $0
+		    pushq $28
 		    jmp isr_common
 
 #  29: Reserved
 isr29:
 		    
-		    pushq 0
-		    pushq 29
+		    pushq $0
+		    pushq $29
 		    jmp isr_common
 
 #  30: Reserved
 isr30:
 		    
-		    pushq 0
-		    pushq 30
+		    pushq $0
+		    pushq $30
 		    jmp isr_common
 
 #  31: Reserved
 isr31:
 		    
-		    pushq 0
-		    pushq 31
+		    pushq $0
+		    pushq $31
 		    jmp isr_common
 		
 
@@ -264,7 +264,7 @@ idt_load:
 		# load the value pointed to by idtpointer into LID register
 		# () deferences the pointer to access contents
 		lidt (idt_pointer)
-		ret
+		retq
 
 .global isr_common
 # from https://code.google.com/p/shovelos/source/browse/trunk/kernel/arch/x86_64/isr.c?r=182
@@ -290,6 +290,6 @@ isr_common:
 		popq %rdx
 		popq %rcx
 		popq %rax
-		add 0x10,%rsp
+		addq $0x10,%rsp
 		iretq
 
