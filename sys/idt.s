@@ -36,6 +36,8 @@
 .global isr29
 .global isr30
 .global isr31
+.global isr32
+.global isr33
 		
 
 # isr0 divide by zero exception
@@ -254,6 +256,21 @@ isr31:
 		    pushq $0
 		    pushq $31
 		    jmp isr_common
+
+#  32: Timer Interrupt
+isr32:
+		    
+		    pushq $0
+		    pushq $32
+		    jmp isr_common
+
+#  33: Key Board Interrupt
+isr33:
+		    
+		    pushq $0
+		    pushq $33
+		    jmp isr_common
+
 		
 
 		

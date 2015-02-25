@@ -14,6 +14,4 @@ void scroll_down();
 void clear_screen();
 void set_color(int c);
 
-
-
 #endif

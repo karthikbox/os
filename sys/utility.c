@@ -1,5 +1,5 @@
-#include<sys/defs.h>
-#include<sys/utility.h>
+#include <sys/defs.h>
+#include <sys/utility.h>
 
 
 void *memcpy(void *dest,const void *src,size_t len){
@@ -32,4 +32,12 @@ void *memset2(uint16_t *dest,int c,size_t len){
 		*d++=c;
 	}
 	return dest;
+}
+
+void outportb(unsigned short _port, unsigned char _data) {
+
+	__asm__ __volatile__ ("outb %1, %0"
+	  :
+	  : "dN" (_port),
+	    "a" (_data));
 }

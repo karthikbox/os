@@ -1,4 +1,4 @@
-#include<sys/sbunix.h>
+#include <sys/sbunix.h>
 #include <sys/utility.h>
 
 /* definition of idt entry */
@@ -76,6 +76,8 @@ extern void isr28();
 extern void isr29();
 extern void isr30();
 extern void isr31();
+extern void isr32();
+extern void isr33();
 
 /* sets a particular the idt entry */
 void idt_entry_set(int n,uint16_t selector,char ist,char gate_type,char dpl,char present,uint64_t target){
@@ -129,8 +131,27 @@ char *exception_description[]={
     "Reserved",
     "Reserved",
     "Reserved",
-    "Reserved"
+    "Reserved",
+    "Timer Interrupt",
+    "Keyboard Interrupt"
 };
+
+void pic_init(){
+	//remaps the PICS; IRQs 0-7 are mapped to entries 8-15 
+	//8-15 entries are actually for software exceptions 
+	//so we need to remap those entries 32-57 in the idt table
+	//TODO: Implement outportb function.
+	outportb(0x20, 0x11);
+    outportb(0xA0, 0x11);
+    outportb(0x21, 0x20);
+    outportb(0xA1, 0x28);
+    outportb(0x21, 0x04);
+    outportb(0xA1, 0x02);
+    outportb(0x21, 0x01);
+    outportb(0xA1, 0x01);
+    outportb(0x21, 0x0);
+    outportb(0xA1, 0x0);
+}
 
 
 
@@ -140,8 +161,10 @@ void idt_init(){
 	idt_pointer.limit=sizeof(idt_table)-1; //address of the end of the table
 	idt_pointer.base=(uint64_t *)idt_table;//address of start of tabe
 
+	pic_init();
 	//clear out idt memory
 	memset1((char *)idt_table,0,sizeof(idt_table));
+	printf("%d\n", sizeof(idt_table));
 
 	//do idt_entry_set for every interrupt
 	// void idt_entry_set(int n,uint16_t selector,char ist,char gate_type,char dpl,char present,uint64_t *target)
@@ -177,16 +200,11 @@ void idt_init(){
 	idt_entry_set(29,0x8,0,0xE,0,1,(uint64_t)&isr29);//0xE for interrupts
 	idt_entry_set(30,0x8,0,0xE,0,1,(uint64_t)&isr30);//0xE for interrupts
 	idt_entry_set(31,0x8,0,0xE,0,1,(uint64_t)&isr31);//0xE for interrupts
-
-
-
+	idt_entry_set(32,0x8,0,0xE,0,1,(uint64_t)&isr32);//0xE for interrupts
+	idt_entry_set(33,0x8,0,0xE,0,1,(uint64_t)&isr33);//0xE for interrupts
 
 	//load idt_pointer to the cpu interrupt table register
 	idt_load();
-
-	
-	
-
 }
 
 void isr_handler(struct stack_frame *s){
@@ -195,7 +213,22 @@ void isr_handler(struct stack_frame *s){
 		printf("%s\n",exception_description[s->intr_num]);
 		printf("Execution halted. Kernel entring infinite loop\n");
 		for(;;);
-		
+	}
+	else if (s->intr_num == 32)
+	{
+		//Timer Interrupt
+		printf("%s\n",exception_description[s->intr_num]);
+		printf("Execution halted. Kernel entring infinite loop\n");
+		outportb(0x20, 0x20);
+		//for(;;);
+	}
+	else if (s->intr_num == 33)
+	{
+		//Keyboard Interrupt
+		printf("%s\n",exception_description[s->intr_num]);
+		printf("Execution halted. Kernel entring infinite loop\n");
+		outportb(0x20, 0x20);
+		//for(;;);
 	}
 
 }

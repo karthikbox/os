@@ -5,6 +5,8 @@ void *memcpy(void *dest,const void *src,size_t len);
 void *memset1(char *dest,int c,size_t len);
 void *memset2(uint16_t *dest,int c,size_t len);
 
+void outportb(unsigned short _port, unsigned char _data);
+
 /* declarations for varargs */
 /* copied from include/varargs.h */
 #define va_start(v,l)     __builtin_va_start(v,l)
