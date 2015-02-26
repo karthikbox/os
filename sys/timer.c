@@ -7,8 +7,7 @@ int hh = 0, mm = 0, ss = 0;
 
 void timer_handler(){
 
-	char s[BUFF_SIZE] = "Timer";
-
+/*TODO:	Implement RTC afer everything is done*/
 	timer_ticks++;
 	if((timer_ticks % 100) == 0){
 		timer_ticks = 0;
@@ -25,20 +24,12 @@ void timer_handler(){
 			mm = 0;
 		}
 		
-		printf("%d:%d:%d\n", hh,mm,ss);
-		print_time(s);
-
-/*TODO:	Print time on the bottom right corner in the format 00:00:00 (HH:MM:SS)
-		Implement RTC afer everything is done*/
+		print_time(hh,mm,ss);
 	}
 }
 
-
-void print_time(char *s){
-	 char *v;
-	for(v = (char*)0xb8f00; *s; ++s, v += 2) *v = *s;
-}
-
+//function to change the frequency of the timer
+//timer ticks 100 times per second
 void init_timer(int hz){
 	int divisor = 1193180 / hz;       /* Calculate our divisor */
     outportb(0x43, 0x36);             /* Set our command byte 0x36 */

@@ -7,8 +7,12 @@
 
 static int x_con=0;
 static int y_con=0;
+static int time_x=0;
+static int kbd_x=0;
 static int color = 0x0F; //white letters on black background
 static uint16_t *vga_buf=(uint16_t *)0xB8000;
+static uint16_t *time_vga_buf=(uint16_t *)0xB8f82;
+static uint16_t *kbd_vga_buf=(uint16_t *)0xB8f96;
 
 static inline int serial_addr(){
 	return y_con*80+x_con;
@@ -18,6 +22,8 @@ static inline int serial_addr(){
 /* printf helper declarations */
 void itoa32(int number, char *str, int base);
 void itoa64(uint64_t number, char *str, int base);
+void put_time_chars(int tt);
+void put_colon(char col);
 #define BUFF_SIZE 20
 
 
@@ -79,6 +85,72 @@ void printf(const char *format, ...){
 
 	va_end(val);
 }
+
+//print time on the bottom right corner
+//prints in the format of hh:mm:ss
+void print_time(int hh, int mm, int ss)
+{
+	char col = ':';
+
+	//clear the space before printing
+	memset2(time_vga_buf,SPACE,8);
+
+	put_time_chars(hh);
+	put_colon(col);
+	put_time_chars(mm);
+	put_colon(col);
+	put_time_chars(ss);
+
+	//reset the position of x co-ordinate of time
+	time_x=0;
+}
+
+void put_time_chars(int tt){
+	int i = 0;
+	char numberString[BUFF_SIZE];
+	itoa32(tt, numberString, 10);
+	while(numberString[i] != '\0')
+	{
+		uint16_t* pos= time_vga_buf + time_x;
+		*pos=numberString[i]|(color<<8);
+		time_x++;
+		i++;
+	}
+}
+
+void put_colon(char col){
+	uint16_t* pos= time_vga_buf + time_x;
+	*pos=col|(color<<8);
+	time_x++;
+}
+
+//print the last pressed glyph next to clock
+void print_char(char c){
+	char carat = '^';
+
+	//clear the space before printing
+	memset2(kbd_vga_buf,SPACE,2);
+
+	//set kbd_x if it is a control character
+	if(c == '^'){
+		kbd_x = 1;
+		return;
+	}
+
+	//if kbd_x is set print the carat character
+	if(kbd_x == 1){
+		uint16_t* pos= kbd_vga_buf;
+		*pos=carat|(color<<8);	
+	}
+	
+	//in any case print the character
+	uint16_t* pos= kbd_vga_buf + kbd_x;
+	*pos=c|(color<<8);
+
+	//reset the position of x co-ordinate of last pressed key
+	kbd_x = 0;
+}
+
 
 void itoa32(int number, char *str, int base)
 {

@@ -17,7 +17,8 @@ void set_color(int c);
 
 void timer_handler();
 void keyboard_handler();
-void print_time(char *c);
+void print_time(int, int, int);
+void print_char(char);
 void init_timer(int);
 
 #endif
