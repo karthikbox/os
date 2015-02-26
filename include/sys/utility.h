@@ -6,6 +6,10 @@ void *memset1(char *dest,int c,size_t len);
 void *memset2(uint16_t *dest,int c,size_t len);
 
 void outportb(unsigned short _port, unsigned char _data);
+unsigned char inportb (unsigned short _port);
+
+void itoa32(int number, char *str, int base);
+void itoa64(uint64_t number, char *str, int base);
 
 /* declarations for varargs */
 /* copied from include/varargs.h */

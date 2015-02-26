@@ -19,10 +19,11 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	/* %x is for 32 bit signed values */
 	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 	idt_init();
+	init_timer(100);
 	//__asm__ __volatile__("int $0x00");
 	//__asm__ __volatile__("int $0x21");
 	printf("hi\n");
-	__asm__("sti");
+
 	while(1);
 	/* blue background and white foreground */
 	/* set_color(0x1F); */

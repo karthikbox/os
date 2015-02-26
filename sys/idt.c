@@ -34,8 +34,6 @@ struct idt_ptr idt_pointer; /* use this to set IDTS register of cpu */
 // stack frame structure -> part of idt implementation
 //this is how the stack frame looks lokme when isr_handler is being executed
 struct stack_frame{
-	
-
 	uint64_t r11,r10,r9,r8,rdi,rsi,rdx,rcx,rax;//from isr_common
 	uint64_t intr_num, error_num;//from isrX routine
 	uint64_t rip,cs,rflags,rsp,ss;//from CPU during some process , happens automatically
@@ -205,30 +203,35 @@ void idt_init(){
 
 	//load idt_pointer to the cpu interrupt table register
 	idt_load();
+	__asm__("sti");
 }
 
 void isr_handler(struct stack_frame *s){
 	if(s->intr_num <= 31){
 		//exception
 		printf("%s\n",exception_description[s->intr_num]);
-		printf("Execution halted. Kernel entring infinite loop\n");
+		printf("Execution halted. Kernel entering infinite loop\n");
 		for(;;);
 	}
 	else if (s->intr_num == 32)
 	{
 		//Timer Interrupt
-		printf("%s\n",exception_description[s->intr_num]);
-		printf("Execution halted. Kernel entring infinite loop\n");
+		//printf("%s\n",exception_description[s->intr_num]);
+		//printf("Execution halted. Kernel entering infinite loop\n");
 		outportb(0x20, 0x20);
+		timer_handler();
 		//for(;;);
 	}
 	else if (s->intr_num == 33)
 	{
 		//Keyboard Interrupt
-		printf("%s\n",exception_description[s->intr_num]);
-		printf("Execution halted. Kernel entring infinite loop\n");
+		//printf("%s\n",exception_description[s->intr_num]);
+		//printf("Execution halted. Kernel entering infinite loop\n");
 		outportb(0x20, 0x20);
+		keyboard_handler();
 		//for(;;);
 	}
 
 }
+
+

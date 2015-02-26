@@ -14,4 +14,10 @@ void scroll_down();
 void clear_screen();
 void set_color(int c);
 
+
+void timer_handler();
+void keyboard_handler();
+void print_time(char *c);
+void init_timer(int);
+
 #endif

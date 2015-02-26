@@ -1,5 +1,5 @@
-#include<sys/sbunix.h>
-#include<sys/utility.h>
+#include <sys/sbunix.h>
+#include <sys/utility.h>
 
 /* console driver helper definitions */
 #define BLACK_ON_BLACK 0x00 //black letters on black background
@@ -184,9 +184,9 @@ void putch(char c){
 
 void scroll_down(){
 	/* only if y has exceeded screen dimensions */
-	while(y_con>=25){
+	while(y_con>=24){
 		/* pull the all lines back by one line. Now cursor is in the last line */
-		memcpy(vga_buf,vga_buf+80,80*24*2);
+		memcpy(vga_buf,vga_buf+80,80*23*2);
 		/* y_con now is at last line */
 		y_con--;
 		/* make last line empty -> fill it with space -> looks like empty */
@@ -197,7 +197,7 @@ void scroll_down(){
 
 void clear_screen(){
 	/* set all the VGA buffer memory to space character with fg and bg black and reset cursor to top leftof screen */
-	memset2(vga_buf,SPACE,80*25);
+	memset2(vga_buf,SPACE,80*24);
 	x_con=0;
 	y_con=0;
 }
