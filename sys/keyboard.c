@@ -12,10 +12,7 @@
 int shift_flag = 0;
 int control_flag = 0;
 
-/*TODO: print the last pressed glyph next to time*/
-		
 
-void keyboard_handler(){
 
 unsigned char kdbus[128] =
 {
@@ -96,6 +93,13 @@ unsigned char shift_kdbus[128] =
     0,  /* F12 Key */
     0,  /* All other keys are undefined */
 };
+
+/*TODO: print the last pressed glyph next to time*/
+
+		
+
+void keyboard_handler(){
+
 
 	unsigned char scancode;
 

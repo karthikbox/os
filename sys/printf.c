@@ -109,9 +109,10 @@ void put_time_chars(int tt){
 	int i = 0;
 	char numberString[BUFF_SIZE];
 	itoa32(tt, numberString, 10);
+	uint16_t* pos=NULL;
 	while(numberString[i] != '\0')
 	{
-		uint16_t* pos= time_vga_buf + time_x;
+		pos= time_vga_buf + time_x;
 		*pos=numberString[i]|(color<<8);
 		time_x++;
 		i++;
@@ -272,6 +273,14 @@ void clear_screen(){
 	memset2(vga_buf,SPACE,80*24);
 	x_con=0;
 	y_con=0;
+}
+
+void clear_line(int k){
+	// line index stars from 0 to 24
+	//k=0 first line
+	//k=24 last line
+	uint16_t *target=vga_buf+k*80;
+	memset2(target,SPACE,80);
 }
 
 

@@ -18,11 +18,13 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	/* %p is for uint64_t values -> prints pointer address in hex without overflow */
 	/* %x is for 32 bit signed values */
 	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
+	clear_line(24);//24 , clears the last line of vga buffer
 	idt_init();
-	init_timer(100);
+	init_timer(10000);
 	//__asm__ __volatile__("int $0x00");
 	//__asm__ __volatile__("int $0x21");
-	printf("hi\n");
+	for(;;)
+		printf("hi hello");
 
 	while(1);
 	/* blue background and white foreground */
