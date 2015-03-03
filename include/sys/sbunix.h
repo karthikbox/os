@@ -13,6 +13,7 @@ void move_cursor();
 void scroll_down();
 void clear_screen();
 void clear_line(int line);
+void clear_kbdglyph();
 void set_color(int c);
 
 

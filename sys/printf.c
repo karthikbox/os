@@ -127,29 +127,11 @@ void put_colon(char col){
 
 //print the last pressed glyph next to clock
 void print_char(char c){
-	char carat = '^';
-
-	//clear the space before printing
-	memset2(kbd_vga_buf,SPACE,2);
-
-	//set kbd_x if it is a control character
-	if(c == '^'){
-		kbd_x = 1;
-		return;
-	}
-
-	//if kbd_x is set print the carat character
-	if(kbd_x == 1){
-		uint16_t* pos= kbd_vga_buf;
-		*pos=carat|(color<<8);	
-	}
 	
-	//in any case print the character
 	uint16_t* pos= kbd_vga_buf + kbd_x;
 	*pos=c|(color<<8);
+	kbd_x++;
 
-	//reset the position of x co-ordinate of last pressed key
-	kbd_x = 0;
 }
 
 
@@ -276,11 +258,19 @@ void clear_screen(){
 }
 
 void clear_line(int k){
-	// line index stars from 0 to 24
+	// line index starts from 0 to 24
 	//k=0 first line
 	//k=24 last line
 	uint16_t *target=vga_buf+k*80;
 	memset2(target,SPACE,80);
+}
+
+void clear_kbdglyph(){
+
+	//clear the space before printing
+	memset2(kbd_vga_buf,SPACE,2);
+	kbd_x = 0;
+
 }
 
 

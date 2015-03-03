@@ -8,6 +8,10 @@
 #define RIGHTSHIFTUP 0xb6
 #define CONTROLDOWN 0x1d
 #define CONTROLUP 0x9d
+#define ENTERDOWN 0x1c
+#define BACKSPACEDOWN 0x0e
+#define TABDOWN 0x0f
+#define ESCDOWN 0x01
 
 int shift_flag = 0;
 int control_flag = 0;
@@ -134,17 +138,45 @@ void keyboard_handler(){
         if((shift_flag == 1) && !((scancode == RIGHTSHIFTDOWN) || (scancode == LEFTSHIFTDOWN)) )
         {
         	//printf("%x\n", scancode);
+            clear_kbdglyph();
             print_char(shift_kdbus[scancode]);
         }
         else if((control_flag == 1) && (scancode != CONTROLDOWN) )
         {
         	//printf("%x\n", scancode);
+            clear_kbdglyph();
             print_char(carat);
             print_char(kdbus[scancode]);
         }
+        else if(scancode == ENTERDOWN)
+        {
+            clear_kbdglyph();
+            print_char('\\');
+            print_char('n');
+        }
+        else if(scancode == BACKSPACEDOWN)
+        {
+            clear_kbdglyph();
+            print_char('\\');
+            print_char('b');   
+        }
+        else if(scancode == TABDOWN)
+        {
+            clear_kbdglyph();
+            print_char('\\');
+            print_char('t');
+        }
+        else if(scancode == ESCDOWN)
+        {
+            clear_kbdglyph();
+            print_char(carat);
+            print_char('3');
+        }
         //shift key is not pressed, print the normal characters
         else if(shift_flag == 0){
+
         	//printf("%x\n", scancode);
+            clear_kbdglyph();
         	print_char(kdbus[scancode]);
         }
         	
