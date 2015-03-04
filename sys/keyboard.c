@@ -133,15 +133,8 @@ void keyboard_handler(){
         else if((scancode == CONTROLDOWN))
            	control_flag = 1;
 
-        //print the corresponding shift character
-        //ignore the printing of shift characters
-        if((shift_flag == 1) && !((scancode == RIGHTSHIFTDOWN) || (scancode == LEFTSHIFTDOWN)) )
-        {
-        	//printf("%x\n", scancode);
-            clear_kbdglyph();
-            print_char(shift_kdbus[scancode]);
-        }
-        else if((control_flag == 1) && (scancode != CONTROLDOWN) )
+        
+        if((control_flag == 1) && (scancode != CONTROLDOWN) )
         {
         	//printf("%x\n", scancode);
             clear_kbdglyph();
@@ -171,6 +164,14 @@ void keyboard_handler(){
             clear_kbdglyph();
             print_char(carat);
             print_char('3');
+        }
+        //print the corresponding shift character
+        //ignore the printing of shift characters
+        else if((shift_flag == 1) && !((scancode == RIGHTSHIFTDOWN) || (scancode == LEFTSHIFTDOWN)) )
+        {
+            //printf("%x\n", scancode);
+            clear_kbdglyph();
+            print_char(shift_kdbus[scancode]);
         }
         //shift key is not pressed, print the normal characters
         else if(shift_flag == 0){
