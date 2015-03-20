@@ -1,51 +1,47 @@
 #ifndef __PMMGR_H
 #define __PMMGR_H
 
-#define BLOCKS_PER_BYTE 8
-#define BLOCK_SIZE 4096
-#define BLOCK_ALIGN BLOCK_SIZE
+#include<sys/defs.h>
+
+#define FRAMES_PER_BYTE 8
+#define FRAME_SIZE 4096
+#define FRAME_ALIGN FRAME_SIZE
 
 
 //size of physical memory
 uint64_t memory_size=0;//uint64_t is same as size_t
+
+//size of physical memory in blocks
+uint64_t memory_size_in_frames=0;
 //number of blocks currently in use
-uint64_t used_blocks=0;
+uint64_t memory_used_frames=0;
 //memory map bit array
 uint64_t* memory_map=0;
 
 
 //set bitmap
-void mem_map_set(uint64_t bit){
-	memory_map[bit/64] |=(1<<(bit%64));
-}
+void mem_map_set(uint64_t bit);
 
-void mem_map_clear(uint64_t bit){
-	memory_map[bit/64] &= ~(1<<(bit%64));
-}
+void mem_map_clear(uint64_t bit);
 
-int mem_map_test(uint64_t bit){
-	if(memory_map[bit/64] & (1<<(bit%64)) > 0)
-		return 1;
-	else
-		return 0;
-}
 
-int mem_map_first_free(){
-	for(uint64_t i=0;i<memory_size/64;i++){
-		if(memory_map[i]!=0xffffffffffffffff){
-			for(int j=0;j<64;j++){
-				if( !(memory_map[i] & (1<<(j)) ) ){
-					return j+i*64;//return bit number
-				}
-			}
-		}
-	}
-}
+int mem_map_test(uint64_t bit);
+
+long mem_map_first_free();
 
 //size_t is same as uint64_t
-void pmmgr_init(size_t mem_size,physical_addr bitmap){
-	memory_size=mem_size;
-	memory_map=(uint64_t *)bitmap;
-	memory_
-}
+void pmmgr_init(size_t mem_size,uint64_t* bitmap);
+
+void mem_clear_region(uint64_t base,size_t size);
+
+void mem_set_region(uint64_t base,size_t size);
+
+uint64_t get_memory_frame_count();
+
+long get_free_frame_count();
+
+void* alloc_frame();
+
+void free_frame(void *a);
+
 #endif
