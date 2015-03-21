@@ -83,3 +83,28 @@ syntax 2:
        Prints contents of current working directory by default
 NOTE: This is implemented to test our stdlib.h. 
 
+===========================================================
+
+
+PAGE TABLES
+===========
+
+PHYSICAL MEMORY
+
+Available Physical Memory [0-9fc00] - [0-158] page frames loosing [159-159.75] availabe but since it's not frame size,we will mark all frames from [159-255] as in use and never free it.
+Available Physical Memory [100000-7ffe000] - [256-32766] page frames
+159
+654336
+651264
+
+0x0/4KB=0
+
+9fc00/4KB=654336/4KB=159.75
+We can track till 651264/4KB=159
+We have to loose 3KB
+
+0x100000/(4KB)=1048576/4KB = 256
+
+0x7ffe000/4KB = 134209536/4KB=32766=0x7ffe
+
+
