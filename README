@@ -92,7 +92,8 @@ PAGE TABLES
 PHYSICAL MEMORY
 
 Available Physical Memory [0-9fc00] - [0-158] page frames loosing [159-159.75] availabe but since it's not frame size,we will mark all frames from [159-255] as in use and never free it.
-Available Physical Memory [100000-7ffe000] - [256-32766] page frames
+Available Physical Memory [0x100000-0x7ffe000] - [256-32766] page frames. Mark 32766 as used and never free it. so available memory from [256 - 32765] i.e([0x100000-(0x7ffe000-1)])
+
 159
 654336
 651264
@@ -108,3 +109,6 @@ We have to loose 3KB
 0x7ffe000/4KB = 134209536/4KB=32766=0x7ffe
 
 
+physbase is 0x200000 = 2097152
+physfree is 0x268000 = 2523136 -> 2523136%8=0 , i.e starts from 8 byte boundary
+assuming free memory from physfree(need to confirm this), or should start from next 8 bytes

@@ -2,26 +2,37 @@
 #include<sys/utility.h>
 #include<sys/defs.h>
 //set bitmap
+
+uint64_t memory_size=0;//uint64_t is same as size_t
+
+//size of physical memory in blocks
+uint64_t memory_size_in_frames=0;
+//number of blocks currently in use
+uint64_t memory_used_frames=0;
+//memory map bit array
+uint64_t* memory_map=0;
+
+
 void mem_map_set(uint64_t bit){
-	memory_map[bit/64] |=(1<<(bit%64));
+	memory_map[bit/64] |=(1ul<<(bit%64));
 }
 
 void mem_map_clear(uint64_t bit){
-	memory_map[bit/64] &= ~(1<<(bit%64));
+	memory_map[bit/64] &= ~(1ul<<(bit%64));
 }
 
 int mem_map_test(uint64_t bit){
-	if((memory_map[bit/64] & (1<<(bit%64))) > 0)
+	if((memory_map[bit/64] & (1ul<<(bit%64))) > 0)
 		return 1;
 	else
 		return 0;
 }
 
 long mem_map_first_free(){
-	for(uint64_t i=0;i<memory_size_in_frames/64;i++){
+	for(uint64_t i=0;i<memory_size_in_frames/64+1;i++){
 		if(memory_map[i]!=0xffffffffffffffff){
 			for(int j=0;j<64;j++){
-				if( !(memory_map[i] & (1<<(j)) ) ){
+				if( !(memory_map[i] & (1ul<<(j))) ){
 					return j+i*64;//return bit number
 				}
 			}
@@ -77,6 +88,7 @@ void pmmgr_init(size_t mem_size,uint64_t* bitmap){
 	memory_used_frames=get_memory_frame_count();/* mark all frames as used */
 
 	memset1((char *)memory_map,0xFF,memory_size_in_frames/FRAMES_PER_BYTE);
+	memset1((char *)memory_map+memory_size_in_frames/FRAMES_PER_BYTE,0xFF,1);
 	
 }
 

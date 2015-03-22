@@ -22,6 +22,7 @@ static inline int serial_addr(){
 /* printf helper declarations */
 void itoa32(int number, char *str, int base);
 void itoa64(uint64_t number, char *str, int base);
+void itoa64_s(long number, char *str, int base);
 void put_time_chars(int tt);
 void put_colon(char col);
 #define BUFF_SIZE 20
@@ -34,6 +35,7 @@ void printf(const char *format, ...){
 	char numberString[BUFF_SIZE];
 	char c[2];
 	uint64_t temp=0;
+	long t=0;
 
 	va_start(val, format);
 
@@ -58,6 +60,11 @@ void printf(const char *format, ...){
 			{
 				number = va_arg(val, int);
 				itoa32(number, numberString, 10);
+				putchars(numberString);
+			}
+			else if(*format == 'l'){
+				t = va_arg(val, long);
+				itoa64_s(t, numberString, 10);
 				putchars(numberString);
 			}
 			else if(*format == 'x')
@@ -153,6 +160,46 @@ void itoa32(int number, char *str, int base)
 		number = -number;
 	}
 
+	while(number > 0)
+	{
+		digit = number%base;
+		number = number/base;
+		if(digit <= 9)
+			temp[i] = digit + '0';
+		else
+			temp[i] = (digit-10) + 'a';
+		i++;
+	}
+	temp[i]='\0';
+	
+	while(i >= 0)
+	{
+		i--;
+		str[j] = temp[i];
+		j++;
+	}
+
+	str[j] = '\0';
+}
+
+void itoa64_s(long number, char *str, int base)
+{
+	int digit, i=0, j=0;
+	char temp[BUFF_SIZE];
+
+	if(number == 0)
+	{
+			temp[i] = '0';
+			i++;
+	}
+
+	else if(number < 0)
+	{
+		str[j] = '-';
+		j++;
+		number = -number;
+	}
+	
 	while(number > 0)
 	{
 		digit = number%base;

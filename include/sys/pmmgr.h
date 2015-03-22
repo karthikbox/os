@@ -9,14 +9,14 @@
 
 
 //size of physical memory
-uint64_t memory_size=0;//uint64_t is same as size_t
+uint64_t memory_size;//uint64_t is same as size_t
 
 //size of physical memory in blocks
-uint64_t memory_size_in_frames=0;
+uint64_t memory_size_in_frames;
 //number of blocks currently in use
-uint64_t memory_used_frames=0;
+uint64_t memory_used_frames;
 //memory map bit array
-uint64_t* memory_map=0;
+uint64_t* memory_map;
 
 
 //set bitmap
