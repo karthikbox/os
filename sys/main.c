@@ -19,36 +19,23 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	}
 	/* Available Physical Memory [0-9fc00]
 	   Available Physical Memory [100000-7ffe000] */
-	//
+	
 	/* %p is for uint64_t values -> prints pointer address in hex without overflow */
 	/* %x is for 32 bit signed values */
 	
-	// physical memory manager
+	/* physical memory manager */
 	
 	uint64_t size= (0x7ffe000 - 0x0); //bytes of memory
 	uint64_t* map = physfree; 	//assuming free memory from physfree
 	pmmgr_init(size,map); //all of memory is set as used
-	//printf("%l\n",alloc_frame());
-	// now set [0-1MB], [physbase-(physfree-1)], [0x9fc00 - (0x100000-0x1)]as '1'
+	
+	/* now set [0-1MB], [physbase-(physfree-1)], [0x9fc00 - (0x100000-0x1)]as '1'
+	set frame corresponding to address physfree as used, since it stores the bitmap
 	mem_clear_region(0x100000,(uint64_t)physbase - 0x100000);//[1MB <->( physbase-1)] mark as '0'
-	mem_clear_region((uint64_t)physfree,0x7ffe000-(uint64_t)physfree);//[physfree <-> (END_PHYS_MEM - 1)] mark as '0'
-	/*
-	  void *a,*b,*c;
-	printf("%l\n",a=alloc_frame());
-	printf("%l\n",b=alloc_frame());
-	printf("%l\n",c=alloc_frame());
-	free_frame(b);
-	printf("%l\n",b=alloc_frame());
 	*/
-	void *a,*b=NULL;
-	printf("%p\n",a=alloc_frame());
-	while(a){
-		b=a;
-		printf("%p\n",a=alloc_frame());
-	}
-	free_frame((void *)((uint64_t)b-0x2000));
-	printf("%p\n",a=alloc_frame());
-	printf("%p\n",a=alloc_frame());
+	mem_clear_region(0x100000,(uint64_t)physbase - 0x100000);//[1MB <->( physbase-1)] mark as '0'
+	mem_clear_region((uint64_t)physfree+0x2000,0x7ffe000-(uint64_t)physfree-0x2000);//[physfree+2 <-> (END_PHYS_MEM - 1)] mark as '0'. +2 for safety
+	
 	printf("%p <-> %p\n",physbase,physfree);
 	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 	clear_line(24);//24 , clears the last line of vga buffer

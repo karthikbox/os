@@ -1,6 +1,7 @@
 #include<sys/pmmgr.h>
 #include<sys/utility.h>
 #include<sys/defs.h>
+
 //set bitmap
 
 uint64_t memory_size=0;//uint64_t is same as size_t
@@ -116,7 +117,9 @@ void* alloc_frame(){
 void free_frame(void *a){
 	uint64_t addr=(uint64_t)a;
 	uint64_t bit = addr/FRAME_SIZE;
-	mem_map_clear(bit);
-	memory_used_frames--;
+	if(a){
+		mem_map_clear(bit);
+		memory_used_frames--;
+	}	
 
 }
