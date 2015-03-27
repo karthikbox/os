@@ -67,11 +67,11 @@ int pd_entry_is_enable_global(pd_entry e);
 #define ENTRIES_PER_PDP 512
 #define ENTRIES_PER_PML4 512
 
-inline uint64_t pml4_index(uint64_t x);
-inline uint64_t pdp_index(uint64_t x);
-inline uint64_t pd_index(uint64_t x);
-inline uint64_t pt_index(uint64_t x);
-inline uint64_t lower_offset(uint64_t x);
+ uint64_t pml4_index(uint64_t x);
+ uint64_t pdp_index(uint64_t x);
+ uint64_t pd_index(uint64_t x);
+ uint64_t pt_index(uint64_t x);
+ uint64_t lower_offset(uint64_t x);
 
 #define PAGE_SIZE 4096
 /* pd, pdp, pml4 are ientical. so pd_entry holds for the three of these */
@@ -100,6 +100,7 @@ int vm_alloc_page(pt_entry* e);
 void vm_free_page(pt_entry* e);
 int vm_page_map(uint64_t phys,uint64_t virt,int rx_bit);
 void load_base(uint64_t addr);
+int vm_init(void *physbase,void *physfree);
 /*
 1234 5678 
 0000 0000 1 00

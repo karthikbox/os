@@ -129,6 +129,7 @@ int vm_page_map(uint64_t phys_addr,uint64_t virt_addr,int rx_bit){
 		/* all the higher structeres are given RW as 1 by default */
 		pd_entry_add_attrib(&base->m_entries[offset],PT_WRITABLE);
 	}
+	//printf("%p\n",base->m_entries[offset]);
 	/* success */
 	return 1;
 	
@@ -137,16 +138,11 @@ int vm_page_map(uint64_t phys_addr,uint64_t virt_addr,int rx_bit){
 
 
  void load_base(uint64_t addr){
-	 /*  push %ebp */
-	 /* 		 mov %esp, %ebp */
-	 /* 		 mov 8(%esp), %eax */
-	 /* 		 mov %eax, %cr3 */
-	 /* 		 mov %ebp, %esp */
-	 /* pop %ebp */
-	 /* ret */
-	 /* 	 __asm__("\n\t" */
-	 
-	 /* 			 ) */
+	 __asm volatile(
+					"movq %0,%%cr3"
+					: 
+					: "r"(addr)
+					);
  }
 
 
@@ -164,6 +160,7 @@ int vm_init(void* physbase,void* physfree){
 	   map each page identically*/
 	uint64_t i=0;
 	for(i=0;i<0x100000ul;i+=0x1000ul){ /* for every page till 1MB */
+		//printf("%p maps to ",i);
 		if(!vm_page_map(i,i,1)){		/* identity map */
 			printf("unable to map\n");
 			return 0;
@@ -174,8 +171,8 @@ int vm_init(void* physbase,void* physfree){
 	/* for each page from kernmem to kernfree-1 */
 	/* map page to range physbase, physfree-1 */
 	/* physbase if */
-	for(i=(uint64_t)physbase;i<(uint64_t)physfree;i+=0x1000ul){
-		if(!vm_page_map(i,0xffffffff80000000ul+i,0)){	/* physical addr, virt addr */
+	for(i=(uint64_t)0x100000ul;i<(uint64_t)0x7ffe000ul;i+=0x1000ul){
+		if(!vm_page_map(i,0xffffffff80000000ul+i,1)){	/* physical addr, virt addr */
 			printf("unable to map\n");
 			return 0;
 		}

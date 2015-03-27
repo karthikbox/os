@@ -2,6 +2,8 @@
 #include <sys/gdt.h>
 #include <sys/tarfs.h>
 #include <sys/pmmgr.h>
+#include <sys/page.h>
+#include <sys/process.h>
 extern void idt_init();
 //extern void pmmgr_init(size_t mem_size,uint64_t* bitmap);
 
@@ -26,7 +28,7 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	/* physical memory manager */
 	
 	uint64_t size= (0x7ffe000 - 0x0); //bytes of memory
-	uint64_t* map = physfree; 	//assuming free memory from physfree
+	uint64_t* map = (uint64_t *)get_virt_addr((uint64_t)physfree); 	//assuming free memory from physfree
 	pmmgr_init(size,map); //all of memory is set as used
 	
 	/* now set [0-1MB], [physbase-(physfree-1)], [0x9fc00 - (0x100000-0x1)]as '1'
@@ -36,14 +38,31 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	mem_clear_region(0x100000,(uint64_t)physbase - 0x100000);//[1MB <->( physbase-1)] mark as '0'
 	mem_clear_region((uint64_t)physfree+0x2000,0x7ffe000-(uint64_t)physfree-0x2000);//[physfree+2 <-> (END_PHYS_MEM - 1)] mark as '0'. +2 for safety
 	
+	/* vm manager */
+	vm_init(physbase,physfree);
+	//*((char *)0xffffffff80000000ul+(uint64_t)physfree)='a';
+	//*((char *)(0xffffffff80000000ul+0x200000ul))='a';
+	//printf("%p\n",(uint64_t)alloc_frame());
 	printf("%p <-> %p\n",physbase,physfree);
 	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 	clear_line(24);//24 , clears the last line of vga buffer
 	idt_init();
 	init_timer(100);
 	//__asm__ __volatile__("int $0x00");
-	//__asm__ __volatile__("int $0x21");
+	//__asm__ __volatile__("int $0x8");
 	
+	/* create process  and add it to ready q*/
+	if(!create_process()){
+		printf("unable to create process\n");
+	}
+	/* create another process and add it to ready q*/
+	if(!create_process()){
+		printf("unable to create process\n");
+	}
+	/* run head of run q */
+
+
+
 	while(1);
 	/* blue background and white foreground */
 	/* set_color(0x1F); */
