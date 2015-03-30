@@ -44,4 +44,8 @@ void* alloc_frame();
 
 void free_frame(void *a);
 
+void* kmalloc(size_t size);
+
+void kfree(void* addr);
+
 #endif
