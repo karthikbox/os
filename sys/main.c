@@ -50,7 +50,7 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	idt_init();
 	init_timer(100);
 	//__asm__ __volatile__("int $0x00");
-	//__asm__ __volatile__("int $0x8");
+	__asm__ __volatile__("int $0x80");
 	
 
 

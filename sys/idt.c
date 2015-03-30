@@ -105,6 +105,7 @@ extern void isr30();
 extern void isr31();
 extern void isr32();
 extern void isr33();
+extern void isr128();
 
 /* sets a particular the idt entry */
 void idt_entry_set(int n,uint16_t selector,char ist,char gate_type,char dpl,char present,uint64_t target){
@@ -229,6 +230,7 @@ void idt_init(){
 	idt_entry_set(31,0x8,0,0xE,0,1,(uint64_t)&isr31);//0xE for interrupts
 	idt_entry_set(32,0x8,0,0xE,0,1,(uint64_t)&isr32);//0xE for interrupts
 	idt_entry_set(33,0x8,0,0xE,0,1,(uint64_t)&isr33);//0xE for interrupts
+	idt_entry_set(0x80,0x8,0,0xE,0,1,(uint64_t)&isr128);//0xE for interrupts
 
 	//load idt_pointer to the cpu interrupt table register
 	idt_load();
@@ -259,6 +261,9 @@ void isr_handler(struct stack_frame *s){
 		outportb(0x20, 0x20);
 		keyboard_handler();
 		//for(;;);
+	}
+	else if(s->intr_num == 128){
+		printf("syscall\n");
 	}
 
 }

@@ -68,7 +68,7 @@ struct trapframe{
 
 /* PCB - process control block */
 struct proc{
-	uint64_t proc_mem_size_bytes; /* process memory size in bytes */
+	uint64_t size;				/* process memory size in bytes */
 	pml4 *pml4_t;				  /* pointer to pml4. */
 	char *kstack;				  /* pointer to start of stack (i.e bottom of stack) */
 	enum procstate state;		  /* process state */
@@ -85,6 +85,9 @@ struct proc{
 uint64_t get_virt_addr(uint64_t x);
 
 uint64_t get_phys_addr(uint64_t x);
+
+void userinit();
+struct proc * alloc_proc();
 
 #endif
 

@@ -38,6 +38,7 @@
 .global isr31
 .global isr32
 .global isr33
+.global isr128
 		
 
 # isr0 divide by zero exception
@@ -269,6 +270,12 @@ isr33:
 		    
 		    pushq $0
 		    pushq $33
+		    jmp isr_common
+
+#  128: int 0x80
+isr128:
+			pushq $0
+		    pushq $128
 		    jmp isr_common
 
 		

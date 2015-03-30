@@ -15,6 +15,64 @@ inline uint64_t get_phys_addr(uint64_t x){
 	return x-KERNBASE;
 }
 
+struct{
+	struct proc proc[NPROC];
+}ptable;
+
+/* creates the first process */
+void userinit(){
+	struct proc *p;
+	memset1((char *)ptable.proc,0,sizeof(ptable));
+	p=alloc_proc();
+	if(!(p->pml4_t=kalloc_pml4())){
+		/* panic code goes here*/
+		printf("unable to allocate pml4\n");		
+	}
+	inituvm(p->pml4_t,binary_initcode_start,binary_initcode_size);
+	p->size=FRAME_SIZE;
+	/* clear the trapframe. this is only done for fist process */
+	memset1((char *)p->tf,0,sizeof(struct trapframe));
+	/* continue here */
+	p->tf->cs=(SEG_)
+}
+
+void *kmalloc(size_t sz){
+	/* sz is useless right now */
+	/* kmalloc return the virtual address of 1 new physical frame */
+	return (void *)get_virt_addr((uint64_t)alloc_frame());
+}
+
+/* creates a process, any time */
+struct proc * alloc_proc(){
+	struct proc *p;
+	char *sp;
+	for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+		if(p->state==UNUSED){
+			p->state=EMBRYO;
+			p->pid=proc_count++;
+			/* allocate kernel stack */
+			if(!(p->kstack=(char *)kmalloc(KSTACKSIZE)){ /* KSTACKSIZE IS 4096B*/
+					p->state=UNUSED;
+					return NULL;
+				}
+				sp=p->kstack+STACKSIZE; /* points to end of stack */
+				/* make space for trapframe */
+				sp-=sizeof(struct trapframe);
+				p->tf=(struct trapframe *)sp;
+				/* set up new context to start executing at forkret, ehich returns to trapret */
+				sp-=8;
+				*(uint64_t *)sp=(uint64_t)trapret;
+				sp-=sizeof(struct context);
+				p->context=(struct context *)sp;
+				memset1(p->context,0,sizeof(struct context));
+				p->context->rip=(uint64_t)forkret;
+				return p;
+			/* allocate page table and load ernel memory into it */
+			
+		}
+	}
+	return NULL;
+}
 /* void init_regs(reg_t *p){ */
 /* 	p->rax=0; */
 /* 	p->rbx=0; */
