@@ -4,6 +4,7 @@
 #include <sys/pmmgr.h>
 #include <sys/page.h>
 #include <sys/process.h>
+
 extern void idt_init();
 //extern void pmmgr_init(size_t mem_size,uint64_t* bitmap);
 
@@ -42,7 +43,7 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	vm_init(physbase,physfree);
 	//*((char *)0xffffffff80000000ul+(uint64_t)physfree)='a';
 	//*((char *)(0xffffffff80000000ul+0x200000ul))='a';
-	//printf("%p\n",(uint64_t)alloc_frame());
+	printf("%p\n",(uint64_t)alloc_frame());
 	printf("%p <-> %p\n",physbase,physfree);
 	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 	clear_line(24);//24 , clears the last line of vga buffer
@@ -51,16 +52,6 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	//__asm__ __volatile__("int $0x00");
 	//__asm__ __volatile__("int $0x8");
 	
-	/* create process  and add it to ready q*/
-	if(!create_process()){
-		printf("unable to create process\n");
-	}
-	/* create another process and add it to ready q*/
-	if(!create_process()){
-		printf("unable to create process\n");
-	}
-	/* run head of run q */
-
 
 
 	while(1);

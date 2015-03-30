@@ -287,7 +287,9 @@ idt_load:
 # from https://code.google.com/p/shovelos/source/browse/trunk/kernel/arch/x86_64/isr.c?r=182
 		.extern isr_handler
 isr_common:
+#change in process.h and idt.c		
 		pushq %rax
+		pushq %rbx		
 		pushq %rcx
 		pushq %rdx
 		pushq %rsi
@@ -296,8 +298,18 @@ isr_common:
 		pushq %r9
 		pushq %r10
 		pushq %r11
+		pushq %r12
+		pushq %r13
+		pushq %r14
+		pushq %r15
+		pushq %rbp
 		movq %rsp, %rdi
 		call isr_handler
+		popq %rbp
+		popq %r15
+		popq %r14
+		popq %r13
+		popq %r12
 		popq %r11
 		popq %r10
 		popq %r9
@@ -306,6 +318,7 @@ isr_common:
 		popq %rsi
 		popq %rdx
 		popq %rcx
+		popq %rbx
 		popq %rax
 		addq $0x10,%rsp
 		iretq
