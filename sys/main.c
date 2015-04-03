@@ -49,6 +49,25 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	clear_line(24);//24 , clears the last line of vga buffer
 	idt_init();
 	init_timer(100);
+
+	char *sbushPath = (char*)kmalloc(sizeof(char));
+	printf("Address of 0 is: %p\n", sbushPath);
+	
+
+	char *sbushPath1 = (char*)kmalloc(sizeof(char));
+	printf("Address of 1 is: %p\n", sbushPath1);
+	kfree(sbushPath);
+
+	char *sbushPath2 = (char*)kmalloc(16);
+	printf("Address of 2 is: %p\n", sbushPath2);
+
+	kfree(sbushPath1);
+	kfree(sbushPath2);
+
+
+	/*char *sbushPath2 = (char*)kmalloc(sizeof(char));
+	printf("Address is: %p\n", sbushPath2);
+	kfree(sbushPath2);*/
 	//__asm__ __volatile__("int $0x00");
 	__asm__ __volatile__("int $0x80");
 	uint64_t *elf_start;
