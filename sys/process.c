@@ -24,23 +24,18 @@ void userinit(){
 	struct proc *p;
 	memset1((char *)ptable.proc,0,sizeof(ptable));
 	p=alloc_proc();
-	if(!(p->pml4_t=kalloc_pml4())){
-		/* panic code goes here*/
-		printf("unable to allocate pml4\n");		
-	}
-	inituvm(p->pml4_t,binary_initcode_start,binary_initcode_size);
-	p->size=FRAME_SIZE;
-	/* clear the trapframe. this is only done for fist process */
-	memset1((char *)p->tf,0,sizeof(struct trapframe));
-	/* continue here */
-	p->tf->cs=(SEG_)
+	/* if(!(p->pml4_t=kmalloc_pml4())){ */
+	/* 	/\* panic code goes here*\/ */
+	/* 	printf("unable to allocate pml4\n"); */
+	/* } */
+	/* inituvm(p->pml4_t,binary_initcode_start,binary_initcode_size); */
+	/* p->size=FRAME_SIZE; */
+	/* /\* clear the trapframe. this is only done for fist process *\/ */
+	/* memset1((char *)p->tf,0,sizeof(struct trapframe)); */
+	/* /\* continue here *\/ */
+	/* p->tf->cs=(SEG_); */
 }
 
-void *kmalloc(size_t sz){
-	/* sz is useless right now */
-	/* kmalloc return the virtual address of 1 new physical frame */
-	return (void *)get_virt_addr((uint64_t)alloc_frame());
-}
 
 /* creates a process, any time */
 struct proc * alloc_proc(){
@@ -54,7 +49,7 @@ struct proc * alloc_proc(){
 			if(!(p->kstack=(char *)kmalloc(KSTACKSIZE)){ /* KSTACKSIZE IS 4096B*/
 					p->state=UNUSED;
 					return NULL;
-				}
+			}
 				sp=p->kstack+STACKSIZE; /* points to end of stack */
 				/* make space for trapframe */
 				sp-=sizeof(struct trapframe);
@@ -67,12 +62,27 @@ struct proc * alloc_proc(){
 				memset1(p->context,0,sizeof(struct context));
 				p->context->rip=(uint64_t)forkret;
 				return p;
-			/* allocate page table and load ernel memory into it */
-			
+				/* allocate page table and load ernel memory into it */
+				
 		}
+	  	return NULL;
 	}
-	return NULL;
 }
+
+void forkret(){
+	static int first =1;
+	if(first){
+		/* some initialization, if necessary */
+		first=0;
+	}
+}
+
+
+
+//uncomment till here
+
+
+
 /* void init_regs(reg_t *p){ */
 /* 	p->rax=0; */
 /* 	p->rbx=0; */

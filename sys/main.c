@@ -4,7 +4,7 @@
 #include <sys/pmmgr.h>
 #include <sys/page.h>
 #include <sys/process.h>
-
+#include<sys/tarfs.h>
 extern void idt_init();
 //extern void pmmgr_init(size_t mem_size,uint64_t* bitmap);
 
@@ -51,9 +51,11 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	init_timer(100);
 	//__asm__ __volatile__("int $0x00");
 	__asm__ __volatile__("int $0x80");
-	
-
-
+	uint64_t *elf_start;
+	if(!(elf_start=tarfs_get_file("bin/ls"))){
+		printf("elf not found\n");
+	}
+	printf("%p\n",elf_start);
 	while(1);
 	/* blue background and white foreground */
 	/* set_color(0x1F); */

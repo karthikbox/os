@@ -312,6 +312,8 @@ isr_common:
 		pushq %rbp
 		movq %rsp, %rdi
 		call isr_handler
+.global trapret
+trapret:		
 		popq %rbp
 		popq %r15
 		popq %r14

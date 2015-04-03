@@ -19,4 +19,7 @@ void itoa64(uint64_t number, char *str, int base);
 #define va_copy(d,s)      __builtin_va_copy(d,s)
 typedef __builtin_va_list va_list;
 
+int strlen(char *s);
+int strcmp(const char *s1,const char * s2);
+
 #endif
