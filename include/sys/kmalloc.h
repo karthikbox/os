@@ -12,11 +12,11 @@ struct frame_manager
 
 typedef struct frame_manager *p_fmgr;
 
-p_fmgr head=NULL;//head points to the head of the memory linked list
-p_fmgr tail=NULL;//tail points to the last node of the linked list, brk is data chunk + meta
-void* page_phys_addr = NULL;
-p_fmgr frame_manager_last = NULL;
-p_fmgr frame_manager_start = NULL;
+p_fmgr head;//head points to the head of the memory linked list
+p_fmgr tail;//tail points to the last node of the linked list, brk is data chunk + meta
+void* page_phys_addr;
+p_fmgr frame_manager_last;
+p_fmgr frame_manager_start;
 
 #define FRAME_MGR_SIZE 40
 #define ALIGNMENT 8

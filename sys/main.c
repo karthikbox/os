@@ -63,6 +63,7 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 		printf("elf not found\n");
 	}
 	printf("found at %p\n",elf_start);
+	printf("pml4_base->%p\n",(uint64_t)pml4_base);
 	while(1);
 	/* blue background and white foreground */
 	/* set_color(0x1F); */

@@ -4,6 +4,13 @@
 #include <sys/process.h>
 #include <sys/page.h>
 
+p_fmgr head=NULL;//head points to the head of the memory linked list
+p_fmgr tail=NULL;//tail points to the last node of the linked list, brk is data chunk + meta
+void* page_phys_addr = NULL;
+p_fmgr frame_manager_last = NULL;
+p_fmgr frame_manager_start = NULL;
+
+
 void* kmalloc(size_t size)
 {
 	//allign the size in multiples of 8

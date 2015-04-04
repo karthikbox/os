@@ -5,6 +5,7 @@
 #include<sys/pmmgr.h>
 
 extern void trapret();
+extern int exec(char *path,char **argv);
 static struct proc *initproc;
 
 uint32_t proc_count=1;			/* this is the pid counter. starts from 1. */
@@ -66,7 +67,7 @@ void userinit(){
 	strcpy(p->name,"initcode");	/* p->name has a size of 32 bytes */
 	p->state=RUNNABLE;
 	/* call exec */
-	exec("bin/hello",{"bin/hello",NULL});
+	exec("bin/hello",NULL);
 	//p->tf->cs=(SEG_);
 }
 

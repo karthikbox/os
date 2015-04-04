@@ -1,3 +1,19 @@
+NOTES
+######
+pml4_base initially holds physical addr of kernel pml4 table, i.e 0x100000
+this is okay during setting up kernel page tables
+
+Keep this in mind, dereferncing base[511]. will page fault. since 0x100000 is not backed up by a page
+so convert it into virt addres and then dereference it.
+Eg:
+*(((pml4 *)(get_virt_addr((uint64_t)base))) +511)
+
+
+
+%%%%%%%%%%%%%%%
+
+TODO
+######
 idt.s
 #######
 in isr_common:

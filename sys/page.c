@@ -2,7 +2,7 @@
 #include<sys/pmmgr.h>
 #include<sys/utility.h>
 #include<sys/sbunix.h>
-
+#include<sys/process.h>
 inline uint64_t pml4_index(uint64_t x){
 	return ((x>>39) & 0x1fful);
 }
@@ -273,5 +273,6 @@ int allocuvm(pml4 *pml4_t,uint64_t virt_addr,uint64_t sz){
 	}
 	return sz;					/* success. all of range got alloc'd phys frames */
 }
+
 
 
