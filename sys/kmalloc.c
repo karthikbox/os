@@ -5,6 +5,8 @@
 
 void* kmalloc(size_t size)
 {
+	/* returns NULL on failure */
+	/* todo: mark kmalloc data structure memory as used in pmmgr and never free it(?) */
 	//printf("In kmalloc()\n");
 	p_blk temp;
 	size=ALIGN(size);

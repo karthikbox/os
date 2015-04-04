@@ -21,5 +21,7 @@ typedef __builtin_va_list va_list;
 
 int strlen(char *s);
 int strcmp(const char *s1,const char * s2);
+void strcat(char* envPath, char* path);
+void strcpy(char* dest, char* src);
 
 #endif

@@ -1,0 +1,10 @@
+idt.s
+#######
+in isr_common:
+add code to change ds,gs,es,fs to SEG_UDCODE<<3|DPL_KERNEL before calling isr_common.
+add code to change ds,gs,es,fs to SEG_UCODE<<3|DPL_KERNEL before iretq.This part should be added to trapret.
+
+kmalloc
+#######
+what does kmalloc return on no available memory error. is it NULL? it has to be.
+mark pages used for kmalloc data structures as used and never free them to prevent them from being overwritten

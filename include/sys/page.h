@@ -101,6 +101,14 @@ void vm_free_page(pt_entry* e);
 int vm_page_map(uint64_t phys,uint64_t virt,int rx_bit);
 void load_base(uint64_t addr);
 int vm_init(void *physbase,void *physfree);
+
+/* user VA functions */
+
+int allocuvm(pml4 *pml4_t,uint64_t virt_addr,uint64_t sz);
+int u_alloc_frame_for_va(pml4 *pml4_t,uint64_t virt_addr);
+int u_check_alloc(pml4 *base,uint64_t offset,int rx_bit);
+
+
 /*
 1234 5678 
 0000 0000 1 00

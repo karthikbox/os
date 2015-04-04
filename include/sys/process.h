@@ -8,6 +8,40 @@
 #define NPROC 64				/* maximum number of processes */
 #define KSTACKSIZE 4096			/* size of per-process kernel stack */
 #define NOFILE 16				/* open files per process */
+#define MAXARG 32				/* max exec arguments */
+
+#define FL_IF 0x0000000000000200 /* interrupt enable */
+
+#define GDT_CS        (0x00180000000000)  /*** code segment descriptor ***/
+#define GDT_DS        (0x00100000000000)  /*** data segment descriptor ***/
+
+#define C             (0x00040000000000)  /*** conforming ***/
+#define DPL0          (0x00000000000000)  /*** descriptor privilege level 0 ***/
+#define DPL1          (0x00200000000000)  /*** descriptor privilege level 1 ***/
+#define DPL2          (0x00400000000000)  /*** descriptor privilege level 2 ***/
+#define DPL3          (0x00600000000000)  /*** descriptor privilege level 3 ***/
+#define P             (0x00800000000000)  /*** present ***/
+#define L             (0x20000000000000)  /*** long mode ***/
+#define D             (0x40000000000000)  /*** default op size ***/
+#define W             (0x00020000000000)  /*** writable data segment ***/
+
+
+inline uint64_t SEG_KCS(){
+ 	return (uint64_t)(GDT_CS | P | DPL0 | L);  /*** kernel code segment descriptor ***/
+}
+
+inline uint64_t SEG_KDS(){
+ 	return (uint64_t)(GDT_DS | P | W | DPL0);  /*** kernel data segment descriptor ***/
+}
+
+inline uint64_t SEG_UCS(){
+ 	return (uint64_t)(GDT_CS | P | DPL3 | L);  /*** USER code segment descriptor ***/
+}
+
+inline uint64_t SEG_UDS(){
+ 	return (uint64_t)(GDT_DS | P | W | DPL3);  /*** kernel data segment descriptor ***/
+}
+
 
 uint32_t proc_count;
 
@@ -90,6 +124,9 @@ uint64_t get_phys_addr(uint64_t x);
 
 void userinit();
 struct proc * alloc_proc();
+void forkret();
+
+pml4 *load_kern_vm();
 
 #endif
 

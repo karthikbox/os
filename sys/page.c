@@ -183,3 +183,95 @@ int vm_init(void* physbase,void* physfree){
 	load_base((uint64_t)pml4_base);
 	return 1;
 }
+
+int u_check_alloc(pml4 *base,uint64_t offset,int rx_bit){
+	/* returns 0, if failed */
+	/* returns 1 if success */
+	pd_entry ptr;
+	if(!pd_entry_present(base->m_entries[offset])){
+		/* pdp entry not present */
+		ptr=(pd_entry)kmalloc(FRAME_SIZE); /* kernel VA */
+		if(!ptr)
+			return 0;
+		memset1((char *)ptr,0,0x1000); /* clear contents */
+		/* convert KVA to physical addr */
+		/*  */
+		pd_entry_set_frame(&base->m_entries[offset],get_phys_addr((uint64_t)ptr));
+		pd_entry_add_attrib(&base->m_entries[offset],PT_PRESENT);
+		if(rx_bit){
+			/* rx_bit is 1, set RW bit */
+			pd_entry_add_attrib(&base->m_entries[offset],PT_WRITABLE);
+		}
+			
+	}
+	return 1;
+}
+
+
+
+int u_alloc_frame_for_va(pml4 *pml4_t,uint64_t virt_addr){
+
+	/* return 0 on failure */
+	/* return 1 on success */
+	/* returns 1 if, a physical frame was already alloc'd for this VA */
+	/* if not alloc'd, creates a frame for this VA and then returns 1  */
+	uint64_t offset=pml4_index(virt_addr); /* offset for pml4 entry */
+	pml4 *base=pml4_t;
+	if(!u_check_alloc(base,offset,1)){
+		/* u_check_failed */
+		return 0;
+	}
+	/* now a pdp frame was allocated and stitched into pml4 */
+	/* get addr of pdp */
+	/* offset is still offset into pml4 */
+	/* pd_entry_get_frame returns phys addr. convert it into virt addr */
+	base=(pml4 *)get_virt_addr(pd_entry_get_frame(base->m_entries[offset]));
+	/* get new offset in pdp table */
+	offset=pdp_index(virt_addr);
+	if(!u_check_alloc(base,offset,1)){
+		/* u_check failed */
+		return 0;
+	}
+	/* now pd frame was allocated and stitched into pdp */
+	/* get virt addr of pd */
+	base=(pml4 *)get_virt_addr(pd_entry_get_frame(base->m_entries[offset]));
+	/* get pd offset */
+	offset=pd_index(virt_addr);
+	if(!u_check_alloc(base,offset,1)){
+		/* u_check failed */
+		return 0;
+	}
+	/* now pt frame was alloc'd and stitched into pd */
+	/* get virt adr of pt */
+	base=(pml4 *)get_virt_addr(pd_entry_get_frame(base->m_entries[offset]));
+	/* get pt offset */
+	offset=pt_index(virt_addr);
+	if(!u_check_alloc(base,offset,1)){
+		/* u_check failed */
+		return 0;
+	}
+	/* now a frame was allocated and stitched into pt as en entry */
+	/* this was the last level */
+	/* we already cleared the physical frame  */
+	return 1;
+	
+}
+
+
+
+int allocuvm(pml4 *pml4_t,uint64_t virt_addr,uint64_t sz){
+	/* return 0 on failure */
+	/* return sz on success */
+	/* allocates physical frames for the VA range virt_addr to (virt_addr+sz) */
+	uint64_t i=0;
+	for(i=virt_addr;i<virt_addr+sz;i++){
+		/* alloc a frame for this  addr i*/
+		if(!u_alloc_frame_for_va(pml4_t,i)){
+			/* alloc_frame_for_va failed */
+			return 0;
+		}
+	}
+	return sz;					/* success. all of range got alloc'd phys frames */
+}
+
+

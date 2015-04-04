@@ -4,6 +4,8 @@
 #include<sys/page.h>
 #include<sys/pmmgr.h>
 
+extern void trapret();
+static struct proc *initproc;
 
 uint32_t proc_count=1;			/* this is the pid counter. starts from 1. */
 
@@ -19,21 +21,53 @@ struct{
 	struct proc proc[NPROC];
 }ptable;
 
+pml4 *load_kern_vm(){
+	/* allocate a pml4 entry. load kernel vm into pml4 entry and return it */
+	pml4 *pml4_t;
+	if(!(pml4_t=(pml4 *)kmalloc(FRAME_SIZE))){
+		return NULL;
+	}
+	memset1((char *)pml4_t,0,FRAME_SIZE);
+	pml4_t[511]=pml4_base[511];	/* put kernel space which is marked RW for only supervisor into process pml4 table */
+	return pml4_t;
+	
+}
+
+/* load initcode.S into address 0 of pml4 */
+void inituvm(pml4 *pml4_t, char *star,uint64_t sz){
+	char *mem;
+	if(sz >= FRAME_SIZE){
+		printf("inituvm: input sz more than a page\n");
+	}
+	mem=(char *)kmalloc(FRAME_SIZE);
+	memset1(mem,0,FRAME_SIZE);
+	
+}
+
 /* creates the first process */
 void userinit(){
 	struct proc *p;
 	memset1((char *)ptable.proc,0,sizeof(ptable));
 	p=alloc_proc();
-	/* if(!(p->pml4_t=kmalloc_pml4())){ */
-	/* 	/\* panic code goes here*\/ */
-	/* 	printf("unable to allocate pml4\n"); */
-	/* } */
-	/* inituvm(p->pml4_t,binary_initcode_start,binary_initcode_size); */
-	/* p->size=FRAME_SIZE; */
-	/* /\* clear the trapframe. this is only done for fist process *\/ */
-	/* memset1((char *)p->tf,0,sizeof(struct trapframe)); */
-	/* /\* continue here *\/ */
-	/* p->tf->cs=(SEG_); */
+	initproc=p;
+	if(!(p->pml4_t=load_kern_vm())){
+		/* panic code goes here*/
+		printf("unable to allocate pml4\n");
+	}
+	//inituvm(p->pml4_t,binary_initcode_start,binary_initcode_size);
+	p->size=FRAME_SIZE;
+	/* clear the trapframe. this is only done for fist process */
+	memset1((char *)p->tf,0,sizeof(struct trapframe));
+	p->tf->cs=SEG_UCS();			/* user code segment */
+	p->tf->ss=SEG_UDS();			/* user data segment */
+	p->tf->rflags=FL_IF;			/* enable interrupts */
+	p->tf->rsp=FRAME_SIZE; /* where does the user stack star from in the proc vm */
+	p->tf->rip=0;		   /* begining of initcode.S */
+	strcpy(p->name,"initcode");	/* p->name has a size of 32 bytes */
+	p->state=RUNNABLE;
+	/* call exec */
+	exec("bin/hello",{"bin/hello",NULL});
+	//p->tf->cs=(SEG_);
 }
 
 
@@ -46,27 +80,28 @@ struct proc * alloc_proc(){
 			p->state=EMBRYO;
 			p->pid=proc_count++;
 			/* allocate kernel stack */
-			if(!(p->kstack=(char *)kmalloc(KSTACKSIZE)){ /* KSTACKSIZE IS 4096B*/
-					p->state=UNUSED;
-					return NULL;
+			if(!(p->kstack=(char *)kmalloc(KSTACKSIZE))){ 
+				/* KSTACKSIZE IS 4096B*/
+				p->state=UNUSED;
+				return NULL;
 			}
-				sp=p->kstack+STACKSIZE; /* points to end of stack */
-				/* make space for trapframe */
-				sp-=sizeof(struct trapframe);
-				p->tf=(struct trapframe *)sp;
-				/* set up new context to start executing at forkret, ehich returns to trapret */
-				sp-=8;
-				*(uint64_t *)sp=(uint64_t)trapret;
-				sp-=sizeof(struct context);
-				p->context=(struct context *)sp;
-				memset1(p->context,0,sizeof(struct context));
-				p->context->rip=(uint64_t)forkret;
-				return p;
-				/* allocate page table and load ernel memory into it */
-				
+			sp=p->kstack+KSTACKSIZE; /* points to end of stack */
+			/* make space for trapframe */
+			sp-=sizeof(struct trapframe);
+			p->tf=(struct trapframe *)sp;
+			/* set up new context to start executing at forkret, ehich returns to trapret */
+			sp-=8;
+			*(uint64_t *)sp=(uint64_t)trapret;
+			sp-=sizeof(struct context);
+			p->context=(struct context *)sp;
+			memset1((char *)p->context,0,sizeof(struct context));
+			p->context->rip=(uint64_t)forkret;
+			return p;
+			/* allocate page table and load ernel memory into it */
+			
 		}
-	  	return NULL;
 	}
+	return NULL;
 }
 
 void forkret(){

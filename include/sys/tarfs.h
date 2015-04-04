@@ -2,6 +2,7 @@
 #define _TARFS_H
 
 #include<sys/defs.h>
+#define ELF_PROG_LOAD 1
 
 extern char _binary_tarfs_start;
 extern char _binary_tarfs_end;

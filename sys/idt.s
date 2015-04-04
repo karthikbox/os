@@ -290,6 +290,7 @@ idt_load:
 		lidt (idt_pointer)
 		retq
 
+		
 .global isr_common
 # from https://code.google.com/p/shovelos/source/browse/trunk/kernel/arch/x86_64/isr.c?r=182
 		.extern isr_handler
@@ -312,6 +313,7 @@ isr_common:
 		pushq %rbp
 		movq %rsp, %rdi
 		call isr_handler
+		
 .global trapret
 trapret:		
 		popq %rbp
