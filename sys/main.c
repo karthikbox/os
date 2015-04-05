@@ -43,13 +43,26 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	vm_init(physbase,physfree);
 	//*((char *)0xffffffff80000000ul+(uint64_t)physfree)='a';
 	//*((char *)(0xffffffff80000000ul+0x200000ul))='a';
-	printf("%p\n",(uint64_t)alloc_frame());
+	printf("%p\n",(uint64_t)alloc_frame(PAGE_SIZE));
 	printf("%p <-> %p\n",physbase,physfree);
 	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 	clear_line(24);//24 , clears the last line of vga buffer
 	idt_init();
 	init_timer(100);
-
+        
+	int* one=(int*)kmalloc(4096*2);
+	printf("one: %p",one);
+	int* two=(int*)kmalloc(8);
+	printf("two: %p",two);
+	int* three=(int*)kmalloc(4096);
+	printf("three: %p",three);
+	int* four=(int*)kmalloc(12);
+	printf("four:%p",four);
+	kfree(one);
+	one=(int*)kmalloc(40);
+	printf("one again: %p",one);
+	int* five=(int*)kmalloc(4096);
+	printf("five:last+1000 %p",five);
 	int* num;
 	for(int i=0; i<105; i++)
 	{

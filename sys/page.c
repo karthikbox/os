@@ -76,7 +76,7 @@ int check_alloc(pml4 *base,uint64_t offset,int rx_bit){
 	pd_entry ptr;
 	if(!pd_entry_present(base->m_entries[offset])){
 		/* pdp entry not present */
-		ptr=(pd_entry)alloc_frame();
+		ptr=(pd_entry)alloc_frame(PAGE_SIZE);
 		if(!ptr)
 			return 0;
 		memset1((char *)ptr,0,0x1000);
@@ -148,7 +148,7 @@ int vm_page_map(uint64_t phys_addr,uint64_t virt_addr,int rx_bit){
 
 int vm_init(void* physbase,void* physfree){
 	/* alloc 1 frame and clear it for pml4 */
-	pml4_base=alloc_frame();
+	pml4_base=alloc_frame(PAGE_SIZE);
 	
 	if(!pml4_base){
 		printf("unable to allocate frame\n");
