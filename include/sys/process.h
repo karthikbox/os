@@ -3,12 +3,16 @@
 
 #include<sys/defs.h>
 #include<sys/page.h>
+#include<sys/gdt.h>
 
 #define KERNBASE 0xffffffff80000000ul
 #define NPROC 64				/* maximum number of processes */
 #define KSTACKSIZE 4096			/* size of per-process kernel stack */
 #define NOFILE 16				/* open files per process */
 #define MAXARG 32				/* max exec arguments */
+
+
+#define USTACK 0xffffffff70000000ul
 
 #define FL_IF 0x0000000000000200 /* interrupt enable */
 
@@ -26,24 +30,23 @@
 #define W             (0x00020000000000)  /*** writable data segment ***/
 
 
-inline uint64_t SEG_KCS(){
- 	return (uint64_t)(GDT_CS | P | DPL0 | L);  /*** kernel code segment descriptor ***/
-}
+struct proc *initproc;
+struct proc *proc;
 
-inline uint64_t SEG_KDS(){
- 	return (uint64_t)(GDT_DS | P | W | DPL0);  /*** kernel data segment descriptor ***/
-}
-
-inline uint64_t SEG_UCS(){
- 	return (uint64_t)(GDT_CS | P | DPL3 | L);  /*** USER code segment descriptor ***/
-}
-
-inline uint64_t SEG_UDS(){
- 	return (uint64_t)(GDT_DS | P | W | DPL3);  /*** kernel data segment descriptor ***/
-}
-
+uint64_t SEG_KCS();
+uint64_t SEG_KDS();
+uint64_t SEG_UCS();
+uint64_t SEG_UDS();
 
 uint32_t proc_count;
+
+
+struct cpu{
+
+	struct context *scheduler;
+	/* struct taskstate ts; */
+};
+
 
 /* process states */
 enum procstate{
@@ -127,67 +130,10 @@ struct proc * alloc_proc();
 void forkret();
 
 pml4 *load_kern_vm();
+void scheduler();
+void switchuvm(struct proc *p);
+
+void cli();
+void sti();
 
 #endif
-
-/* typedef struct register_t{ */
-
-/* uint64_t rax; */
-/* uint64_t rbx; */
-/* uint64_t rcx; */
-/* uint64_t rdx; */
-/* uint64_t rsi; */
-/* uint64_t rdi; */
-/* uint64_t r8; */
-/* uint64_t r9; */
-/* uint64_t r10; */
-/* uint64_t r11; */
-/* uint64_t r12; */
-/* uint64_t r13; */
-/* uint64_t r14; */
-/* uint64_t r15; */
-/* uint64_t rbp; */
-/* }reg_t; */
-
-/* typedef struct task{ */
-
-/* 	uint64_t ppid; 				/\* parent process id *\/ */
-/* 	uint64_t pid;				/\* process id *\/ */
-/* 	uint64_t *stack;			/\* user level stack virtual address *\/ */
-/* 	reg_t regs;					/\* saved GPR of the process *\/ */
-/* 	uint64_t rsp;				/\* stack pointer of user stack*\/ */
-/* 	uint64_t cr3; */
-/* 	/\* uint64_t rip; *\/ */
-/* 	pml4 *pml4_p;				/\* pml4 structure virtual address *\/ */
-/* 	void (* entry)();				/\* user function entry point *\/ */
-/* 	uint64_t state;				/\* 0:ready, 1:wait, 2:sleep, 3:zombie *\/ */
-/* 	uint64_t sleep_time;		/\* sleep time *\/ */
-/* 	struct task *next; */
-	
-/* } pcb; */
-
-
-/* typedef struct run_queue{ */
-
-/* 	pcb *head; */
-/* 	pcb *tail; */
-/* 	pcb *cur_pcb;				/\* must implement this as a circular linked list *\/ */
-/* }run_q; */
-
-
-/* run_q run_q_p; */
-
-/* uint64_t get_virt_addr(uint64_t x); */
-
-/* uint64_t get_phys_addr(uint64_t x); */
-
-/* void init_regs(reg_t *p); */
-
-/* int create_process(); */
-
-/* void proc_entry(); */
-
-/* void init_runq(); */
-
-/* void switch_to_next(); */
-/* #endif */

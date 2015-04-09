@@ -1,6 +1,5 @@
 
 
-
 .text
 
 # isr0-31 are for exceptions
@@ -333,4 +332,3 @@ trapret:
 		popq %rax
 		addq $0x10,%rsp
 		iretq
-

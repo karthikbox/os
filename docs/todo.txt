@@ -1,5 +1,6 @@
 NOTES
 ######
+>>>>>>
 pml4_base initially holds physical addr of kernel pml4 table, i.e 0x100000
 this is okay during setting up kernel page tables
 
@@ -7,20 +8,34 @@ Keep this in mind, dereferncing base[511]. will page fault. since 0x100000 is no
 so convert it into virt addres and then dereference it.
 Eg:
 *(((pml4 *)(get_virt_addr((uint64_t)base))) +511)
-
+>>>>>>
+check format rflags. right now setting only interrupt enable flag while going to user process
+>>>>>>
+how to set TSS and to what value?
 
 
 %%%%%%%%%%%%%%%
 
 TODO
 ######
-idt.s
+IDT.S
 #######
 in isr_common:
 add code to change ds,gs,es,fs to SEG_UDCODE<<3|DPL_KERNEL before calling isr_common.
 add code to change ds,gs,es,fs to SEG_UCODE<<3|DPL_KERNEL before iretq.This part should be added to trapret.
 
-kmalloc
+ kcs-> 20980000000000 
+ kds-> 920000000000 
+ ucs-> 20f80000000000 
+ uds-> f20000000000 
+
+KMALLOC
 #######
 what does kmalloc return on no available memory error. is it NULL? it has to be.
 mark pages used for kmalloc data structures as used and never free them to prevent them from being overwritten
+
+EXEC()
+######
+write free_uvm() in page.c
+understand ustack in xv6 book and add it to exec
+everything is done except for the above two

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-unsigned int abc();
+
 
 int main(int argc, char* argv[], char* envp[]) {
 	
@@ -26,7 +26,7 @@ int main(int argc, char* argv[], char* envp[]) {
 	int a = 0;
 	int b = 123;
 	int c = -123;*/
-	char ch;
+	char ch='X';
 	/*printf("Enter a string ");
 	scanf("%s", buf);
 	printf("Enter a positive hexa decimal number ");
@@ -39,11 +39,11 @@ int main(int argc, char* argv[], char* envp[]) {
 	printf("Negative hexa decimal number is %x\n", a);
 	printf("a, b, c --> %d, %d, %d\n", a, b, c*2);*/
 	printf("Enter a character ");
-	scanf("%c", &ch);
+	//scanf("%c", &ch);
 	printf("Entered character is %c\n", ch);
-	printf("%d\n", abc());
-	alarm(1);
-	printf("%d", sleep(2));
+	//printf("%d\n", abc());
+	//alarm(1);
+	//printf("%d", sleep(2));
 	
 	//test execve
 /*
@@ -230,7 +230,3 @@ int main(int argc, char* argv[], char* envp[]) {
 	return 0;
 }
 
-unsigned int abc()
-{
-	return -1;
-}

@@ -268,11 +268,17 @@ int allocuvm(pml4 *pml4_t,uint64_t virt_addr,uint64_t sz){
 		/* alloc a frame for this  addr i*/
 		if(!u_alloc_frame_for_va(pml4_t,i)){
 			/* alloc_frame_for_va failed */
+			printf("alloc_frame_for_va failed\n");
 			return 0;
 		}
 	}
 	return sz;					/* success. all of range got alloc'd phys frames */
 }
 
+void free_uvm(pml4 *pml4_t){
+	/* deallocates the pml4 entries except fpr 511 entry recursively */
+	/* finally frees up pml4 table memory */
+	;							/* TODO */
+}
 
 
