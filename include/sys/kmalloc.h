@@ -22,10 +22,10 @@ p_fmgr frame_manager_start;
 #define ALIGNMENT 8
 #define ALIGN(x) (((x)+(ALIGNMENT-1)) & ~ (ALIGNMENT-1))
 #define ENTRIES_PER_FRAME_MGR 102
-
+//#define NUMBER_OF_FRAMES(size) (size%4096==0?size/4096:size/4096+1) 
 void* kmalloc(size_t size);
 void kfree(void* ptr);
 void* alloc_addr(size_t size);
-void* new_page_mgr_alloc();
-void init_page(p_fmgr node);
+void* new_page_mgr_alloc(size_t size);
+void init_page(p_fmgr node,size_t size);
 void add_mgr_node(p_fmgr node, size_t size);

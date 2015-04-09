@@ -4,8 +4,6 @@
 
 //set bitmap
 
-uint64_t memory_size=0;//uint64_t is same as size_t
-
 //size of physical memory in blocks
 uint64_t memory_size_in_frames=0;
 //number of blocks currently in use
@@ -29,11 +27,14 @@ int mem_map_test(uint64_t bit){
 		return 0;
 }
 
-long mem_map_first_free(){
+long mem_map_first_free(size_t size){
+	int number_of_frames=NUMBER_OF_FRAMES(size);
+        uint64_t temp=0xffffffffffffffff;
+        temp=temp>>(64-number_of_frames);
 	for(uint64_t i=0;i<memory_size_in_frames/64+1;i++){
 		if(memory_map[i]!=0xffffffffffffffff){
 			for(int j=0;j<64;j++){
-				if( !(memory_map[i] & (1ul<<(j))) ){
+				if( !(memory_map[i] & (temp<<(j))) ){
 					return j+i*64;//return bit number
 				}
 			}
@@ -98,16 +99,20 @@ long get_free_frame_count(){
 }
 
 
-void* alloc_frame(){
+void* alloc_frame(size_t size){
+	int i=0;
 	if(get_free_frame_count() <= 0){
 		return 0;
 	}
 	//there is free memory
-	long frame_number=mem_map_first_free();
+	long frame_number=mem_map_first_free(size);
 	if(frame_number==-1)
 		return 0;
-	mem_map_set((uint64_t)frame_number);
-	memory_used_frames++;
+	int num=NUMBER_OF_FRAMES(size);
+	for(i=0;i<num;i++){
+		mem_map_set((uint64_t)frame_number+i);
+		memory_used_frames++;
+	}
 	uint64_t addr=frame_number*FRAME_SIZE;
 	return (void *)addr;
 

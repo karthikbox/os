@@ -29,7 +29,7 @@ void* alloc_addr(size_t size)
 	if(!head)
 	{
 		//allocate a page for the frame_manager	to store the metadata of the malloc'ed pages
-		head = new_page_mgr_alloc();
+		head = new_page_mgr_alloc(PAGE_SIZE);
 		frame_manager_start = head;
 		printf("Head is %p\n", head);
 
@@ -37,7 +37,7 @@ void* alloc_addr(size_t size)
 		frame_manager_last = head;
 
 		//creates the actual page and adds the metadata to the head
-		init_page(head);
+		init_page(head,size);
 
 		//allocate size to the page and update the metadata in the frame_manager
 		add_mgr_node(head, size);
@@ -67,22 +67,22 @@ void* alloc_addr(size_t size)
 	prev->next = node;
 	frame_manager_last = node;
 
-	init_page(node);
+	init_page(node,size);
 	add_mgr_node(node, size);
 	ret_addr = (void*)((uint64_t)node->frame_start_addr + (uint64_t)node->offset);
 
 	return ret_addr;
 }
 
-void init_page(p_fmgr node)
+void init_page(p_fmgr node,size_t size)
 {
-	page_phys_addr = (void*) get_virt_addr((uint64_t)alloc_frame());
+	page_phys_addr = (void*) get_virt_addr((uint64_t)alloc_frame(size));
 
 	node->frame_start_addr = page_phys_addr;
 	node->offset = 0;
 	node->next = NULL;
 	node->free = 1;
-	node->size = PAGE_SIZE;
+	node->size = PAGE_SIZE*(size%PAGE_SIZE==0 ? size/PAGE_SIZE : size/PAGE_SIZE+1);
 }
 
 void add_mgr_node(p_fmgr node, size_t size)
@@ -92,7 +92,7 @@ void add_mgr_node(p_fmgr node, size_t size)
 	//check if frame_manager is full or not
 	if((frame_manager_start + ENTRIES_PER_FRAME_MGR) == frame_manager_last)
 	{
-		frame_manager_start = new_page_mgr_alloc();
+		frame_manager_start = new_page_mgr_alloc(PAGE_SIZE);
 		frame_manager_last->next = frame_manager_start;
 		new_node = frame_manager_start;
 	}
@@ -115,10 +115,10 @@ void add_mgr_node(p_fmgr node, size_t size)
 	node->next = new_node;
 }
 
-void* new_page_mgr_alloc(p_fmgr node)
+void* new_page_mgr_alloc(size_t size)
 {
-	void* frame_manager_phys_addr = alloc_frame();
-	node = (p_fmgr)get_virt_addr((uint64_t) frame_manager_phys_addr);
+	void* frame_manager_phys_addr = alloc_frame(size);
+	p_fmgr node = (p_fmgr)get_virt_addr((uint64_t) frame_manager_phys_addr);
 	printf("new_page_mgr address is %p\n", node);
 
 	return (void*)node;

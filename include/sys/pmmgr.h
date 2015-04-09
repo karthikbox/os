@@ -7,7 +7,7 @@
 #define FRAME_SIZE 4096
 #define FRAME_ALIGN FRAME_SIZE
 
-
+#define NUMBER_OF_FRAMES(size) (size%FRAME_SIZE==0?size/FRAME_SIZE:size/FRAME_SIZE+1)
 //size of physical memory
 uint64_t memory_size;//uint64_t is same as size_t
 
@@ -27,7 +27,7 @@ void mem_map_clear(uint64_t bit);
 
 int mem_map_test(uint64_t bit);
 
-long mem_map_first_free();
+long mem_map_first_free(size_t size);
 
 //size_t is same as uint64_t
 void pmmgr_init(size_t mem_size,uint64_t* bitmap);
@@ -40,7 +40,7 @@ uint64_t get_memory_frame_count();
 
 long get_free_frame_count();
 
-void* alloc_frame();
+void* alloc_frame(size_t size);
 
 void free_frame(void *a);
 
