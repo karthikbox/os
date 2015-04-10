@@ -171,7 +171,7 @@ int vm_init(void* physbase,void* physfree){
 	/* for each page from kernmem to kernfree-1 */
 	/* map page to range physbase, physfree-1 */
 	/* physbase if */
-	for(i=(uint64_t)0x100000ul;i<(uint64_t)0x7ffe000ul;i+=0x1000ul){
+	for(i=(uint64_t)0x000000ul;i<(uint64_t)0x7ffe000ul;i+=0x1000ul){
 		if(!vm_page_map(i,0xffffffff80000000ul+i,1)){	/* physical addr, virt addr */
 			printf("unable to map\n");
 			return 0;

@@ -1,5 +1,6 @@
 #include <sys/sbunix.h>
 #include <sys/utility.h>
+#include<sys/process.h>
 
 /* console driver helper definitions */
 #define BLACK_ON_BLACK 0x00 //black letters on black background
@@ -10,9 +11,9 @@ static int y_con=0;
 static int time_x=0;
 static int kbd_x=0;
 static int color = 0x0F; //white letters on black background
-static uint16_t *vga_buf=(uint16_t *)0xB8000;
-static uint16_t *time_vga_buf=(uint16_t *)0xB8f82;
-static uint16_t *kbd_vga_buf=(uint16_t *)0xB8f96;
+static uint16_t *vga_buf=(uint16_t *)(0xB8000ul+KERNBASE);
+static uint16_t *time_vga_buf=(uint16_t *)(0xB8f82+KERNBASE);
+static uint16_t *kbd_vga_buf=(uint16_t *)(0xB8f96+KERNBASE);
 
 static inline int serial_addr(){
 	return y_con*80+x_con;
