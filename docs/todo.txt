@@ -23,11 +23,17 @@ IDT.S
 in isr_common:
 add code to change ds,gs,es,fs to SEG_UDCODE<<3|DPL_KERNEL before calling isr_common.
 add code to change ds,gs,es,fs to SEG_UCODE<<3|DPL_KERNEL before iretq.This part should be added to trapret.
+switching to ring 3.
+set int 0x80 dpl to 3
 
  kcs-> 20980000000000 
  kds-> 920000000000 
  ucs-> 20f80000000000 
  uds-> f20000000000 
+
+RING-3 pages
+######
+change user pages supevisor bit to 1.
 
 KMALLOC
 #######
@@ -37,5 +43,12 @@ mark pages used for kmalloc data structures as used and never free them to preve
 EXEC()
 ######
 write free_uvm() in page.c
-understand ustack in xv6 book and add it to exec
-everything is done except for the above two
+ustack is not being corretly connected by crt1.c.fix it!!
+
+fork()
+######
+write fork, to fork a child. context swithc to it. load new TSS.
+
+vma
+######
+allocate vma
