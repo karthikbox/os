@@ -25,7 +25,7 @@
 
 #define T_SYSCALL 128
 
-
+void init_syscall();
 void yield();
 
 #endif

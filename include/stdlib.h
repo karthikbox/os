@@ -23,7 +23,7 @@ int execve(const char *filename, char *const argv[], char *const envp[]);
 pid_t waitpid(pid_t pid, int *status, int options);
 unsigned int sleep(unsigned int seconds);
 unsigned int alarm(unsigned int seconds);
-
+void yield();
 // paths
 char *getcwd(char *buf, size_t size);
 int chdir(const char *path);

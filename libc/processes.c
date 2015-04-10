@@ -49,3 +49,6 @@ unsigned int sleep(unsigned int seconds){
     return ret;
 }
 
+void yield(){
+  syscall_0(SYS_yield);
+}

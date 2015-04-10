@@ -7,7 +7,7 @@
 #include<sys/tarfs.h>
 extern void idt_init();
 //extern void pmmgr_init(size_t mem_size,uint64_t* bitmap);
-
+extern void init_syscall();
 void start(uint32_t* modulep, void* physbase, void* physfree)
 {
 	struct smap_t {
@@ -31,7 +31,10 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	uint64_t size= (0x7ffe000 - 0x0); //bytes of memory
 	uint64_t* map = (uint64_t *)get_virt_addr((uint64_t)physfree); 	//assuming free memory from physfree
 	pmmgr_init(size,map); //all of memory is set as used
-	
+
+	/* setup SYSCALL asm instruction */
+	init_syscall();
+
 	/* now set [0-1MB], [physbase-(physfree-1)], [0x9fc00 - (0x100000-0x1)]as '1'
 	set frame corresponding to address physfree as used, since it stores the bitmap
 	mem_clear_region(0x100000,(uint64_t)physbase - 0x100000);//[1MB <->( physbase-1)] mark as '0'
@@ -95,6 +98,8 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	/* clear_screen(); */	
 	// kernel starts here
 }
+
+
 
 #define INITIAL_STACK_SIZE 4096
 char stack[INITIAL_STACK_SIZE];
