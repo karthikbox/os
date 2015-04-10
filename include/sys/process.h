@@ -135,5 +135,5 @@ void switchuvm(struct proc *p);
 
 void cli();
 void sti();
-
+void ltr(uint16_t v);
 #endif

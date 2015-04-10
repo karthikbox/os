@@ -1,5 +1,6 @@
 #include <sys/sbunix.h>
 #include <sys/utility.h>
+#include<sys/syscall.h>
 
 /* definition of idt entry */
 struct idt_entry{
@@ -262,8 +263,12 @@ void isr_handler(struct stack_frame *s){
 		keyboard_handler();
 		//for(;;);
 	}
-	else if(s->intr_num == 128){
+	else if(s->intr_num == T_SYSCALL){
 		printf("syscall\n");
+		if(s->rax==SYS_yield){
+			printf("yield syscall match...going in\n");
+			yield();
+		}
 	}
 
 }

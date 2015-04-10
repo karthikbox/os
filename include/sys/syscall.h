@@ -21,5 +21,11 @@
 #define SYS_dup        32
 #define SYS_dup2       33
 #define SYS_getdents   78
+#define SYS_yield      24
+
+#define T_SYSCALL 128
+
+
+void yield();
 
 #endif

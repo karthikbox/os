@@ -109,6 +109,9 @@ void userinit(){
 	cli();
 	exec("bin/hello",argv);
 	//p->tf->cs=(SEG_);
+	/* ltr(0x2Bu); */
+	/* ltr 0x2B   with RPL of 3 for user??? */
+	ltr(0x2Bu);
 
 	/* printf writes to <1MB mem region. Now user page tables are loaded. We cannot access <1MB since we did not map that region into user process < 1MB VM aread */
 	/* printf("calling scheduler\n"); */
@@ -163,11 +166,11 @@ void scheduler(){
 
 	struct proc *p;
 	
-
+	p=proc+1;
 	while(1){
 		/* set interrupts ??? */
 
-		for(p=proc;p<&ptable.proc[NPROC];p++){
+		for(;p<&ptable.proc[NPROC];p++){
 			if(p->state!=RUNNABLE){
 				continue;
 			}
@@ -183,6 +186,8 @@ void scheduler(){
 					:"r"((char *)(proc->tf) - 8)
 					:
 							 );
+
+
 			__asm__ volatile("retq;");
 			
 		}
@@ -207,8 +212,9 @@ void switchuvm(struct proc *p){
 	}
 	load_base(get_phys_addr((uint64_t)p->pml4_t)); /* load process page tables */
 	/* sti(); */
-	/* ltr 0x2B   with RPL of 3 for user??? */
-	ltr(0x2Bu);
+	
+	printf("tss.rsp0 -> %p\n",tss.rsp0);
+	
 }
 
 inline void cli(){
