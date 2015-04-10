@@ -207,12 +207,22 @@ void switchuvm(struct proc *p){
 	}
 	load_base(get_phys_addr((uint64_t)p->pml4_t)); /* load process page tables */
 	/* sti(); */
+	/* ltr 0x2B   with RPL of 3 for user??? */
+	ltr(0x2Bu);
 }
 
 inline void cli(){
-	__asm__ volatile("cli");
+	__asm__ __volatile__("cli");
 }
 
 inline void sti(){
-	__asm__ volatile("sti");
+	__asm__ __volatile__("sti");
+}
+
+inline void ltr(uint16_t v){
+	__asm__ __volatile__("ltr %0;"
+						 :
+						 :"r"(v)
+						 :
+						 );
 }
