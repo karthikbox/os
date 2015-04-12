@@ -111,7 +111,7 @@ void free_uvm(pml4 *pml4_t);
 void free_pdp(pdp *pdp_t);
 void free_pd(pd *pd_t);
 void free_pt(pt *pt_t);
-
+pml4 * copyuvm(pml4 *parent_ml4_t);
 
 /*
 1234 5678 

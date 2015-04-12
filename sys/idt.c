@@ -269,6 +269,10 @@ void isr_handler(struct stack_frame *s){
 			printf("yield syscall match...going in\n");
 			yield();
 		}
+		else if(s->rax==SYS_fork){
+			printf("fork syscall\n");
+			do_fork();
+		}
 	}
 
 }

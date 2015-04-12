@@ -40,3 +40,43 @@ void yield(){
 	scheduler();
 	
 }
+
+void do_fork(){
+	printf("fork syscall\n");
+	/* alloc_proc finds a spot in pcb array and allocates kstack and sets sp and tf pointers and gives a pid*/
+	struct proc *p=alloc_proc();
+	if(!p){
+		/* p is null, alloc_proc couldnt find a spot in pcb array */
+		printf("unable to fork. no space for new processs\n");
+		/* put -1 in proc->tf->rax, this tells parent that fork failed */
+		proc->tf->rax=-1;		/* syscall_0 returns "eax"(that's right) as uint32_t to fork(), in user program we cast to int and then check for -1 */
+		return ;
+	}
+
+	/* copy parent procs address space into child */
+	if(!(p->pml4_t = copyuvm(proc->pml4_t))){
+		/* p->pml4_t is NULL, copyuvm failed */
+		printf("unable to fork. no space for new process's page tables\n");
+		/* put -1 in proc->tf->rax, this tells parent that fork failed */
+		proc->tf->rax=-1;		/* syscall_0 returns "eax"(that's right) as uint32_t to fork(), in user program we cast to int and then check for -1 */
+		return ;
+
+	}
+
+	/* copy trapframe of parent to child */
+	memcpy(p->tf,proc->tf,sizeof(struct trapframe));
+	/* set return of fork of child to 0 */
+	p->tf->rax=0;
+	/* set size of child same as parent */
+	p->size=proc->size;
+	/* set parent of child to proc */
+	p->parent=proc;
+	/* give child the same name as parent */
+	strcpy(p->name,proc->name);
+	/* return pid of child to parent */
+	proc->tf->rax=p->pid;
+	/* set state of child tyo runnable */
+	p->state=RUNNABLE;
+	
+	
+}

@@ -342,3 +342,10 @@ void free_pt(pt *pt_t){
 	/* finally free the pd table */
 	kfree(pt_t);
 }
+
+
+pml4 * copyuvm(pml4 *parent_ml4_t){
+	/* return NULL if fail */
+	/* return address of pml4 if success */
+	return NULL;
+}
