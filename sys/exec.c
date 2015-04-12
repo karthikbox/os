@@ -109,7 +109,7 @@ int exec(char *path,char **argv){
 	proc->tf->rip=elf->e_entry;	/* main */
 	proc->tf->rsp=sp;
 	switchuvm(proc);
-	free_uvm(old_pml4_t);			/* TODO */
+	free_uvm(old_pml4_t);
 	return 0;
 }
 

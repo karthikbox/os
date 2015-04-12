@@ -278,7 +278,67 @@ int allocuvm(pml4 *pml4_t,uint64_t virt_addr,uint64_t sz){
 void free_uvm(pml4 *pml4_t){
 	/* deallocates the pml4 entries except fpr 511 entry recursively */
 	/* finally frees up pml4 table memory */
-	;							/* TODO */
+	/* all pml4/pd pointers passed to this function are virt addrs */
+	int i=0;
+	for(;i<511;i++){
+		/* if an entry of pml4 is present */
+		if(pd_entry_present(pml4_t->m_entries[i])){
+			/* then free it's pdp table */
+			free_pdp((pdp *)(get_virt_addr(pd_entry_get_frame(pml4_t->m_entries[i]))));
+			/* pdp table was freed withing free_pdp */
+		}
+		/* else continue */
+	}
+	/* kfree pml4 table */
+	kfree(pml4_t);
 }
 
+void free_pdp(pdp *pdp_t){
+	/* call free_pd on each entry of pdp */
+	int i=0;
+	for(;i<512;i++){
+		/* if an entry of pml4 is present */
+		if(pd_entry_present(pdp_t->m_entries[i])){
+			/* then free it's pdp table */
+			free_pd((pd *)(get_virt_addr(pd_entry_get_frame(pdp_t->m_entries[i]))));
+			/* pdp table was freed */
+		}
+		/* else continue */
+	}
+	
+	/* finally free the pdp table */
+	kfree(pdp_t);
+}
 
+void free_pd(pd *pd_t){
+	/* call free_pd on each entry of pd */
+	int i=0;
+	for(;i<512;i++){
+		/* if an entry of pd is present */
+		if(pd_entry_present(pd_t->m_entries[i])){
+			/* then free it's pt table */
+			free_pt((pt *)(get_virt_addr(pd_entry_get_frame(pd_t->m_entries[i]))));
+			/* pd table was freed */
+		}
+		/* else continue */
+	}
+	
+	/* finally free the pd table */
+	kfree(pd_t);
+}
+
+void free_pt(pt *pt_t){
+	/* call free_pd on each entry of pd */
+	int i=0;
+	for(;i<512;i++){
+		/* if an entry of pd is present */
+		if(pt_entry_present(pt_t->m_entries[i])){
+			/* then kfree it's physical frame */
+			kfree((void *)get_virt_addr(pt_entry_get_frame(pt_t->m_entries[i])));
+		}
+		/* else continue */
+	}
+	
+	/* finally free the pd table */
+	kfree(pt_t);
+}
