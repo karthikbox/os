@@ -47,12 +47,12 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	//*((char *)0xffffffff80000000ul+(uint64_t)physfree)='a';
 	//*((char *)(0xffffffff80000000ul+0x200000ul))='a';
 
-	printf("%p\n",(uint64_t)alloc_frame(PAGE_SIZE));
+	/* printf("%p\n",(uint64_t)alloc_frame(PAGE_SIZE)); */
 	
-	printf("kcs-> %p \n",SEG_KCS());
-	printf("kds-> %p \n",SEG_KDS());
-	printf("ucs-> %p \n",SEG_UCS());
-	printf("uds-> %p \n",SEG_UDS());
+	/* printf("kcs-> %p \n",SEG_KCS()); */
+	/* printf("kds-> %p \n",SEG_KDS()); */
+	/* printf("ucs-> %p \n",SEG_UCS()); */
+	/* printf("uds-> %p \n",SEG_UDS()); */
 	
 
 	printf("%p\n",(uint64_t)alloc_frame(PAGE_SIZE));
@@ -85,12 +85,16 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 
 	//__asm__ __volatile__("int $0x00");
 	//__asm__ __volatile__("int $0x80");
-	uint64_t *elf_start;
-	if(!(elf_start=tarfs_get_file("bin/initcode"))){
-		printf("elf not found\n");
+	/* uint64_t *elf_start; */
+	/* if(!(elf_start=tarfs_get_file("bin/initcode"))){ */
+	/* 	printf("elf not found\n"); */
+	/* } */
+	/* printf("found at %p\n",elf_start); */
+	/* printf("pml4_base->%p\n",(uint64_t)pml4_base); */
+	struct ref_map ref_count_struct;
+	if(!init_ref_map(&ref_count_struct)){
+		printf("unable to allocate mem for ref count array...fatal");
 	}
-	printf("found at %p\n",elf_start);
-	printf("pml4_base->%p\n",(uint64_t)pml4_base);
 	userinit();
 	while(1);
 	/* blue background and white foreground */
