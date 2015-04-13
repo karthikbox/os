@@ -4,7 +4,7 @@
 #include<sys/page.h>
 #include<sys/pmmgr.h>
 #include<sys/tarfs.h>
-#include<sys/kmalloc.h>
+#include<sys/memory.h>
 
 uint64_t round_down(uint64_t addr,int n);
 

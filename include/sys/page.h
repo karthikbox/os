@@ -91,7 +91,12 @@ typedef struct{
 typedef struct{
 	pd_entry m_entries[ENTRIES_PER_PML4];
 }pml4;
-
+typedef struct {
+	struct vm_area_struct *next;
+	uint64_t start;
+	uint64_t end;
+	uint64_t flags;
+}vm_area_struct;
 
 /* holds the base address of pml4 frame */
 pml4 *pml4_base;

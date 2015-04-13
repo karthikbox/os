@@ -76,12 +76,12 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	/* printf("one again: %p",one); */
 	/* int* five=(int*)kmalloc(4096); */
 	/* printf("five:last+1000 %p",five); */
-	/* int* num; */
-	/* for(int i=0; i<105; i++) */
-	/* { */
-	/* 	num = (int*)kmalloc(sizeof(int)); */
-	/* } */
-	/* printf("num is %p\n", num); */
+	 int* num; 
+	 //for(int i=0; i<105; i++) 
+	  
+	 	num = (int*)kmalloc(sizeof(int)); 
+	  
+	 printf("num is %p\n", num); 
 
 	//__asm__ __volatile__("int $0x00");
 	//__asm__ __volatile__("int $0x80");

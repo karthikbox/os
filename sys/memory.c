@@ -1,4 +1,4 @@
-#include <sys/kmalloc.h>
+#include <sys/memory.h>
 #include <sys/pmmgr.h>
 #include <sys/sbunix.h>
 #include <sys/process.h>
@@ -13,6 +13,10 @@ p_fmgr frame_manager_start = NULL;
 
 void* kmalloc(size_t size)
 {
+
+	if(size <= 0)
+		return NULL;
+	printf("size is %d",size);
 	//allign the size in multiples of 8
 	size = ALIGN(size);
 	void* ret_addr = alloc_addr(size);
@@ -30,6 +34,8 @@ void* alloc_addr(size_t size)
 	{
 		//allocate a page for the frame_manager	to store the metadata of the malloc'ed pages
 		head = new_page_mgr_alloc(PAGE_SIZE);
+		if(!head)
+			return NULL;
 		frame_manager_start = head;
 		printf("Head is %p\n", head);
 
@@ -37,10 +43,16 @@ void* alloc_addr(size_t size)
 		frame_manager_last = head;
 
 		//creates the actual page and adds the metadata to the head
-		init_page(head,size);
+		if(!init_page(head,size))
+		{
+			return NULL;
+		}
 
 		//allocate size to the page and update the metadata in the frame_manager
-		add_mgr_node(head, size);
+		if(!add_mgr_node(head, size))
+		{
+			return NULL;
+		}
 
 		ret_addr = (void*)((uint64_t)head->frame_start_addr + (uint64_t)head->offset);
 		return ret_addr;
@@ -52,7 +64,10 @@ void* alloc_addr(size_t size)
 	{
 		if((temp->free == 1) && temp->size >= size)
 		{
-			add_mgr_node(temp, size);
+			if(!add_mgr_node(temp, size))
+			{
+				return NULL;
+			}
 			ret_addr = (void*)((uint64_t)temp->frame_start_addr + (uint64_t)temp->offset);
 
 			return ret_addr;
@@ -67,25 +82,35 @@ void* alloc_addr(size_t size)
 	prev->next = node;
 	frame_manager_last = node;
 
-	init_page(node,size);
-	add_mgr_node(node, size);
+	if(!init_page(node,size))
+	{
+		return NULL;
+	}
+	if(!add_mgr_node(node, size))
+	{
+		return NULL;
+	}
 	ret_addr = (void*)((uint64_t)node->frame_start_addr + (uint64_t)node->offset);
 
 	return ret_addr;
 }
 
-void init_page(p_fmgr node,size_t size)
+void* init_page(p_fmgr node,size_t size)
 {
 	page_phys_addr = (void*) get_virt_addr((uint64_t)alloc_frame(size));
-
+	if(!page_phys_addr)
+	{
+		return NULL;
+	}
 	node->frame_start_addr = page_phys_addr;
 	node->offset = 0;
 	node->next = NULL;
 	node->free = 1;
 	node->size = PAGE_SIZE*(size%PAGE_SIZE==0 ? size/PAGE_SIZE : size/PAGE_SIZE+1);
+	return (void*)node; 
 }
 
-void add_mgr_node(p_fmgr node, size_t size)
+void* add_mgr_node(p_fmgr node, size_t size)
 {
 	p_fmgr new_node;
 	
@@ -93,6 +118,10 @@ void add_mgr_node(p_fmgr node, size_t size)
 	if((frame_manager_start + ENTRIES_PER_FRAME_MGR) == frame_manager_last)
 	{
 		frame_manager_start = new_page_mgr_alloc(PAGE_SIZE);
+		if(!frame_manager_start)
+		{
+			return NULL;
+		}
 		frame_manager_last->next = frame_manager_start;
 		new_node = frame_manager_start;
 	}
@@ -113,11 +142,16 @@ void add_mgr_node(p_fmgr node, size_t size)
 	node->free = 0;
 	node->size = size;
 	node->next = new_node;
+	return (void*)node;
 }
 
 void* new_page_mgr_alloc(size_t size)
 {
 	void* frame_manager_phys_addr = alloc_frame(size);
+	if(!frame_manager_phys_addr)
+	{
+		return NULL;
+	}
 	p_fmgr node = (p_fmgr)get_virt_addr((uint64_t) frame_manager_phys_addr);
 	printf("new_page_mgr address is %p\n", node);
 
