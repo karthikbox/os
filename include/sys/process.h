@@ -122,6 +122,17 @@ struct proc{
 	struct vma *vma_head ;		  /* pointer to the first VMA */
 };
 
+/* VMA */
+struct vma{
+	uint64_t start;				/* start  virt address */
+	uint64_t end;				/* one byte after the end , virt address*/
+	uint32_t flags;				/* read, write, exec, grow */
+	struct vma *next;			/* ptr to next vma. NULL is end */
+};
+
+
+
+
 uint64_t get_virt_addr(uint64_t x);
 
 uint64_t get_phys_addr(uint64_t x);
@@ -135,7 +146,7 @@ void scheduler();
 void switchuvm(struct proc *p);
 
 /* VMA related */
-void free_vma_list(struct proc *p);
+void free_vma_list(struct vma **p);
 
 
 

@@ -3,10 +3,6 @@
 
 #include <sys/defs.h>
 
-#define VMA_STACK 0
-#define VMA_HEAP  1
-#define VMA_OTHER 2
-
 /* level 1 */
 enum PAGE_PT_FLAGS{
 
@@ -93,13 +89,6 @@ typedef struct{
 	pd_entry m_entries[ENTRIES_PER_PML4];
 }pml4;
 
-struct vma{
-	uint64_t start;				/* start  virt address */
-	uint64_t end;				/* one byte after the end , virt address*/
-	uint32_t flags;				/* read, write, exec, grow */
-	int type;					/* VMA_STACK or VMA_HEAP*/
-	struct vma *next;			/* ptr to next vma. NULL is end */
-};
 
 /* holds the base address of pml4 frame */
 pml4 *pml4_base;

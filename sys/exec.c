@@ -37,8 +37,9 @@ int exec(char *path,char **argv){
 			continue;
 		if(ph->p_memsz < ph->p_filesz){ /* ERROR CHECK */
 			if(pml4_t){
-				free_uvm(pml4_t); /* TODO */
+				free_uvm(pml4_t);
 			}
+			free_vma_list(&head); /* free new vma */
 			return -1;
 		}
 		/* allocuvm allocates physical frames for the p_vaddr->p_vaddr+memsz */
@@ -46,6 +47,7 @@ int exec(char *path,char **argv){
 			if(pml4_t){
 				free_uvm(pml4_t);				
 			}
+			free_vma_list(&head); /* free new vma */
 			return -1;
 		}
 		sz+=ph->p_memsz;
@@ -64,12 +66,19 @@ int exec(char *path,char **argv){
 		/* vma inits */
 		/* create a vma for this program section */
 		struct vma *vma_temp=(struct vma *)kmalloc(sizeof(struct vma));
+		if(!vma_temp){
+			if(pml4_t){
+				free_uvm(pml4_t);				
+			}
+			free_vma_list(&head); /* free new vma */
+			return -1;
+		}
+			
 		/* initialze vma.start to p_vaddr virtual addr */
 		vma_temp->start=ph->p_vaddr;
 		/* initializes vma.end to p_vaddr+p_memsz */
 		vma_temp->end=ph->p_vaddr+ph->p_memsz; /* end points 1 byte after the actual end */
 		vma_temp->flags=ph->p_flags;		   /* copy flags from elf */
-		vma_temp->type=VMA_OTHER;			   /* not stack, not heap */
 		vma_temp->next=NULL;
 		/* add to vma list */
 		add_tail(&head,&tail,vma_temp);
@@ -82,6 +91,7 @@ int exec(char *path,char **argv){
 		if(pml4_t){
 			free_uvm(pml4_t);				
 		}
+		free_vma_list(&head); /* free new vma */
 		return -1;
 	}
 	sz+=FRAME_SIZE;
@@ -90,12 +100,38 @@ int exec(char *path,char **argv){
 	/* sp=USTACK-1;				/\* 1 less than next frame address *\/ */
 	sp=USTACK;
 
+	/* vma for stack */
+	/* allocate */
+	struct vma *vma_stk=(struct vma *)kmalloc(sizeof(struct vma));
+	if(!vma_stk){
+		if(pml4_t){
+			free_uvm(pml4_t);				
+		}
+		free_vma_list(&head); /* free new vma */
+		return -1;
+	}
+	/* initiaize */
+	/* vma.start= USTACK-0x1000 */
+	vma_stk->start=USTACK-0x1000;
+	/* vma.end= USTACK */
+	vma_stk->end=USTACK;
+	/* vma.type= VMA_STACK */
+	/* vma_stk->type=VMA_STACK; */
+	/* vma.flags=??? */
+	vma_stk->flags=PF_R | PF_W |PF_X|PF_GROWSDOWN; /* stack has read, write, exec, growsdown flags set */
+	/* add stack vma to new vma_list */
+	vma_stk->next=NULL;
+	add_tail(&head,&tail,vma_stk);
+
+	/* TODO: heap vma */
+
 	/* push argument strings,prepare rest of stack in ustack */
 	for(argc=0;argv[argc];argc++){
 		if(argc>=MAXARG){
 			if(pml4_t){
-				free_uvm(pml4_t);				
+				free_uvm(pml4_t);
 			}
+			free_vma_list(&head); /* free new vma */
 			return -1;
 		}
 		sp=round_down(sp-(strlen(argv[argc])+1),8); /* round down to 8 byte boundary */
@@ -125,7 +161,7 @@ int exec(char *path,char **argv){
 	proc->tf->rip=elf->e_entry;	/* main */
 	proc->tf->rsp=sp;
 	switchuvm(proc);
-	free_vma_list(proc);		/* free the old vmas */
+	free_vma_list(&proc->vma_head);		/* free the old vmas */
 	proc->vma_head=head;		/* store head of vma's in proc */
 	free_uvm(old_pml4_t);
 	return 0;

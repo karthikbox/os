@@ -2,7 +2,18 @@
 #define _TARFS_H
 
 #include<sys/defs.h>
+
+/* elf  */
 #define ELF_PROG_LOAD 1
+
+#define PF_GROWSup 0x10
+#define PF_GROWSDOWN 0x8
+#define PF_R 0x4
+#define PF_W 0x2
+#define PF_X 0x1
+
+
+/* tarfs */
 
 extern char _binary_tarfs_start;
 extern char _binary_tarfs_end;

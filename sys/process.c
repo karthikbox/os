@@ -234,9 +234,9 @@ inline void ltr(uint16_t v){
 }
 
 
-void free_vma_list(struct proc *p){
+void free_vma_list(struct vma **p){
 	/* iterate throught he vma's */
-	struct vma *t=p->vma_head;
+	struct vma *t=*p;
 	if(!t)
 		return;
 	struct vma *n=t->next;
@@ -250,6 +250,6 @@ void free_vma_list(struct proc *p){
 	}
 	kfree(t);
 	/* make vma_head =null */
-	p->vma_head=NULL;
+	*p=NULL;
 
 }
