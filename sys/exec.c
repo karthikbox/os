@@ -127,7 +127,7 @@ int exec(char *path,char **argv){
 	switchuvm(proc);
 	free_vma_list(proc);		/* free the old vmas */
 	proc->vma_head=head;		/* store head of vma's in proc */
-	free_uvm(old_pml4_t);			/* TODO */	
+	free_uvm(old_pml4_t);
 	return 0;
 }
 

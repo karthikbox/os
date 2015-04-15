@@ -116,6 +116,10 @@ int allocuvm(pml4 *pml4_t,uint64_t virt_addr,uint64_t sz);
 int u_alloc_frame_for_va(pml4 *pml4_t,uint64_t virt_addr);
 int u_check_alloc(pml4 *base,uint64_t offset,int rx_bit);
 void free_uvm(pml4 *pml4_t);
+void free_pdp(pdp *pdp_t);
+void free_pd(pd *pd_t);
+void free_pt(pt *pt_t);
+pml4 * copyuvm(pml4 *parent_ml4_t);
 
 
 

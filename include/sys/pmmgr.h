@@ -8,6 +8,15 @@
 #define FRAME_ALIGN FRAME_SIZE
 
 #define NUMBER_OF_FRAMES(size) (size%FRAME_SIZE==0?size/FRAME_SIZE:size/FRAME_SIZE+1)
+
+/* for frame ref_map */
+struct ref_map{
+	char *entries;
+};
+
+/* global pointer to array of ref_counts */
+char *ref_count;
+
 //size of physical memory
 uint64_t memory_size;//uint64_t is same as size_t
 
@@ -47,5 +56,17 @@ void free_frame(void *a);
 void* kmalloc(size_t size);
 
 void kfree(void* addr);
+
+
+/* frame ref counts */
+int init_ref_map(struct ref_map *p);
+
+char get_ref_count(uint64_t phys_addr);
+
+void set_ref_count(uint64_t phys_addr,char val);
+
+void incr_ref_count(uint64_t phys_addr);
+
+void decr_ref_count(uint64_t phys_addr);
 
 #endif

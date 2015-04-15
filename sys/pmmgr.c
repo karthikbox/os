@@ -120,6 +120,7 @@ void* alloc_frame(size_t size){
 
 
 void free_frame(void *a){
+	/* a is phys addr */
 	uint64_t addr=(uint64_t)a;
 	uint64_t bit = addr/FRAME_SIZE;
 	if(a){
@@ -127,4 +128,48 @@ void free_frame(void *a){
 		memory_used_frames--;
 	}	
 
+}
+
+int init_ref_map(struct ref_map *p){
+	/* return 0 on failure, 1 on success */
+	/* allocate 1 byte for every frame */
+	/* number of frames is get_memory_frame_count */
+	p->entries=(char *)kmalloc(get_memory_frame_count()*sizeof(char));
+	if(!p->entries){
+		return 0;
+	}
+	/* set all ref counts to 0 */
+	memset1((char *)p->entries,0,get_memory_frame_count()*sizeof(char));	
+	/* set ref_count,global var as p->entries */
+	ref_count=p->entries;
+	return 1;
+	
+}
+
+
+char get_ref_count(uint64_t phys_addr){
+	/* return current ref value of frame */
+	/* takes in phys addr of frame */
+
+	/* get frame number */
+	uint64_t bit = phys_addr/FRAME_SIZE;
+	/* return ref count of frame number */
+	return ref_count[bit];
+}
+
+void set_ref_count(uint64_t phys_addr,char val){
+	/* takes in phys address and value of ref_count */
+	uint64_t bit=phys_addr/FRAME_SIZE;
+	ref_count[bit]=val;
+}
+
+void incr_ref_count(uint64_t phys_addr){
+	uint64_t bit=phys_addr/FRAME_SIZE;
+	ref_count[bit]+=1;
+}
+
+void decr_ref_count(uint64_t phys_addr){
+	uint64_t bit=phys_addr/FRAME_SIZE;
+	ref_count[bit]-=1;	
+	
 }

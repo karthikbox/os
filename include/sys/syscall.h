@@ -27,5 +27,6 @@
 
 void init_syscall();
 void yield();
+void do_fork();
 
 #endif
