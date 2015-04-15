@@ -7,6 +7,7 @@
 #include<sys/memory.h>
 
 uint64_t round_down(uint64_t addr,int n);
+void add_tail(struct vma **head,struct vma **tail,struct vma *p);
 
 int exec(char *path,char **argv){
 
@@ -28,6 +29,8 @@ int exec(char *path,char **argv){
 		return -1;
 	}
 	sz=0;
+	struct vma *head=NULL;
+	struct vma *tail=NULL;
 	for(i=0,off=(char *)(elf)+elf->e_phoff;i<elf->e_phnum;i++,off+=sizeof(Elf64_Phdr)){
 		ph=(Elf64_Phdr *)off;
 		if(ph->p_type!=ELF_PROG_LOAD)
@@ -57,6 +60,19 @@ int exec(char *path,char **argv){
 		/* load pml4 base of kernel page table */
 		/* pml4_base is a physical address of 0x100000 */
 		load_base((uint64_t)pml4_base); 
+
+		/* vma inits */
+		/* create a vma for this program section */
+		struct vma *vma_temp=(struct vma *)kmalloc(sizeof(struct vma));
+		/* initialze vma.start to p_vaddr virtual addr */
+		vma_temp->start=ph->p_vaddr;
+		/* initializes vma.end to p_vaddr+p_memsz */
+		vma_temp->end=ph->p_vaddr+ph->p_memsz; /* end points 1 byte after the actual end */
+		vma_temp->flags=ph->p_flags;		   /* copy flags from elf */
+		vma_temp->type=VMA_OTHER;			   /* not stack, not heap */
+		vma_temp->next=NULL;
+		/* add to vma list */
+		add_tail(&head,&tail,vma_temp);
 		printf("copying...\n");
 		
 	}
@@ -109,7 +125,9 @@ int exec(char *path,char **argv){
 	proc->tf->rip=elf->e_entry;	/* main */
 	proc->tf->rsp=sp;
 	switchuvm(proc);
-	free_uvm(old_pml4_t);			/* TODO */
+	free_vma_list(proc);		/* free the old vmas */
+	proc->vma_head=head;		/* store head of vma's in proc */
+	free_uvm(old_pml4_t);			/* TODO */	
 	return 0;
 }
 
@@ -120,5 +138,18 @@ uint64_t round_down(uint64_t addr,int n){
 	}
 	else{
 		return addr - (addr%n);
+	}
+}
+
+void add_tail(struct vma **head,struct vma **tail,struct vma *p){
+	if(*head==NULL){
+		/* no element in list */
+		*head=p;
+		*tail=*head;
+	}
+	else{
+		/* list not empty */
+		(*tail)->next=p;
+		*tail=p;
 	}
 }

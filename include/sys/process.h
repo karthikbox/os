@@ -119,6 +119,7 @@ struct proc{
 	int killed;					  /* if non-zero then killed */
 	/* struct file *ofile[];		  /\* list of open files *\/ */
 	char name[32];				  /* process name */
+	struct vma *vma_head ;		  /* pointer to the first VMA */
 };
 
 uint64_t get_virt_addr(uint64_t x);
@@ -132,6 +133,11 @@ void forkret();
 pml4 *load_kern_vm();
 void scheduler();
 void switchuvm(struct proc *p);
+
+/* VMA related */
+void free_vma_list(struct proc *p);
+
+
 
 void cli();
 void sti();

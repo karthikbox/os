@@ -232,3 +232,24 @@ inline void ltr(uint16_t v){
 						 :
 						 );
 }
+
+
+void free_vma_list(struct proc *p){
+	/* iterate throught he vma's */
+	struct vma *t=p->vma_head;
+	if(!t)
+		return;
+	struct vma *n=t->next;
+	if(n){
+		while(n){
+		/* no not null, next vma exists */
+			kfree(t);
+			t=n;
+			n=n->next;
+		}
+	}
+	kfree(t);
+	/* make vma_head =null */
+	p->vma_head=NULL;
+
+}
