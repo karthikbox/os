@@ -16,7 +16,6 @@ void* kmalloc(size_t size)
 
 	if(size <= 0)
 		return NULL;
-	printf("size is %d",size);
 	//allign the size in multiples of 8
 	size = ALIGN(size);
 	void* ret_addr = alloc_addr(size);
