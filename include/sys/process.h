@@ -122,7 +122,17 @@ struct proc{
 	struct vma *vma_head ;		  /* pointer to the first VMA */
 };
 
+
+
 /* VMA */
+
+#define PF_GROWSUP 0x10			/* custom def, for heap */
+#define PF_GROWSDOWN 0x8		/* custom def, for stack */
+#define PF_R 0x4				/* from elf */
+#define PF_W 0x2				/* from elf */
+#define PF_X 0x1				/* from elf man page */
+
+
 struct vma{
 	uint64_t start;				/* start  virt address */
 	uint64_t end;				/* one byte after the end , virt address*/

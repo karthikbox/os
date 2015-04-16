@@ -31,6 +31,8 @@ int exec(char *path,char **argv){
 	sz=0;
 	struct vma *head=NULL;
 	struct vma *tail=NULL;
+	uint64_t last_seg_start=0;
+	uint64_t last_seg_size=0;
 	for(i=0,off=(char *)(elf)+elf->e_phoff;i<elf->e_phnum;i++,off+=sizeof(Elf64_Phdr)){
 		ph=(Elf64_Phdr *)off;
 		if(ph->p_type!=ELF_PROG_LOAD)
@@ -82,8 +84,12 @@ int exec(char *path,char **argv){
 		vma_temp->next=NULL;
 		/* add to vma list */
 		add_tail(&head,&tail,vma_temp);
-		printf("copying...\n");
-		
+		/* printf("vma.start-> %p ## vma.end-> %p ## vma.flags-> %x\n",vma_temp->start,vma_temp->end,vma_temp->flags);		 */
+		/* get max of all section program header star addrs */
+		if(last_seg_start < ph->p_vaddr){
+			last_seg_start=ph->p_vaddr;
+			last_seg_size=ph->p_memsz;
+		}
 	}
 
 	/* allocate a frame for stack */
@@ -124,6 +130,25 @@ int exec(char *path,char **argv){
 	add_tail(&head,&tail,vma_stk);
 
 	/* TODO: heap vma */
+	struct vma *vma_heap=(struct vma *)kmalloc(sizeof(struct vma));
+	if(!vma_heap){
+		if(pml4_t){
+			free_uvm(pml4_t);				
+		}
+		free_vma_list(&head); /* free new vma */
+		return -1;
+	}
+	/* initializee */
+	/* initially heap has no memory. so vma.start and end point to same address */
+	/* (last_seg_start + last_seg_size ) is the edn of the highest section*/
+	/* start heap from end of last section + 0x1000 */
+	vma_heap->start=(last_seg_start+last_seg_size+0x1000);
+	/* heap has no size intially */
+	vma_heap->end=vma_heap->start;
+	/* heap has read, write, exec, growsup flags set */
+	vma_heap->flags=PF_R | PF_W |PF_X|PF_GROWSUP;
+	vma_heap->next=NULL;
+	add_tail(&head,&tail,vma_heap);
 
 	/* push argument strings,prepare rest of stack in ustack */
 	for(argc=0;argv[argc];argc++){
