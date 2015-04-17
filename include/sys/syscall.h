@@ -28,5 +28,6 @@
 void init_syscall();
 void yield();
 void do_fork();
+void handle_pf();
 
 #endif

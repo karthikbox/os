@@ -44,8 +44,18 @@ int exec(char *path,char **argv){
 			free_vma_list(&head); /* free new vma */
 			return -1;
 		}
+		/* get the elf flags for this segment */
+		/* ignore elf's read,execute flags cuz no meaning in page tables */
+		/* ph->p_flags */
+		/* convert elf p_header flags to page table entries flags */
+		uint64_t flags=0;
+		if(ph->p_flags & PF_W){
+			flags=flags | PT_WRITABLE; /* set writiable bit in pt entries */
+		}
+		/* since these pages are for user, set user bit 1 in page table */
+		flags=flags | PT_USER;
 		/* allocuvm allocates physical frames for the p_vaddr->p_vaddr+memsz */
-		if((sz=allocuvm(pml4_t,ph->p_vaddr,ph->p_memsz))==0){
+		if((sz=allocuvm(pml4_t,ph->p_vaddr,ph->p_memsz,flags))==0){
 			if(pml4_t){
 				free_uvm(pml4_t);				
 			}
@@ -93,7 +103,8 @@ int exec(char *path,char **argv){
 	}
 
 	/* allocate a frame for stack */
-	if((sz=allocuvm(pml4_t,USTACK-0x1000, FRAME_SIZE))==0){
+	/* stack pt_flags will have flags WRITABLE,USER */
+	if((sz=allocuvm(pml4_t,USTACK-0x1000, FRAME_SIZE,PT_WRITABLE|PT_USER))==0){
 		if(pml4_t){
 			free_uvm(pml4_t);				
 		}
@@ -130,6 +141,7 @@ int exec(char *path,char **argv){
 	add_tail(&head,&tail,vma_stk);
 
 	/* TODO: heap vma */
+	/* HEAP PT_FLAGS WILL HAVE PT_WRITABLE|PT_USER */
 	struct vma *vma_heap=(struct vma *)kmalloc(sizeof(struct vma));
 	if(!vma_heap){
 		if(pml4_t){

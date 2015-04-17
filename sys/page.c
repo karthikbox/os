@@ -184,7 +184,7 @@ int vm_init(void* physbase,void* physfree){
 	return 1;
 }
 
-int u_check_alloc(pml4 *base,uint64_t offset,int rx_bit){
+int u_check_alloc(pml4 *base,uint64_t offset,uint64_t flags){
 	/* returns 0, if failed */
 	/* returns 1 if success */
 	pd_entry ptr;
@@ -198,10 +198,8 @@ int u_check_alloc(pml4 *base,uint64_t offset,int rx_bit){
 		/*  */
 		pd_entry_set_frame(&base->m_entries[offset],get_phys_addr((uint64_t)ptr));
 		pd_entry_add_attrib(&base->m_entries[offset],PT_PRESENT);
-		if(rx_bit){
-			/* rx_bit is 1, set RW bit */
-			pd_entry_add_attrib(&base->m_entries[offset],PT_WRITABLE);
-		}
+		pd_entry_add_attrib(&base->m_entries[offset],flags);
+		
 			
 	}
 	return 1;
@@ -209,7 +207,7 @@ int u_check_alloc(pml4 *base,uint64_t offset,int rx_bit){
 
 
 
-int u_alloc_frame_for_va(pml4 *pml4_t,uint64_t virt_addr){
+int u_alloc_frame_for_va(pml4 *pml4_t,uint64_t virt_addr,uint64_t flags){
 
 	/* return 0 on failure */
 	/* return 1 on success */
@@ -217,7 +215,11 @@ int u_alloc_frame_for_va(pml4 *pml4_t,uint64_t virt_addr){
 	/* if not alloc'd, creates a frame for this VA and then returns 1  */
 	uint64_t offset=pml4_index(virt_addr); /* offset for pml4 entry */
 	pml4 *base=pml4_t;
-	if(!u_check_alloc(base,offset,1)){
+	/* pml4, pdp, pd entries should have writable, user bits set */
+	/* pml4's 511 entry is already set as supervisor and writable */
+	uint64_t temp_flags=PD_WRITABLE|PD_USER;
+	/* PML4 falgs set as writable, user */
+	if(!u_check_alloc(base,offset,temp_flags)){
 		/* u_check_failed */
 		return 0;
 	}
@@ -228,7 +230,7 @@ int u_alloc_frame_for_va(pml4 *pml4_t,uint64_t virt_addr){
 	base=(pml4 *)get_virt_addr(pd_entry_get_frame(base->m_entries[offset]));
 	/* get new offset in pdp table */
 	offset=pdp_index(virt_addr);
-	if(!u_check_alloc(base,offset,1)){
+	if(!u_check_alloc(base,offset,temp_flags)){
 		/* u_check failed */
 		return 0;
 	}
@@ -237,7 +239,7 @@ int u_alloc_frame_for_va(pml4 *pml4_t,uint64_t virt_addr){
 	base=(pml4 *)get_virt_addr(pd_entry_get_frame(base->m_entries[offset]));
 	/* get pd offset */
 	offset=pd_index(virt_addr);
-	if(!u_check_alloc(base,offset,1)){
+	if(!u_check_alloc(base,offset,temp_flags)){
 		/* u_check failed */
 		return 0;
 	}
@@ -246,7 +248,7 @@ int u_alloc_frame_for_va(pml4 *pml4_t,uint64_t virt_addr){
 	base=(pml4 *)get_virt_addr(pd_entry_get_frame(base->m_entries[offset]));
 	/* get pt offset */
 	offset=pt_index(virt_addr);
-	if(!u_check_alloc(base,offset,1)){
+	if(!u_check_alloc(base,offset,flags)){
 		/* u_check failed */
 		return 0;
 	}
@@ -259,14 +261,14 @@ int u_alloc_frame_for_va(pml4 *pml4_t,uint64_t virt_addr){
 
 
 
-int allocuvm(pml4 *pml4_t,uint64_t virt_addr,uint64_t sz){
+int allocuvm(pml4 *pml4_t,uint64_t virt_addr,uint64_t sz,uint64_t flags){
 	/* return 0 on failure */
 	/* return sz on success */
 	/* allocates physical frames for the VA range virt_addr to (virt_addr+sz) */
 	uint64_t i=0;
 	for(i=virt_addr;i<virt_addr+sz;i++){
 		/* alloc a frame for this  addr i*/
-		if(!u_alloc_frame_for_va(pml4_t,i)){
+		if(!u_alloc_frame_for_va(pml4_t,i,flags)){
 			/* alloc_frame_for_va failed */
 			printf("alloc_frame_for_va failed\n");
 			return 0;

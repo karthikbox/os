@@ -239,7 +239,11 @@ void idt_init(){
 }
 
 void isr_handler(struct stack_frame *s){
-	if(s->intr_num <= 31){
+	if(s->intr_num == 14){
+		/* page failt handler */
+		handle_pf();
+	}
+	else if(s->intr_num <= 31){
 		//exception
 		printf("%s\n",exception_description[s->intr_num]);
 		printf("Execution halted. Kernel entering infinite loop\n");
