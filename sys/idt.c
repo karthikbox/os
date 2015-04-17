@@ -241,7 +241,7 @@ void idt_init(){
 void isr_handler(struct stack_frame *s){
 	if(s->intr_num == 14){
 		/* page failt handler */
-		handle_pf();
+		handle_pf(s->error_code);
 	}
 	else if(s->intr_num <= 31){
 		//exception
