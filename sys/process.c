@@ -86,8 +86,10 @@ void userinit(){
 	p->size=FRAME_SIZE;
 	/* clear the trapframe. this is only done for fist process */
 	memset1((char *)p->tf,0,sizeof(struct trapframe));
-	p->tf->cs=0x8/* SEG_KCS() */;			/* user code segment */
-	p->tf->ss=0x10/* SEG_KDS() */;			/* user data segment */
+	/* p->tf->cs=0x8/\* SEG_KCS() *\/;			/\* kernel code segment *\/ */
+	/* p->tf->ss=0x10/\* SEG_KDS() *\/;			/\* kernel data segment *\/ */
+	p->tf->cs=0x1B;			/* user code segment */
+	p->tf->ss=0x23;			/* user data segment */
 	p->tf->rflags=FL_IF;			/* enable interrupts */
 	
 	/* rsp will be sey in exec */

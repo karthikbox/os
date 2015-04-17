@@ -12,7 +12,7 @@
 #define MAXARG 32				/* max exec arguments */
 
 
-#define USTACK 0xffffffff70000000ul
+#define USTACK 0xfffffeff70000000ul /* maps to 509 entry of pml4, can be anything as long as not 511 entry */
 
 #define FL_IF 0x0000000000000200 /* interrupt enable */
 

@@ -39,8 +39,9 @@ uint64_t getErrorCode(uint64_t error);
 
 void handle_pf(uint64_t error){
 	printf("page fault handler\n");
-
+	printf("raw error code is ->%p\n",error);
 	uint64_t err_code=getErrorCode(error);
+	printf("trunc'd error code is ->%p\n",err_code);
 	uint64_t pf_va;				/* holds faulting virtual address */
 	__asm__  __volatile__(
 					   "movq %%cr2,%0"
@@ -60,6 +61,7 @@ void handle_pf(uint64_t error){
 		
 		printf("segmentation fault\n");
 		/* kill current proc */
+		return;
 	}
 	else if( (err_code == 6) || (err_code == 4) ){
 		/* if 110 */
@@ -118,6 +120,7 @@ void handle_pf(uint64_t error){
 		/* segmentaion fault */
 		printf("segmentation fault\n");		
 		/* kill proc  */
+		return;
 	}	
 	printf("unable to match any error in page fault handler\n");
 

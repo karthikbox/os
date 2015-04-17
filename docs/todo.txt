@@ -14,6 +14,18 @@ check format rflags. right now setting only interrupt enable flag while going to
 how to set TSS and to what value?
 
 
+>>>>>>
+user malloc, issue sbrk only on 8 byte alligned boundaries
+
+>>>>>>
+
+ASSUME ENTIRE 511 ENTRY OF PML4 IS OFFLIMITS. IF ANY PROCESS WRITES TO THIS WE GET 101 (5) ERROR CODE IN THE PAGE FAULT HANDLER. MAKE SURE NO USER LAND APPLICATION USES 511. I HAVE GIVEN 511 ENTRY AS SUPERVISOR WRITABLE.
+
+STACK ENDS AT 0xfffffeff70000000ul. WHICH IS 509TH ENTRY OF PML4.  
+
+do not put user USTACK in the 511 pml4 entry. Each process copies 511 entry into its own page tables. Since each process creates a page for USTACK, each one will overwrite previous process's entries while user stack allocation. Because, the the same virt addr will have same pt_entry. this pt_entry every time will get a new page and put into the pt_entry, thus overwriting the previous values. So just keep USTACK below 511 entry of pml4 table.  
+
+
 %%%%%%%%%%%%%%%
 
 TODO

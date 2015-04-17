@@ -104,7 +104,7 @@ int exec(char *path,char **argv){
 
 	/* allocate a frame for stack */
 	/* stack pt_flags will have flags WRITABLE,USER */
-	if((sz=allocuvm(pml4_t,USTACK-0x1000, FRAME_SIZE,PT_WRITABLE|PT_USER))==0){
+	if((sz=allocuvm(pml4_t,USTACK-0x1000, FRAME_SIZE,(PT_WRITABLE|PT_USER)))==0){
 		if(pml4_t){
 			free_uvm(pml4_t);				
 		}
@@ -154,6 +154,7 @@ int exec(char *path,char **argv){
 	/* initially heap has no memory. so vma.start and end point to same address */
 	/* (last_seg_start + last_seg_size ) is the edn of the highest section*/
 	/* start heap from end of last section + 0x1000 */
+	/* TODO; round up page to neaserst frame boundary */
 	vma_heap->start=(last_seg_start+last_seg_size+0x1000);
 	/* heap has no size intially */
 	vma_heap->end=vma_heap->start;

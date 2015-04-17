@@ -70,7 +70,7 @@ inline void pt_entry_set_frame(pt_entry *e,uint64_t addr){
 
 
 
-int check_alloc(pml4 *base,uint64_t offset,int rx_bit){
+int check_alloc(pml4 *base,uint64_t offset,uint64_t flags){
 	/* returns 0, if failed */
 	/* returns 1 if success */
 	pd_entry ptr;
@@ -82,16 +82,13 @@ int check_alloc(pml4 *base,uint64_t offset,int rx_bit){
 		memset1((char *)ptr,0,0x1000);
 		pd_entry_set_frame(&base->m_entries[offset],ptr);
 		pd_entry_add_attrib(&base->m_entries[offset],PT_PRESENT);
-		if(rx_bit){
-			/* rx_bit is 1, set RW bit */
-			pd_entry_add_attrib(&base->m_entries[offset],PT_WRITABLE);
-		}
+		pd_entry_add_attrib(&base->m_entries[offset],flags);
 			
 	}
 	return 1;
 }
 
-int vm_page_map(uint64_t phys_addr,uint64_t virt_addr,int rx_bit){
+int vm_page_map(uint64_t phys_addr,uint64_t virt_addr,uint64_t flags){
 
 	/* maps phys_addr to virt_addr */
 	/* phys_addr will be base addr of frame */
@@ -100,21 +97,25 @@ int vm_page_map(uint64_t phys_addr,uint64_t virt_addr,int rx_bit){
 	/* returns 0, if failed */
 	/* returns 1 if success */
 	
+	/* giving write and user permission to pml4, pdp,pd entries of kernel page table */
+	/* ASSUME THAT ENTIRE 511 ENTRY OF PML4 IS OFF LIMITS TO USERLAND */
+	/* uint64_t temp_flags=PD_WRITABLE|PD_USER; */
+	uint64_t temp_flags=PD_WRITABLE;
 
 	/* extract pdp entry from pml4 */
 	uint64_t offset=pml4_index(virt_addr); /* offset of pdp in pml4 */
 	pml4 *base =(pml4 *)pml4_base;		   /* base of pml4 */
-	if(!check_alloc(base,offset,1))   /* allocs pdp and points pml4+offset to the new pdp frame */
+	if(!check_alloc(base,offset,temp_flags))   /* allocs pdp and points pml4+offset to the new pdp frame */
 		return 0;
 	/* extract pd entry from pdp */
 	base=(pml4 *)pd_entry_get_frame(base->m_entries[offset]); /* base of pdp */
 	offset=pdp_index(virt_addr);							  /* offset of pd in pdp */
-	if(!check_alloc(base,offset,1))					  /* allocs pd and points pdp+offset to new pd */
+	if(!check_alloc(base,offset,temp_flags))					  /* allocs pd and points pdp+offset to new pd */
 		return 0;
 	/* extract pt entry from pd */
 	base=(pml4 *)pd_entry_get_frame(base->m_entries[offset]); /* base of pd */
 	offset=pd_index(virt_addr);								  /* offset of pt in pd */
-	if(!check_alloc(base,offset,1))					  /* allocs pt and points pd+offset to new pt */
+	if(!check_alloc(base,offset,temp_flags))					  /* allocs pt and points pd+offset to new pt */
 		return 0;
 	/* extract page entry from pt */
 	base=(pml4 *)pd_entry_get_frame(base->m_entries[offset]); /* base of pt */
@@ -123,12 +124,8 @@ int vm_page_map(uint64_t phys_addr,uint64_t virt_addr,int rx_bit){
 	pd_entry ptr=phys_addr;
 	pd_entry_set_frame(&base->m_entries[offset],ptr);
 	pd_entry_add_attrib(&base->m_entries[offset],PT_PRESENT);
-	if(rx_bit){
-		/* rx_bit is 1, set RW bit */
-		/* basically rx_bit is used to set the RW flag of only the page */
-		/* all the higher structeres are given RW as 1 by default */
-		pd_entry_add_attrib(&base->m_entries[offset],PT_WRITABLE);
-	}
+	pd_entry_add_attrib(&base->m_entries[offset],flags);
+
 	//printf("%p\n",base->m_entries[offset]);
 	/* success */
 	return 1;
@@ -156,12 +153,15 @@ int vm_init(void* physbase,void* physfree){
 	}
 	memset1((char *)pml4_base,0,FRAME_SIZE);
 	
+	/* 511 entry of pml4 of any user table is of limits to user */
+	/* pml4 pdp, pd and pt of kernel space all have write and supervisor perms */
+	uint64_t flags=PT_WRITABLE;
 	/* for page from 0 to 4KB
 	   map each page identically*/
 	uint64_t i=0;
 	for(i=0;i<0x100000ul;i+=0x1000ul){ /* for every page till 1MB */
 		//printf("%p maps to ",i);
-		if(!vm_page_map(i,i,1)){		/* identity map */
+		if(!vm_page_map(i,i,flags)){		/* identity map */
 			printf("unable to map\n");
 			return 0;
 		}
@@ -172,7 +172,7 @@ int vm_init(void* physbase,void* physfree){
 	/* map page to range physbase, physfree-1 */
 	/* physbase if */
 	for(i=(uint64_t)0x000000ul;i<(uint64_t)0x7ffe000ul;i+=0x1000ul){
-		if(!vm_page_map(i,0xffffffff80000000ul+i,1)){	/* physical addr, virt addr */
+		if(!vm_page_map(i,0xffffffff80000000ul+i,flags)){	/* physical addr, virt addr */
 			printf("unable to map\n");
 			return 0;
 		}

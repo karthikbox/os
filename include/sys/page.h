@@ -95,7 +95,7 @@ pml4 *pml4_base;
 
 int vm_alloc_page(pt_entry* e);
 void vm_free_page(pt_entry* e);
-int vm_page_map(uint64_t phys,uint64_t virt,int rx_bit);
+int vm_page_map(uint64_t phys,uint64_t virt,uint64_t flags);
 void load_base(uint64_t addr);
 int vm_init(void *physbase,void *physfree);
 
