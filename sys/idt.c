@@ -231,7 +231,7 @@ void idt_init(){
 	idt_entry_set(31,0x8,0,0xE,0,1,(uint64_t)&isr31);//0xE for interrupts
 	idt_entry_set(32,0x8,0,0xE,0,1,(uint64_t)&isr32);//0xE for interrupts
 	idt_entry_set(33,0x8,0,0xE,0,1,(uint64_t)&isr33);//0xE for interrupts
-	idt_entry_set(0x80,0x8,0,0xE,0,1,(uint64_t)&isr128);//0xE for interrupts
+	idt_entry_set(0x80,0x8,0,0xE,3,1,(uint64_t)&isr128); /* set DPL as 3 */
 
 	//load idt_pointer to the cpu interrupt table register
 	idt_load();
