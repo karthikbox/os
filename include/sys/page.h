@@ -16,6 +16,7 @@ enum PAGE_PT_FLAGS{
 	PT_NULL=0x80ul,//8
 	PT_CPU_GLOBAL=0x100ul,
 	PT_LV4_GLOBAL=0x200ul,//10
+	PT_COW=0x400ul;
 	PT_FRAME=0x0000FFFFFFFFF000ul//36 bit frame number [12-47]
 };
 
@@ -42,6 +43,7 @@ enum PAGE_PD_FLAGS{
 	PD_NULL=0x80ul,//8
 	PD_CPU_GLOBAL=0x100ul,
 	PD_LV4_GLOBAL=0x200ul,//10
+	PD_COW=0x400ul;
 	PD_FRAME=0x0000FFFFFFFFF000ul//36 bit frame number [12-47]
 };
 

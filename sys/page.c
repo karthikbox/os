@@ -27,6 +27,22 @@ inline int pd_entry_present(pd_entry e){
 	return (e & PD_PRESENT);			/* returns 1 if P is set, otherwise 0 */
 }
 
+inline int pd_entry_cow(pd_entry e){
+	return (e & PD_COW);
+}
+
+inline int pd_entry_writable(pd_entry e){
+	return (e & PD_WRITABLE);
+}
+
+inline void pd_set_writable(pd_entry *e){
+	*e = *e | PD_WRITABLE;
+}
+
+inline void pd_set_cow(pd_entry *e){
+	*e = *e | PD_COW;
+}
+
 inline uint64_t pd_entry_get_frame(pd_entry e){
 	return (e & PD_FRAME);			
 }
@@ -56,6 +72,22 @@ inline void pt_entry_del_attrib(pt_entry *e,uint64_t attrib){
 
 inline int pt_entry_present(pt_entry e){
 	return (e & PT_PRESENT);			/* returns 1 if P is set, otherwise 0 */
+}
+
+inline int pt_entry_cow(pt_entry e){
+	return (e & PT_COW);
+}
+
+inline int pt_entry_writable(pt_entry e){
+	return (e & PT_WRITABLE);
+}
+
+inline void pt_set_writable(pt_entry *e){
+	*e = *e | PT_WRITABLE;
+}
+
+inline void pt_set_cow(pt_entry *e){
+	*e = *e | PT_COW;
 }
 
 inline uint64_t pt_entry_get_frame(pt_entry e){
@@ -346,8 +378,48 @@ void free_pt(pt *pt_t){
 }
 
 
-pml4 * copyuvm(pml4 *parent_ml4_t){
+pml4 * copyuvm(pml4 *parent_pml4_t){
 	/* return NULL if fail */
 	/* return address of pml4 if success */
+	pml4 *child_pml;
+	if(!(child_pml=load_kern_vm())){
+		return NULL;
+	}
+	for(int i=0;i<=510;i++){
+		if(pd_entry_present(parent_pml4_t->entries[i])){
+			pdp *child_pdp=(pdp*)alloc_frame(PAGE_SIZE); //confirm conversion
+			child_pml->entries[i]=child_pdp; //check the continuity of frames
+			pdp *parent_pdp=parent_pml4_t->entries[i];
+			for(int j=0;j<=511;j++){
+				if(pd_entry_present(parent_pdp->entries[j]))
+			}
+		}
+	}
 	return NULL;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
