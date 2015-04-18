@@ -78,7 +78,7 @@ void do_fork(){
 		/* copyvma takes care of freeing new procs vmas */
 		/* if any failure in copyuvm or copyvma, then deallocate p's resources */
 		/* such as kernel stack and set pcb of p to UNUSED and free_uvm(p->pml4)*/
-		/* free_uvm(p->pml4_t) */
+		free_uvm(p->pml4_t);
 		free_pcb(p);
 		return ;
 	}
@@ -96,7 +96,7 @@ void do_fork(){
 	strcpy(p->name,proc->name);
 	/* return pid of child to parent */
 	proc->tf->rax=p->pid;
-	/* set state of child tyo runnable */
+	/* set state of child to runnable */
 	p->state=RUNNABLE;
 	
 	

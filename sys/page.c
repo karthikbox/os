@@ -376,8 +376,21 @@ void free_pt(pt *pt_t){
 	for(;i<512;i++){
 		/* if an entry of pd is present */
 		if(pt_entry_present(pt_t->m_entries[i])){
-			/* then kfree it's physical frame */
-			kfree((void *)get_virt_addr(pt_entry_get_frame(pt_t->m_entries[i])));
+			char c=0;
+			if((c=get_ref_count(pt_entry_get_frame(pt_t->m_entries[i]))) ==0){
+				/* free only when */
+				/* ref count of frame reaches 0 */
+				/* then kfree it's physical frame */
+				kfree((void *)get_virt_addr(pt_entry_get_frame(pt_t->m_entries[i])));
+			}
+			else if(c >0){
+				/* when ref count is >0, just decrease refcount */
+				decr_ref_count(pt_entry_get_frame(pt_t->m_entries[i]));
+			}
+			else{
+				printf("ref count is negative...should never happen\n");
+			}
+			
 		}
 		/* else continue */
 	}
@@ -400,7 +413,10 @@ pml4 * copyuvm(pml4 *parent_pml4_t){
 			pd_entry *child_pdp=(pd_entry *)kmalloc(FRAME_SIZE); //confirm conversion
 			if(child_pdp==NULL){
 				printf("out of memory. unable to allocate page tables\n");
-				/* free_uvm(child_pml4) */
+				/* free all the pages assigned to this new process pml4 */
+				free_uvm(child_pml4);
+				/* break */
+				return NULL;
 			}
 			/* clear the contents of child pdp */
 			memset1((char *)child_pdp,0,FRAME_SIZE);
@@ -413,8 +429,9 @@ pml4 * copyuvm(pml4 *parent_pml4_t){
 			pdp *pdp_p= (pdp *)get_virt_addr(pd_entry_get_frame((uint64_t)(parent_pml4_t->m_entries[i])));
 			if(copy_pdp((pdp *)child_pdp,pdp_p)==0){
 				
-				/* copu_pdp failed */
-				/* free_uvm(child_pml4) */
+				/* copy_pdp failed */
+				/* free all the pages assigned to this new process pml4 */
+				free_uvm(child_pml4);
 				/* break */
 				return NULL;
 			}
