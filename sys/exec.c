@@ -155,7 +155,7 @@ int exec(char *path,char **argv){
 	/* (last_seg_start + last_seg_size ) is the edn of the highest section*/
 	/* start heap from end of last section + 0x1000 */
 	/* TODO; round up page to neaserst frame boundary */
-	vma_heap->start=(last_seg_start+last_seg_size+0x1000);
+	vma_heap->start=(last_seg_start+last_seg_size+0x3000);
 	/* heap has no size intially */
 	vma_heap->end=vma_heap->start;
 	/* heap has read, write, exec, growsup flags set */
