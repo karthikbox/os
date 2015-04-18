@@ -255,3 +255,10 @@ void free_vma_list(struct vma **p){
 	*p=NULL;
 
 }
+
+void free_pcb(struct proc *p){
+	/* free the process kernel stack */
+	kfree(p->kstack);
+	/* set proc state to UNUSED */
+	p->state=UNUSED;
+}

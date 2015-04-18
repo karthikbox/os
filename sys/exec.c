@@ -7,7 +7,6 @@
 #include<sys/memory.h>
 
 uint64_t round_down(uint64_t addr,int n);
-void add_tail(struct vma **head,struct vma **tail,struct vma *p);
 
 int exec(char *path,char **argv){
 

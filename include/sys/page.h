@@ -16,7 +16,7 @@ enum PAGE_PT_FLAGS{
 	PT_NULL=0x80ul,//8
 	PT_CPU_GLOBAL=0x100ul,
 	PT_LV4_GLOBAL=0x200ul,//10
-	PT_COW=0x400ul;
+	PT_COW=0x400ul,//11
 	PT_FRAME=0x0000FFFFFFFFF000ul//36 bit frame number [12-47]
 };
 
@@ -43,7 +43,7 @@ enum PAGE_PD_FLAGS{
 	PD_NULL=0x80ul,//8
 	PD_CPU_GLOBAL=0x100ul,
 	PD_LV4_GLOBAL=0x200ul,//10
-	PD_COW=0x400ul;
+	PD_COW=0x400ul,//11
 	PD_FRAME=0x0000FFFFFFFFF000ul//36 bit frame number [12-47]
 };
 
@@ -111,7 +111,10 @@ void free_pdp(pdp *pdp_t);
 void free_pd(pd *pd_t);
 void free_pt(pt *pt_t);
 pml4 * copyuvm(pml4 *parent_ml4_t);
-
-
+int copy_pdp(pdp *pdp_c,pdp *pdp_p);
+int copy_pd(pd *pd_c,pd *pd_p);
+int copy_pt(pt *pt_c,pt *pt_p);
+struct vma * copyvma(struct vma *p_head);
+void add_tail(struct vma **head,struct vma **tail,struct vma *p);
 
 #endif

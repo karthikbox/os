@@ -62,6 +62,15 @@ inline void pd_entry_del_attrib(pd_entry *e,uint64_t attrib){
 	*e=*e&(~(attrib));
 }
 
+inline uint64_t pd_get_flags(pd_entry e){
+	return (e & 0xffful);
+}
+
+inline void pd_set_flags(pd_entry *e,uint64_t flags){
+	*e=*e | flags;
+}
+
+
 inline void pt_entry_add_attrib(pt_entry *e,uint64_t attrib){
 	*e=*e|attrib;
 }
@@ -381,45 +390,143 @@ void free_pt(pt *pt_t){
 pml4 * copyuvm(pml4 *parent_pml4_t){
 	/* return NULL if fail */
 	/* return address of pml4 if success */
-	pml4 *child_pml;
-	if(!(child_pml=load_kern_vm())){
+	pml4 *child_pml4;
+	if(!(child_pml4=load_kern_vm())){
 		return NULL;
 	}
 	for(int i=0;i<=510;i++){
-		if(pd_entry_present(parent_pml4_t->entries[i])){
-			pdp *child_pdp=(pdp*)alloc_frame(PAGE_SIZE); //confirm conversion
-			child_pml->entries[i]=child_pdp; //check the continuity of frames
-			pdp *parent_pdp=parent_pml4_t->entries[i];
-			for(int j=0;j<=511;j++){
-				if(pd_entry_present(parent_pdp->entries[j]))
+		if(pd_entry_present((uint64_t)parent_pml4_t->m_entries[i])){
+			/* allocate a pdp frame */
+			pd_entry *child_pdp=(pd_entry *)kmalloc(FRAME_SIZE); //confirm conversion
+			if(child_pdp==NULL){
+				printf("out of memory. unable to allocate page tables\n");
+				/* free_uvm(child_pml4) */
 			}
+			/* clear the contents of child pdp */
+			memset1((char *)child_pdp,0,FRAME_SIZE);
+			/* getting new pdp frame and adding to child pml4 */
+			pd_entry_set_frame(&child_pml4->m_entries[i],get_phys_addr((uint64_t)child_pdp));
+			/* give the child pdp same falgs as parent */
+			pd_set_flags(&child_pml4->m_entries[i],pd_get_flags(parent_pml4_t->m_entries[i]));
+			/* all parent pml4, pdp, pd entries are USER|WRITABLE */
+			/* allocated 1 pdp */
+			pdp *pdp_p= (pdp *)get_virt_addr(pd_entry_get_frame((uint64_t)(parent_pml4_t->m_entries[i])));
+			if(copy_pdp((pdp *)child_pdp,pdp_p)==0){
+				
+				/* copu_pdp failed */
+				/* free_uvm(child_pml4) */
+				/* break */
+				return NULL;
+			}
+
 		}
 	}
-	return NULL;
+	return child_pml4;
 }
 
 
+int copy_pdp(pdp *pdp_c,pdp *pdp_p) {
+	/* returns 0 on failure, 1 on success */
+	/* iterate over 512 entries of parent pdp */
+	int i;
+	for(i=0;i<512;i++){
+
+		/* if present */
+		if(pd_entry_present((uint64_t)pdp_p->m_entries[i])){
+			/* get a new pd frame  */
+			pd_entry *pd_c=(pd_entry *)kmalloc(FRAME_SIZE);
+			if(pd_c==NULL){
+				return 0;
+			}
+			memset1((char *)pd_c,0,FRAME_SIZE);
+			/* put the physical addr of new pd frame into child pdp entry */
+			pd_entry_set_frame(&pdp_c->m_entries[i],get_phys_addr((uint64_t)pd_c));
+			/* give child pd same flags as parent pd  */
+			pd_set_flags(&pdp_c->m_entries[i],pd_get_flags((uint64_t)pdp_p->m_entries[i]));			
+
+			/* get virt address of parent pd */
+			pd *pd_p= (pd *)get_virt_addr(pd_entry_get_frame((uint64_t)(pdp_p->m_entries[i])));
+			/* goto pd level */
+			if(copy_pd((pd *)pd_c,pd_p) == 0){
+				/* copy pd failed, return 0 */
+				return 0;
+			}
+		}
+	}	
+	/* return success */
+	return 1;
+}
+
+int copy_pd(pd *pd_c,pd *pd_p){
+	/* iterate over entries  */
+	int i=0;
+	for(i=0;i<512;i++){
+		/* if present */
+		if(pd_entry_present((uint64_t)pd_p->m_entries[i])){
+			/* get a new frame */
+			pd_entry *pt_c=(pd_entry *)kmalloc(FRAME_SIZE);
+			if(pt_c==NULL)
+				return 0;
+			memset1((char *)pt_c,0,FRAME_SIZE);
+			/* put the physical addr of pt_c in child pd entry */
+			pd_entry_set_frame(&pd_c->m_entries[i],get_phys_addr((uint64_t)pt_c));
+			/* set flags of parent */
+			pd_set_flags(&pd_c->m_entries[i],pd_get_flags((uint64_t)pd_p->m_entries[i]));
+			/* get virt address of parent pt */
+			pt *pt_p=(pt *)get_virt_addr(pd_entry_get_frame((uint64_t)pd_p->m_entries[i]));
+			/* goto pt level*/
+			if(copy_pt((pt *)pt_c,pt_p)==0)	{
+				/* copy pt failed, return 0 */
+				return 0;
+			}		
+		}
+	}
+	return 1;
+}
 
 
+int copy_pt(pt *pt_c,pt *pt_p){
+	/* iterate over all pt entries */
+	int i;
+	for(i=0;i<512;i++){
+		/* if present bit is set */
+		if(pt_entry_present((uint64_t)pt_p->m_entries[i])){
+			/* if pt_entry of parent is writable */
+			if(pt_entry_writable(pt_p->m_entries[i])){
+				/* set COW and clear write bit of parent pt_entry  */
+				pt_entry_add_attrib(&pt_p->m_entries[i],PT_COW);
+				pt_entry_del_attrib(&pt_p->m_entries[i],PT_WRITABLE);
+			}
+			/* if pt_entry of parent is READ_ONLY  */
+			/* child pt_entry is exactly the same as parent pt_entry */
+			/* copy the pt_entry of parent into the child */
+			pt_c->m_entries[i]=pt_p->m_entries[i];
+			/* increase the ref_count of the page frame */
+			uint64_t phys_addr=pt_entry_get_frame(pt_p->m_entries[i]);
+			incr_ref_count(phys_addr);
+		}
+	}
+	/* by default */
+	return 1;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+struct vma * copyvma(struct vma *p_head){
+	/* returns NULL on failure(cleans up too), new head on success */
+	struct vma *c_head=NULL, *c_tail=NULL;
+	struct vma *t=p_head;
+	while(t!=NULL){
+		/* allocate new vma for child */
+		struct vma *ptr=(struct vma *)kmalloc(sizeof(struct vma));
+		if(ptr==NULL){
+			printf("unable to clone vmas...no memory\n");
+			free_vma_list(&c_head); /* frees new vma list */
+			return NULL;
+		}
+		ptr->start=t->start;
+		ptr->end=t->end;
+		ptr->flags=t->flags;
+		ptr->next=NULL;
+		add_tail(&c_head,&c_tail,ptr);
+	}
+	return c_head;
+}

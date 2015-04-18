@@ -158,7 +158,8 @@ void switchuvm(struct proc *p);
 /* VMA related */
 void free_vma_list(struct vma **p);
 
-
+/* free pcb */
+void free_pcb(struct proc *p);
 
 void cli();
 void sti();

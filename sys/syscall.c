@@ -50,18 +50,39 @@ void do_fork(){
 		printf("unable to fork. no space for new processs\n");
 		/* put -1 in proc->tf->rax, this tells parent that fork failed */
 		proc->tf->rax=-1;		/* syscall_0 returns "eax"(that's right) as uint32_t to fork(), in user program we cast to int and then check for -1 */
+
+		/* such as kernel stack and set pcb of p to UNUSED  */
 		return ;
 	}
 
+	/* copyuvm deallocates page table memory on failure, within itself */
 	/* copy parent procs address space into child */
 	if(!(p->pml4_t = copyuvm(proc->pml4_t))){
 		/* p->pml4_t is NULL, copyuvm failed */
 		printf("unable to fork. no space for new process's page tables\n");
 		/* put -1 in proc->tf->rax, this tells parent that fork failed */
 		proc->tf->rax=-1;		/* syscall_0 returns "eax"(that's right) as uint32_t to fork(), in user program we cast to int and then check for -1 */
+
+		/* if any failure in cpoyuvm or copyvma, then deallocate p's resources */
+		/* such as kernel stack and set pcb of p to UNUSED   */
+		free_pcb(p);
 		return ;
 
 	}
+
+	/* copy VMAs from parent to child */
+	if((p->vma_head=copyvma(proc->vma_head))==NULL){
+		/* copyvma failed */
+		printf("unable to fork. no space for new processes vmas\n");
+		proc->tf->rax=-1;
+		/* copyvma takes care of freeing new procs vmas */
+		/* if any failure in copyuvm or copyvma, then deallocate p's resources */
+		/* such as kernel stack and set pcb of p to UNUSED and free_uvm(p->pml4)*/
+		/* free_uvm(p->pml4_t) */
+		free_pcb(p);
+		return ;
+	}
+	
 
 	/* copy trapframe of parent to child */
 	memcpy(p->tf,proc->tf,sizeof(struct trapframe));
