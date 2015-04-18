@@ -16,8 +16,9 @@ int main(int argc, char* argv[], char* envp[]) {
 	/* printf("Enter a character "); */
 	
 	/* printf("Entered character is %c\n", ch); */
-	uint64_t *ptr=(uint64_t *)(0xffffffff70000000ul-0x3000ul);
-	*ptr=1234;
+	uint64_t *ptr=(uint64_t *)(0xfffffeff70000000ul);
+	*(uint64_t *)((char *)ptr-0x1001)=234;
+	*(uint64_t *)((char *)ptr-0x2001)=234;
 	yield();
 	while(1){
 		ch++;
