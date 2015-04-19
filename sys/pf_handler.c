@@ -5,6 +5,7 @@
 #include<sys/pmmgr.h>
 #include<sys/syscall.h> 
 
+
 enum PF_ERROR_CODE_FLAGS{
 	
 	PF_PRESENT = 1ul,			/* 0-> non present page, 1->page present,but protection violation */
@@ -48,12 +49,77 @@ void handle_pf(uint64_t error){
 					   : "=r"(pf_va)
 					   :
 					   );
-	if( (err_code == 7) || (err_code == 5)){
+	if (err_code==7){
 		/* if 111 */
 		/* illegal write on existing pages */
-		/* which can only be caused by user process writing to kernel pages or writing to his own read only pages  */
-		/* segmentation fault */
 
+		/* ILLEGAL ACCES ON KERNEL VA SPACE*/
+		if(pf_va >= KERNBASE){
+			printf("segmentation fault\n");
+			/* kill proc */
+			return ;
+		}
+
+		/* COW CODE */
+		/* pf_va is virt addr, get pt_entry corresponding to pf_va */
+		pt_entry *pt_ent=NULL;
+		if((pt_ent=get_pt_entry_for_virt(pf_va))==NULL){
+			/* sanity check */
+			printf("sanity check failed...unable to get pt_entry for virt addr\n");
+		}
+		/* pt_ent is the page table entry for this pf_va */
+		/* check if cow bit is set */
+		if(pt_entry_cow(*pt_ent)){
+			/*if, cow is set, COW fork */
+			/* check if ref count of the frame is >0 */
+			if(get_ref_count(pt_entry_get_frame((*pt_ent))) > 0){
+				/* if >0 */
+				/* get a new frame  */
+				uint64_t *new_frame=(uint64_t *)kmalloc(FRAME_SIZE);
+				if(new_frame==NULL){
+					printf("unable to allocate memory during COW\n");
+					/* kill proc, what should kernel do? */
+					return ;
+				}
+				/* copy the contents of the old frame into new frame */			
+				memcpy(new_frame,(void *)get_virt_addr(pt_entry_get_frame((*pt_ent))),FRAME_SIZE);
+				/* decr refcount of old frame */
+				decr_ref_count(pt_entry_get_frame((*pt_ent)));
+
+				/* clear pt_entry */
+				*pt_ent=0x0ul;
+				/*  put new frame in pt_ent's frame addr */
+				pt_entry_set_frame(pt_ent,get_phys_addr((uint64_t)new_frame));
+				/* give WRITE|USER|PRESENT permissions to the pt_entry */
+				pt_entry_add_attrib(pt_ent,PT_WRITABLE|PT_USER|PT_PRESENT);
+				/* sanity check: ref count of new frame should be 0 */
+				if(get_ref_count(pt_entry_get_frame((*pt_ent)))!=0){
+					printf("sanity check failed: ref count of new frame should be 0\n");
+				}
+				/* set ref count of new frame is 0 */				
+				set_ref_count(pt_entry_get_frame((*pt_ent)),0);
+
+			}
+			else if(get_ref_count(pt_entry_get_frame((*pt_ent))) == 0){
+				/* else if ref count is =0 */
+				/* this is the onle process referring this frame */
+				/* add WRITE bit for this pt_entry, clear COW bit */
+				pt_entry_add_attrib(pt_ent,PT_WRITABLE);
+				pt_entry_del_attrib(pt_ent,PT_COW);
+			}
+			else{
+				printf("sanity check failed: ref count is < 0\n");
+			}
+		}
+		else{
+			/* if, cow is not set,writing to READ ONLY section */
+			/* segmentation fault */
+			printf("segmentation fault\n");
+			/* kill current proc */
+		}
+		return ;
+	}
+	else if( (err_code == 5)){
 		/* if 101 */
 		/* illegal read on existing pages */
 		/* caused by user reading kernel pages */

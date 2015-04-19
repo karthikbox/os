@@ -547,3 +547,50 @@ struct vma * copyvma(struct vma *p_head){
 	}
 	return c_head;
 }
+
+pt_entry * get_pt_entry_for_virt(uint64_t virt_addr ){
+	/* pt entry for this va should exist, since error was 111 */
+	
+	/* get the offset */
+	uint64_t offset=pml4_index(virt_addr);
+	/* get current proc's pml4 */
+	pml4 *pml4_t=proc->pml4_t;
+	/* get virtual addr of pdp table */
+	if(pd_entry_present(pml4_t->m_entries[offset])==0){
+		/* sanity check */
+		printf("pml4 entry not present, bt should be\n");
+		return NULL;
+	}
+	pdp *pdp_t=(pdp *)get_virt_addr(pd_entry_get_frame(pml4_t->m_entries[offset]));
+
+	/* get pdp offset */
+	offset=pdp_index(virt_addr);
+	/* get virtual addr of pd table */
+	if(pd_entry_present(pdp_t->m_entries[offset])==0){
+		/* sanity check */
+		printf("pdp entry not present, but should be\n");
+		return NULL;
+	}
+	pd *pd_t=(pd *)get_virt_addr(pd_entry_get_frame(pdp_t->m_entries[offset]));
+
+	/* get pd offset */
+	offset=pd_index(virt_addr);
+	/* get virtual addr of pt table */
+	if(pd_entry_present(pd_t->m_entries[offset])==0){
+		/* sanity check */
+		printf("pd entry not present, bt should be\n");
+		return NULL;
+	}
+	pt *pt_t=(pt *)get_virt_addr(pd_entry_get_frame(pd_t->m_entries[offset]));
+
+	/* get pt offset */
+	offset=pt_index(virt_addr);
+	/* get value of pt_entry at this offset in pt table */
+	if(pt_entry_present(pt_t->m_entries[offset])==0){
+		/* sanity check */
+		printf("pt entry not present, bt should be\n");
+		return NULL;
+	}
+	return &pt_t->m_entries[offset];
+
+}

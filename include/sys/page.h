@@ -25,11 +25,15 @@ typedef uint64_t pt_entry;
 
 void pt_entry_add_attrib(pt_entry *e, uint64_t attrib);
 void pt_entry_del_attrib(pt_entry *e, uint64_t attrib);
+int pt_entry_present(pt_entry e);
+int pt_entry_cow(pt_entry e);
+void pt_set_cow(pt_entry *e);
+int pt_entry_writable(pt_entry e);
+void pt_set_writable(pt_entry *e);
 void pt_entry_set_frame(pt_entry *e, uint64_t addr);
-int pt_entry_is_present(pt_entry e);
-int pt_entry_is_writable(pt_entry e);
-int pt_entry_is_user(pt_entry e);
 uint64_t pt_entry_get_frame(pt_entry e);
+
+
 
 enum PAGE_PD_FLAGS{
 
@@ -51,13 +55,13 @@ typedef uint64_t pd_entry;
 
 void pd_entry_add_attrib(pd_entry *e, uint64_t attrib);
 void pd_entry_del_attrib(pd_entry *e, uint64_t attrib);
+int pd_entry_cow(pd_entry e);
+void pd_set_cow(pd_entry *e);
+int pd_entry_writable(pd_entry e);
+void pd_set_writable(pd_entry *e);
 void pd_entry_set_frame(pd_entry *e, uint64_t addr);
-int pd_entry_is_present(pd_entry e);
-int pd_entry_is_writable(pd_entry e);
-int pd_entry_is_user(pd_entry e);
-int pd_entry_is_4mb(pd_entry e);
 uint64_t pd_entry_get_frame(pd_entry e);
-int pd_entry_is_enable_global(pd_entry e);
+int pd_entry_present(pd_entry e);
 
 
 
@@ -101,6 +105,7 @@ int vm_page_map(uint64_t phys,uint64_t virt,uint64_t flags);
 void load_base(uint64_t addr);
 int vm_init(void *physbase,void *physfree);
 
+
 /* user VA functions */
 
 int allocuvm(pml4 *pml4_t,uint64_t virt_addr,uint64_t sz,uint64_t flags);
@@ -114,6 +119,9 @@ pml4 * copyuvm(pml4 *parent_ml4_t);
 int copy_pdp(pdp *pdp_c,pdp *pdp_p);
 int copy_pd(pd *pd_c,pd *pd_p);
 int copy_pt(pt *pt_c,pt *pt_p);
+pt_entry * get_pt_entry_for_virt(uint64_t virt_addr );
+
+/* VMA UTIL */
 struct vma * copyvma(struct vma *p_head);
 void add_tail(struct vma **head,struct vma **tail,struct vma *p);
 
