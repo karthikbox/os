@@ -179,7 +179,6 @@ void scheduler(){
 			/* switch to this process. */
 			proc=p;
 			switchuvm(p);
-			printf("about to switch...bye\n");
 			p->state=RUNNING;
 			//swtch(&cpu->scheduler,proc->context);
 			__asm__ volatile(

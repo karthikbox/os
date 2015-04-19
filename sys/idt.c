@@ -239,15 +239,13 @@ void idt_init(){
 }
 
 void isr_handler(struct stack_frame *s){
-	printf("proc id=%d\n",proc->pid);
 	if(s->intr_num == 14){
 		/* page failt handler */
-		printf("page fault handler\n");
 		handle_pf(s->error_code);
 	}
 	else if(s->intr_num <= 31){
 		//exception
-		printf("%s\n",exception_description[s->intr_num]);
+		printf("proc id -> %d got %s\n",proc->pid,exception_description[s->intr_num]);
 		printf("Execution halted. Kernel entering infinite loop\n");
 		for(;;);
 	}
@@ -256,7 +254,7 @@ void isr_handler(struct stack_frame *s){
 		//Timer Interrupt
 		//printf("%s\n",exception_description[s->intr_num]);
 		//printf("Execution halted. Kernel entering infinite loop\n");
-		printf("timer int\n");
+		printf("proc id -> %d -> timer int\n",proc->pid);
 		outportb(0x20, 0x20);
 		timer_handler();
 		//for(;;);
@@ -266,19 +264,20 @@ void isr_handler(struct stack_frame *s){
 		//Keyboard Interrupt
 		//printf("%s\n",exception_description[s->intr_num]);
 		//printf("Execution halted. Kernel entering infinite loop\n");
-		printf("keyboard int\n");
+		printf("proc id -> %d -> keyboard int\n",proc->pid);
 		outportb(0x20, 0x20);
 		keyboard_handler();
 		//for(;;);
 	}
 	else if(s->intr_num == T_SYSCALL){
 		if(s->rax==SYS_yield){
-			printf("yield syscall\n");
 			yield();
 		}
 		else if(s->rax==SYS_fork){
-			printf("fork syscall\n");
 			do_fork();
+		}
+		else if(s->rax==SYS_write){
+			s->rax=do_write((int)s->rdi,(const void *)s->rsi,(size_t)s->rdx);
 		}
 	}
 

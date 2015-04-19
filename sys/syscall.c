@@ -36,12 +36,14 @@ void init_syscall(){
 
 void yield(){
 	proc->state=RUNNABLE;
+	printf("proc -> %d -> yield syscall\n",proc->pid);
 	scheduler();
 	
 }
 
 void do_fork(){
 	/* alloc_proc finds a spot in pcb array and allocates kstack and sets sp and tf pointers and gives a pid*/
+	printf("proc -> %d -> fork syscall\n",proc->pid);
 	struct proc *p=alloc_proc();
 	if(!p){
 		/* p is null, alloc_proc couldnt find a spot in pcb array */
@@ -102,3 +104,14 @@ void do_fork(){
 	
 	
 }
+size_t do_write(int fd, const void* bf, size_t len){
+	
+	size_t i=0;
+	const char *buf=(const char *)bf;
+	if(fd==1){
+		for(i=0;i<len;i++){
+			printf("%c",buf[i]);
+		}
+	}
+	return i;
+} 
