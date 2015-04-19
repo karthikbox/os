@@ -1,7 +1,7 @@
 #include <sys/sbunix.h>
 #include <sys/utility.h>
 #include<sys/syscall.h>
-
+#include<sys/process.h>
 /* definition of idt entry */
 struct idt_entry{
 	uint16_t offset_0_15;
@@ -239,8 +239,10 @@ void idt_init(){
 }
 
 void isr_handler(struct stack_frame *s){
+	printf("proc id=%d\n",proc->pid);
 	if(s->intr_num == 14){
 		/* page failt handler */
+		printf("page fault handler\n");
 		handle_pf(s->error_code);
 	}
 	else if(s->intr_num <= 31){
@@ -254,6 +256,7 @@ void isr_handler(struct stack_frame *s){
 		//Timer Interrupt
 		//printf("%s\n",exception_description[s->intr_num]);
 		//printf("Execution halted. Kernel entering infinite loop\n");
+		printf("timer int\n");
 		outportb(0x20, 0x20);
 		timer_handler();
 		//for(;;);
@@ -263,14 +266,14 @@ void isr_handler(struct stack_frame *s){
 		//Keyboard Interrupt
 		//printf("%s\n",exception_description[s->intr_num]);
 		//printf("Execution halted. Kernel entering infinite loop\n");
+		printf("keyboard int\n");
 		outportb(0x20, 0x20);
 		keyboard_handler();
 		//for(;;);
 	}
 	else if(s->intr_num == T_SYSCALL){
-		printf("syscall\n");
 		if(s->rax==SYS_yield){
-			printf("yield syscall match...going in\n");
+			printf("yield syscall\n");
 			yield();
 		}
 		else if(s->rax==SYS_fork){

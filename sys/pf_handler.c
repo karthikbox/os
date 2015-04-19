@@ -39,7 +39,6 @@ uint64_t getErrorCode(uint64_t error);
 
 
 void handle_pf(uint64_t error){
-	printf("page fault handler\n");
 	printf("raw error code is ->%p\n",error);
 	uint64_t err_code=getErrorCode(error);
 	printf("trunc'd error code is ->%p\n",err_code);

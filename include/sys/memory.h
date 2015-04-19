@@ -12,8 +12,8 @@ struct frame_manager
 
 typedef struct frame_manager *p_fmgr;
 
-p_fmgr head;//head points to the head of the memory linked list
-p_fmgr tail;//tail points to the last node of the linked list, brk is data chunk + meta
+p_fmgr pfmgr_head;//head points to the head of the memory linked list
+p_fmgr pfmgr_tail;//tail points to the last node of the linked list, brk is data chunk + meta
 void* page_phys_addr;
 p_fmgr frame_manager_last;
 p_fmgr frame_manager_start;

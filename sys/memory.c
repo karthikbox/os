@@ -4,8 +4,8 @@
 #include <sys/process.h>
 #include <sys/page.h>
 
-p_fmgr head=NULL;//head points to the head of the memory linked list
-p_fmgr tail=NULL;//tail points to the last node of the linked list, brk is data chunk + meta
+p_fmgr pfmgr_head=NULL;//pfmgr_head points to the pfmgr_head of the memory linked list
+p_fmgr pfmgr_tail=NULL;//pfmgr_tail points to the last node of the linked list, brk is data chunk + meta
 void* page_phys_addr = NULL;
 p_fmgr frame_manager_last = NULL;
 p_fmgr frame_manager_start = NULL;
@@ -29,36 +29,36 @@ void* alloc_addr(size_t size)
 	p_fmgr temp = NULL, prev = NULL;
 	void* ret_addr = NULL;
 
-	if(!head)
+	if(!pfmgr_head)
 	{
 		//allocate a page for the frame_manager	to store the metadata of the malloc'ed pages
-		head = new_page_mgr_alloc(PAGE_SIZE);
-		if(!head)
+		pfmgr_head = new_page_mgr_alloc(PAGE_SIZE);
+		if(!pfmgr_head)
 			return NULL;
-		frame_manager_start = head;
-		printf("Head is %p\n", head);
+		frame_manager_start = pfmgr_head;
+		printf("Pfmgr_Head is %p\n", pfmgr_head);
 
 		//frame_manager_last tracks the last metadata
-		frame_manager_last = head;
+		frame_manager_last = pfmgr_head;
 
-		//creates the actual page and adds the metadata to the head
-		if(!init_page(head,size))
+		//creates the actual page and adds the metadata to the pfmgr_head
+		if(!init_page(pfmgr_head,size))
 		{
 			return NULL;
 		}
 
 		//allocate size to the page and update the metadata in the frame_manager
-		if(!add_mgr_node(head, size))
+		if(!add_mgr_node(pfmgr_head, size))
 		{
 			return NULL;
 		}
 
-		ret_addr = (void*)((uint64_t)head->frame_start_addr + (uint64_t)head->offset);
+		ret_addr = (void*)((uint64_t)pfmgr_head->frame_start_addr + (uint64_t)pfmgr_head->offset);
 		return ret_addr;
 	}
 
 	//traverse the frame_manager list and check if we can find a chunk with 'size' size.
-	temp = head;
+	temp = pfmgr_head;
 	while(temp != NULL)
 	{
 		if((temp->free == 1) && temp->size >= size)
@@ -161,7 +161,7 @@ void* new_page_mgr_alloc(size_t size)
 void kfree(void* addr)
 {
 	p_fmgr temp;
-	temp = head;
+	temp = pfmgr_head;
 
 	while(temp != NULL)
 	{

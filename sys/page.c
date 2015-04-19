@@ -544,6 +544,7 @@ struct vma * copyvma(struct vma *p_head){
 		ptr->flags=t->flags;
 		ptr->next=NULL;
 		add_tail(&c_head,&c_tail,ptr);
+		t=t->next;
 	}
 	return c_head;
 }

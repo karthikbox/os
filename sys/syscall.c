@@ -35,14 +35,12 @@ void init_syscall(){
 
 
 void yield(){
-	printf("yield syscall\n");
 	proc->state=RUNNABLE;
 	scheduler();
 	
 }
 
 void do_fork(){
-	printf("fork syscall\n");
 	/* alloc_proc finds a spot in pcb array and allocates kstack and sets sp and tf pointers and gives a pid*/
 	struct proc *p=alloc_proc();
 	if(!p){
@@ -86,6 +84,9 @@ void do_fork(){
 
 	/* copy trapframe of parent to child */
 	memcpy(p->tf,proc->tf,sizeof(struct trapframe));
+	memset1((char *)p->tf,0,15*sizeof(uint64_t));
+	p->tf->rflags=FL_IF;
+	
 	/* set return of fork of child to 0 */
 	p->tf->rax=0;
 	/* set size of child same as parent */
