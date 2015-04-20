@@ -279,8 +279,10 @@ void isr_handler(struct stack_frame *s){
 		else if(s->rax==SYS_write){
 			s->rax=do_write((int)s->rdi,(const void *)s->rsi,(size_t)s->rdx);
 		}
+		else if(s->rax==SYS_brk){
+		  do_brk((void *)s->rdi, (int)s->rsi, (int)s->rdx);
+		  s->rax=0;
+	        }
 	}
 
 }
-
-

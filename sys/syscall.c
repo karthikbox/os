@@ -115,3 +115,6 @@ size_t do_write(int fd, const void* bf, size_t len){
 	}
 	return i;
 } 
+void do_brk(void* end_data_segment, int arg1, int arg2){
+  printf("In do_brk\n");
+}

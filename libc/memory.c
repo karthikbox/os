@@ -5,7 +5,9 @@
 
 
 int brk(void *end_data_segment){
-    void * ret = (void *) syscall_1(SYS_brk,(uint64_t)end_data_segment);
+  int arg1=0;
+  int arg2=1;
+  void * ret = (void *) syscall_3(SYS_brk,(uint64_t)end_data_segment, (uint64_t)arg1, (uint64_t)arg2);
     if((uint64_t)ret==(uint64_t)end_data_segment){
 	return 0;
     }
