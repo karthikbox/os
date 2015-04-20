@@ -26,7 +26,7 @@
 #define T_SYSCALL 128
 
 void init_syscall();
-void yield();
+void do_yield();
 void do_fork();
 void handle_pf();
 size_t do_write(int fd,const void *bf,size_t len);

@@ -271,7 +271,7 @@ void isr_handler(struct stack_frame *s){
 	}
 	else if(s->intr_num == T_SYSCALL){
 		if(s->rax==SYS_yield){
-			yield();
+			do_yield();
 		}
 		else if(s->rax==SYS_fork){
 			do_fork();

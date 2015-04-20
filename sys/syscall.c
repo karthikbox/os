@@ -34,7 +34,7 @@ void init_syscall(){
 }
 
 
-void yield(){
+void do_yield(){
 	proc->state=RUNNABLE;
 	printf("proc -> %d -> yield syscall\n",proc->pid);
 	scheduler();
@@ -101,8 +101,8 @@ void do_fork(){
 	proc->tf->rax=p->pid;
 	/* set state of child to runnable */
 	p->state=RUNNABLE;
-	
-	
+	/* flush TLB */
+	load_base(get_phys_addr((uint64_t)proc->pml4_t));
 }
 size_t do_write(int fd, const void* bf, size_t len){
 	
