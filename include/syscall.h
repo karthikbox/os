@@ -15,13 +15,13 @@ static __inline uint64_t syscall_0(uint64_t n) {
     /*     : "0"(n) */
     /*     : "cc", "rcx", "r11", "memory" */
     /* ); */
-	__asm__ __volatile__("movq %1,%%rax;"
-						 "int $0x80;"
-						 "movq %%rax,%0"
-						 :"=r"(ret)
-						 :"r"(n)
+
+	__asm__ __volatile__("int $0x80;"
+						 :"=a"(ret)
+						 :"0"(n)
 						 :"cc","rcx","r11","memory"
 						 );
+
     return ret;
 }
 
