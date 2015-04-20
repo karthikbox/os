@@ -39,6 +39,7 @@ uint64_t getErrorCode(uint64_t error);
 
 
 void handle_pf(uint64_t error){
+	/* DONT FORGET TO FLUSH TLB */
 	uint64_t err_code=getErrorCode(error);
 	uint64_t pf_va;				/* holds faulting virtual address */
 	__asm__  __volatile__(
@@ -57,6 +58,9 @@ void handle_pf(uint64_t error){
 			/* kill proc */
 			return ;
 		}
+
+		/* flush TLB */
+		load_base(get_phys_addr((uint64_t)proc->pml4_t));
 
 		/* COW CODE */
 		/* pf_va is virt addr, get pt_entry corresponding to pf_va */
@@ -139,7 +143,8 @@ void handle_pf(uint64_t error){
 		   This could be a valid(in heap or near stack vma) or invalid(not in heap and not near stack vma )  */
 		/* if valid, then allocate page frame */
 		/* if invalid, segmentation fault */
-				
+		/* flush TLB */
+		load_base(get_phys_addr((uint64_t)proc->pml4_t));		
 		struct vma *p=proc->vma_head;
 		while(p!=NULL){
 			/* traverse till you hit stack or heap */
