@@ -11,4 +11,5 @@ typedef unsigned short uint16_t;
 typedef          short  int16_t;
 typedef long int time_t;
 typedef unsigned long size_t;
+typedef uint32_t pid_t;
 #endif

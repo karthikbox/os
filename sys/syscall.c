@@ -163,3 +163,14 @@ void do_exit(int status){
   /* call the scheduler */
   scheduler();
 }
+pid_t do_getpid(){
+  return (pid_t)(proc->pid);
+}
+pid_t do_getppid(){
+  if(proc->parent == NULL){
+    return 0;
+  }
+  else{
+    return (pid_t)(proc->parent->pid);
+  }
+}

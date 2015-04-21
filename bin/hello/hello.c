@@ -13,37 +13,37 @@ int main(int argc, char* argv[], char* envp[]) {
 	printf("p is %d\n", *p);
 	int *q = (int*)malloc(sizeof(int));
 	*q=100;
-	printf("q is %d\n", *q);
+	printf("q is %d %d\n", getpid(), getppid());
 	free(p);
 	free(q);
+	
 	pid_t ret=fork();
 	printf("fork return -> %d\n",ret);
 	if(ret>0){
-		printf("parent says hi\n");
-		yield();
-		/* *(uint64_t *)((char *)ptr-0x1001)=567; */
-		/* *(uint64_t *)((char *)ptr-0x1001)=789; */
+	  printf("parent says hi parent %d, child %d\n",getppid(),getpid());
+	  yield();
+
 		printf("1 return -> %d\n",ret);
 		yield();
 	}
 	else if(ret==0){
-		printf("child says hi\n");
+	  printf("child says hi parent %d, child %d\n",getppid(),getpid());
 		pid_t ret1=fork();
 		printf("ret1 is %d\n", ret1);
 		if(ret1>0){
-		  printf("child_parent\n");
+		  printf("child_parent parent %d, child %d\n",getppid(),getpid());
 		  yield();
 		  printf("child_parent after yield\n");
 		}
 		else if(ret1==0){
-		  printf("child_child\n");
+		  printf("child_child parent %d, child %d\n",getppid(),getpid());
 		  exit(0);
 		}
 		exit(0);
 	}
 	else{
 		printf("fork failed\n");
-	}
+		}
 	/* child */
 	printf("2 return -> %d\n",ret);
 	while(1);
