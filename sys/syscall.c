@@ -147,3 +147,19 @@ void do_brk(void* end_data_segment){
   /* return end_data_segment in any case*/
   proc->tf->rax=(uint64_t)end_data_segment;
 }
+
+void do_exit(int status){
+
+  printf("proc -> %d -> exit syscall\n",proc->pid);
+  /* free vmas free_vma_list(head) */
+  free_vma_list(&(proc->vma_head));
+ 
+  /* free process page tables free_uvm(pml4_t) */
+  free_uvm(proc->pml4_t);
+
+  /* free pcb */
+  free_pcb(proc);
+
+  /* call the scheduler */
+  scheduler();
+}

@@ -19,7 +19,6 @@ void _start(void) {
 	argv=(char **)rsp+2;
 	envp=(char **)rsp+(argc+3);
 	res = main(argc, argv, envp);
-	while(1);
 	exit(res);
 }
 

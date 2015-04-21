@@ -31,4 +31,5 @@ void do_fork();
 void handle_pf();
 size_t do_write(int fd,const void *bf,size_t len);
 void do_brk(void *end_data_segment);
+void do_exit(int status);
 #endif

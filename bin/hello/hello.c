@@ -28,14 +28,25 @@ int main(int argc, char* argv[], char* envp[]) {
 	}
 	else if(ret==0){
 		printf("child says hi\n");
+		pid_t ret1=fork();
+		printf("ret1 is %d\n", ret1);
+		if(ret1>0){
+		  printf("child_parent\n");
+		  yield();
+		  printf("child_parent after yield\n");
+		}
+		else if(ret1==0){
+		  printf("child_child\n");
+		  exit(0);
+		}
+		exit(0);
 	}
 	else{
 		printf("fork failed\n");
 	}
 	/* child */
 	printf("2 return -> %d\n",ret);
-	yield();
-	
+	while(1);
 	return 0;
 }
 

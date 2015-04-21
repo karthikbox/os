@@ -171,7 +171,6 @@ void scheduler(){
 	p=proc+1;
 	while(1){
 		/* set interrupts ??? */
-
 		for(;p<&ptable.proc[NPROC];p++){
 			if(p->state!=RUNNABLE){
 				continue;

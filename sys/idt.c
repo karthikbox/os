@@ -282,6 +282,8 @@ void isr_handler(struct stack_frame *s){
 		else if(s->rax==SYS_brk){
 		  do_brk((void *)s->rdi);
 	        }
+		else if(s->rax==SYS_exit){
+		  do_exit((int)s->rdi);
+		}
 	}
-
 }
