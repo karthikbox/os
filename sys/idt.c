@@ -254,7 +254,7 @@ void isr_handler(struct stack_frame *s){
 		//Timer Interrupt
 		//printf("%s\n",exception_description[s->intr_num]);
 		//printf("Execution halted. Kernel entering infinite loop\n");
-		printf("proc id -> %d -> timer int\n",proc->pid);
+		//printf("proc id -> %d -> timer int\n",proc->pid);
 		outportb(0x20, 0x20);
 		timer_handler();
 		//for(;;);
@@ -264,7 +264,7 @@ void isr_handler(struct stack_frame *s){
 		//Keyboard Interrupt
 		//printf("%s\n",exception_description[s->intr_num]);
 		//printf("Execution halted. Kernel entering infinite loop\n");
-		printf("proc id -> %d -> keyboard int\n",proc->pid);
+		//printf("proc id -> %d -> keyboard int\n",proc->pid);
 		outportb(0x20, 0x20);
 		keyboard_handler();
 		//for(;;);
@@ -280,8 +280,7 @@ void isr_handler(struct stack_frame *s){
 			s->rax=do_write((int)s->rdi,(const void *)s->rsi,(size_t)s->rdx);
 		}
 		else if(s->rax==SYS_brk){
-		  do_brk((void *)s->rdi, (int)s->rsi, (int)s->rdx);
-		  s->rax=0;
+		  do_brk((void *)s->rdi);
 	        }
 	}
 

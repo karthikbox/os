@@ -5,9 +5,7 @@
 
 
 int brk(void *end_data_segment){
-  int arg1=0;
-  int arg2=1;
-  void * ret = (void *) syscall_3(SYS_brk,(uint64_t)end_data_segment, (uint64_t)arg1, (uint64_t)arg2);
+    void * ret = (void *) syscall_1(SYS_brk,(uint64_t)end_data_segment);
     if((uint64_t)ret==(uint64_t)end_data_segment){
 	return 0;
     }
@@ -209,7 +207,7 @@ void free(void *ptr){
     if(valid_ptr(ptr)){
 	p_blk temp=get_meta_ptr(ptr);
 	temp->free=1;
-	if(temp->next==NULL){
+	/*	if(temp->next==NULL){
 	    //last block is being free'd
 	    //decrease the brk pointer to temp
 	   
@@ -226,7 +224,7 @@ void free(void *ptr){
 	    }
 	    if(!remove_last_blk(temp))
 		printf("unable to remove last blk, just marking it as free\n");;
-	}
+		}*/
 	/*
 	  TODO
 	  1.implement coalascing

@@ -115,6 +115,35 @@ size_t do_write(int fd, const void* bf, size_t len){
 	}
 	return i;
 } 
-void do_brk(void* end_data_segment, int arg1, int arg2){
-  printf("In do_brk\n");
+void do_brk(void* end_data_segment){
+  
+  /* printf("proc -> %d -> brk syscall\n",proc->pid); */
+  struct vma *t=proc->vma_head;
+  struct vma *t_stack=NULL, *t_heap=NULL;
+  while(t!=NULL){
+    /*traverse throug the process vma to get the heap and stack vmas */
+    if(t->flags & PF_GROWSUP){
+      /*if flags is PF_GROWSUP then heap*/
+      t_heap=t;
+    }
+    else if(t->flags & PF_GROWSDOWN){
+      /*if flags is PF_GROWSDOWN then stack*/
+      t_stack=t;
+    }
+    t=t->next;
+  }
+
+
+
+  if( ((uint64_t)end_data_segment >= t_heap->end) && ((uint64_t)end_data_segment < t_stack->start) ){
+    /* check end_data_segment is greater than current heap end and lesser than the current stack start*/
+    t_heap->end=(uint64_t)end_data_segment + 0x1ul;
+  }
+  else{
+    /*all other cases are invalid*/
+    /*return the current break pointer*/
+    end_data_segment= (void *)(t_heap->end - 0x1ul);
+}
+  /* return end_data_segment in any case*/
+  proc->tf->rax=(uint64_t)end_data_segment;
 }
