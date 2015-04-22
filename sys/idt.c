@@ -294,5 +294,8 @@ void isr_handler(struct stack_frame *s){
 		else if(s->rax==SYS_nanosleep){
 			do_nanosleep((struct timespec *)s->rdi,(struct timespec *)s->rsi);
 		}
+		else if(s->rax==SYS_wait4){
+		  do_waitpid((pid_t)s->rdi, (int*)s->rsi, (int)s->rdx);
+		}
 	}
 }

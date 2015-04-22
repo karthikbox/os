@@ -118,7 +118,7 @@ void userinit(){
 
 	/* initialize sleep_head and sleep_tail to NULL */
 	init_sleep_queue();
-
+	init_waitpid_queue();
 	/* printf writes to <1MB mem region. Now user page tables are loaded. We cannot access <1MB since we did not map that region into user process < 1MB VM aread */
 	/* printf("calling scheduler\n"); */
 	scheduler();
@@ -274,7 +274,7 @@ int enqueue_sleep(struct proc *p,struct timespec *rem){
 	t->rem.tv_nsec=rem->tv_nsec;
 	t->next=NULL;
 	if(t==NULL){
-		printf("unable to allocate memory...enqueue failed\n");
+		printf("unable to allocate memory...enqueue_sleep failed\n");
 		return 0;
 	}
 	if(sleep_head == NULL ){
@@ -347,3 +347,81 @@ void init_sleep_queue(){
 	sleep_head=NULL;
 	sleep_tail=NULL;	
 }
+
+void init_waitpid_queue(){
+  waitpid_head=NULL;
+  waitpid_tail=NULL;
+}
+
+int enqueue_waitpid(struct proc *p, int pid){
+  struct waitpid_entry *t=(struct waitpid_entry *)kmalloc(sizeof(struct waitpid_entry));
+  t->parent_proc=p;
+  t->pid=pid;
+  t->next=NULL;
+  if(t==NULL){
+    printf("unable to allocate memory..enqueue_waitpid failed\n");
+    return 0;
+  }
+  if(waitpid_head==NULL){
+    /* Q is empty */
+    waitpid_head=waitpid_tail=t;
+  }
+  else{
+    /* Q is not empty */
+    waitpid_tail->next=t;
+    waitpid_tail=t;
+  }
+  return 1;
+}
+
+void update_waitpid_queue(struct proc *p){
+  /* traverse through the queue */
+  struct waitpid_entry *t=waitpid_head;
+  for(;t!=NULL;t=t->next){
+     /* compare the current process' parents pid with the process ids in the queue */
+    if((t->pid==-1) || (t->pid==p->pid)){
+      if(p->parent->pid == t->parent_proc->pid){
+
+	/* remove from waitpid Q */
+	dequeue_waitpid(t);
+
+	/* if the pids match, return the pid of the current process */
+	t->parent_proc->tf->rax=p->pid;
+	t->parent_proc->state=RUNNABLE;
+      }
+    }
+  }
+}
+
+void dequeue_waitpid(struct waitpid_entry *p){
+  /* remove given node from Q */
+  if(p==waitpid_head){
+    /* first node */
+    if(waitpid_head->next==NULL){
+      /* if only one node in Q */
+      waitpid_head=waitpid_tail=NULL;
+    }
+    else{
+      /* move head to next node */
+      waitpid_head=p->next;
+    }
+    /* free cur node */
+    kfree(p);
+  }
+  else{
+    /* middle or end node */
+    struct waitpid_entry *prev=NULL, *cur=waitpid_head;
+    for(;cur!=NULL;prev=cur,cur=cur->next){
+      if(cur==p){
+	/* found node */
+	prev->next=cur->next;
+	if(cur->next==NULL){
+	  waitpid_tail=prev;
+	}
+	kfree(cur);
+      }
+    }
+  }
+  
+}
+
