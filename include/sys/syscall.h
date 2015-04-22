@@ -31,6 +31,9 @@ struct timespec{
     time_t tv_nsec;
 };
 
+
+typedef uint32_t pid_t;
+
 void init_syscall();
 void do_yield();
 void do_fork();
