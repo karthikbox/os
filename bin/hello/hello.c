@@ -26,14 +26,23 @@ int main(int argc, char* argv[], char* envp[]) {
 			printf("child_parent says hi\n");
 			printf("child_parent's child %d\n",b1);
 			pid1=waitpid(b1,&status,0);
-			printf("child %d exited\n",pid1);
+			printf("child_parent %d exited\n",pid1);
 			printf("child_parent about to exit\n");
 			exit(0);
 		}
 		else if(b1==0){
-			printf("child_child says hi\n");
-			printf("child_child about to exit\n");
-			exit(0);
+			pid_t b2=fork();
+			if(b2>0){
+				printf("child_child says hi\n");
+				printf("child_child about to exit\n");
+				sleep(10);
+				exit(0);
+			}
+			else if(b2==0){
+				while(1){
+					yield();
+				}
+			}
 		}
 	}
 	printf("parent child exited %d\n",pid);
