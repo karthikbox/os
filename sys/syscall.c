@@ -157,6 +157,9 @@ void do_exit(int status){
   /* free process page tables free_uvm(pml4_t) */
   free_uvm(proc->pml4_t);
 
+  /* update waitpid Q */
+  update_waitpid_queue(proc);
+
   /* free pcb */
   free_pcb(proc);
 
@@ -197,4 +200,23 @@ void do_nanosleep(struct timespec *req,struct timespec *rem){
 		/* schedule next process */
 		scheduler();
 	}
+}
+
+void do_waitpid(pid_t pid, int* status, int options){
+
+  printf("proc -> %d -> waitpid syscall\n",proc->pid);
+  /* change the process state to SLEEPING */
+  proc->state=SLEEPING;
+  /* add the process to a waitpid Q */
+  if(enqueue_waitpid(proc,pid)==0){
+    /* enqueue failed */
+    /* waitpid returns -1 */
+    proc->tf->rax=-1;
+    /* make process running */
+    proc->state=RUNNING;
+    return;
+  }
+  /* enqueue success */
+  /* schedule another process */
+  scheduler();
 }

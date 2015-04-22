@@ -12,27 +12,31 @@ int main(int argc, char* argv[], char* envp[]) {
 	for(i=0;envp[i];i++){
 		printf("envp[%d]->%s\n",i,envp[i]);
 	}
+	int status=0;
 	pid_t b=fork();
+	int pid=0, pid1=0;
 	if(b>0){
 		printf("parent says hi\n");
-		sleep(8);
+		printf("parent waiting for child process %d\n",b);
+		pid=waitpid(-1,&status,0);
 	}
 	else if(b==0){
 		pid_t b1=fork();
 		if(b1>0){
 			printf("child_parent says hi\n");
-			yield();
-			sleep(2);
-			printf("child_parent wokeup\n");
+			printf("child_parent's child %d\n",b1);
+			pid1=waitpid(b1,&status,0);
+			printf("child %d exited\n",pid1);
+			printf("child_parent about to exit\n");
+			exit(0);
 		}
 		else if(b1==0){
 			printf("child_child says hi\n");
-		}
-		while(1){
-			yield();
+			printf("child_child about to exit\n");
+			exit(0);
 		}
 	}
-	printf("parent wokeup\n");
+	printf("parent child exited %d\n",pid);
 	while(1);
 	return 0;
 }

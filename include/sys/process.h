@@ -172,10 +172,25 @@ struct sleep_entry{
 struct sleep_entry*  sleep_head;
 struct sleep_entry*  sleep_tail;
 
+/* waitpid */
+struct waitpid_entry{
+  struct proc *parent_proc;
+  pid_t pid;
+  struct waitpid_entry *next;
+};
+
+struct waitpid_entry*  waitpid_head;
+struct waitpid_entry*  waitpid_tail;
+
 void init_sleep_queue();
 void update_sleep_queue();
 int enqueue_sleep(struct proc *p,struct timespec *rem);
 void dequeue_sleep(struct sleep_entry *p);
+
+void init_waitpid_queue();
+int enqueue_waitpid(struct proc *p, int pid);
+void update_waitpid_queue(struct proc *p);
+void dequeue_waitpid(struct waitpid_entry *p);
 
 void cli();
 void sti();
