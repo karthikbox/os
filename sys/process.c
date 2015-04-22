@@ -217,7 +217,7 @@ void switchuvm(struct proc *p){
 	load_base(get_phys_addr((uint64_t)p->pml4_t)); /* load process page tables */
 	/* sti(); */
 	
-	printf("tss.rsp0 -> %p\n",tss.rsp0);
+	/* printf("tss.rsp0 -> %p\n",tss.rsp0); */
 	
 }
 
@@ -270,7 +270,8 @@ int enqueue_sleep(struct proc *p,struct timespec *rem){
 	/* returns 0 on failure and 1 on success */
 	struct sleep_entry *t=(struct sleep_entry *)kmalloc(sizeof(struct sleep_entry));
 	t->proc=p;
-	t->rem=rem;
+	t->rem.tv_sec=rem->tv_sec;
+	t->rem.tv_nsec=rem->tv_nsec;
 	t->next=NULL;
 	if(t==NULL){
 		printf("unable to allocate memory...enqueue failed\n");
@@ -323,17 +324,20 @@ void dequeue_sleep(struct sleep_entry *p){
 void update_sleep_queue(){
 	struct sleep_entry *p=sleep_head;
 	for(;p!=NULL;p=p->next){
-		if(p->rem->tv_sec==0){
+		if(p->rem.tv_sec==0){
+			
 			/* proc's sleep timer has expired */
 			/* make process RUNNABLE */
 			p->proc->state=RUNNABLE;
 			/* remove from sleep Q */
 			dequeue_sleep(p);
+			/* set rax of p to 0, since it has successfully completed sleep period */
+			p->proc->tf->rax=0;
 		}
 		else{
 			/* decrement rem time of every proc in sleep Q */
-			p->rem->tv_sec-=1;			
-			p->rem->tv_nsec-=1000000000L;
+			p->rem.tv_sec-=1;			
+			p->rem.tv_nsec=0L; 
 		}
 	}
 }

@@ -291,5 +291,8 @@ void isr_handler(struct stack_frame *s){
 		else if(s->rax==SYS_getppid){
 		  s->rax=do_getppid();
 		}
+		else if(s->rax==SYS_nanosleep){
+			do_nanosleep((struct timespec *)s->rdi,(struct timespec *)s->rsi);
+		}
 	}
 }

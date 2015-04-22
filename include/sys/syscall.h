@@ -43,4 +43,6 @@ void do_brk(void *end_data_segment);
 void do_exit(int status);
 pid_t do_getpid();
 pid_t do_getppid();
+void do_nanosleep(struct timespec *req,struct timespec *rem);
+
 #endif

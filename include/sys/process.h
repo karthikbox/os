@@ -165,7 +165,7 @@ void free_pcb(struct proc *p);
 /* sleep */
 struct sleep_entry{
 	struct proc *proc;
-	struct timespec *rem;
+	struct timespec rem;
 	struct sleep_entry *next;
 };
 

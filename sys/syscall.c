@@ -36,7 +36,7 @@ void init_syscall(){
 
 void do_yield(){
 	proc->state=RUNNABLE;
-	printf("proc -> %d -> yield syscall\n",proc->pid);
+	/* printf("proc -> %d -> yield syscall\n",proc->pid); */
 	scheduler();
 	
 }
@@ -176,6 +176,7 @@ pid_t do_getppid(){
 }
 
 void do_nanosleep(struct timespec *req,struct timespec *rem){
+	printf("proc -> %d -> sleep syscall\n",proc->pid);
 	if(req->tv_sec >= 0){
 		/* sleep time is >0 secs */
 		/* set state to SLEEPING */
