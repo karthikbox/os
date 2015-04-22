@@ -1,5 +1,6 @@
 #ifndef __SYS_SYSCALL_H
 #define __SYS_SYSCALL_H
+#include <sys/defs.h>
 
 #define SYS_exit       60
 #define SYS_brk        12
@@ -30,4 +31,8 @@ void do_yield();
 void do_fork();
 void handle_pf();
 size_t do_write(int fd,const void *bf,size_t len);
+void do_brk(void *end_data_segment);
+void do_exit(int status);
+pid_t do_getpid();
+pid_t do_getppid();
 #endif

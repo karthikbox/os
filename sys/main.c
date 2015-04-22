@@ -95,8 +95,9 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	if(!init_ref_map(&ref_count_struct)){
 		printf("unable to allocate mem for ref count array...fatal");
 	}
-	userinit();
-	while(1);
+     	userinit();
+	printf("Infinite loop in sys_main.c\n");
+	//while(1);
 	/* blue background and white foreground */
 	/* set_color(0x1F); */
 	/* clear_screen(); */	

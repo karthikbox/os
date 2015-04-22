@@ -155,8 +155,8 @@ int exec(char *path,char **argv){
 	/* start heap from end of last section + 0x1000 */
 	/* TODO; round up page to neaserst frame boundary */
 	vma_heap->start=(last_seg_start+last_seg_size+0x3000);
-	/* heap has no size intially */
-	vma_heap->end=vma_heap->start;
+	/* heap initially has 1 byte */
+	vma_heap->end=vma_heap->start+0x1ul;
 	/* heap has read, write, exec, growsup flags set */
 	vma_heap->flags=PF_R | PF_W |PF_X|PF_GROWSUP;
 	vma_heap->next=NULL;

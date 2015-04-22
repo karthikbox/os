@@ -3,6 +3,7 @@
 #include <sys/sbunix.h>
 #include <sys/process.h>
 #include <sys/page.h>
+#include <sys/utility.h>
 
 p_fmgr pfmgr_head=NULL;//pfmgr_head points to the pfmgr_head of the memory linked list
 p_fmgr pfmgr_tail=NULL;//pfmgr_tail points to the last node of the linked list, brk is data chunk + meta
@@ -19,7 +20,9 @@ void* kmalloc(size_t size)
 	//allign the size in multiples of 8
 	size = ALIGN(size);
 	void* ret_addr = alloc_addr(size);
-
+	if(ret_addr != NULL){
+	  memset1((char*)ret_addr, 0, size);
+	}
 	return ret_addr;
 	
 }

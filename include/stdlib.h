@@ -15,7 +15,7 @@ int brk(void *end_data_segment);
 void * sbrk(uint64_t offset);
 
 // processes
-typedef uint32_t pid_t;
+//typedef uint32_t pid_t;
 pid_t fork(void);
 pid_t getpid(void);
 pid_t getppid(void);

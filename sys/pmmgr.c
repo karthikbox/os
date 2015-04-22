@@ -1,4 +1,5 @@
 #include<sys/pmmgr.h>
+#include<sys/sbunix.h>
 #include<sys/utility.h>
 #include<sys/defs.h>
 
@@ -29,6 +30,11 @@ int mem_map_test(uint64_t bit){
 
 long mem_map_first_free(size_t size){
 	int number_of_frames=NUMBER_OF_FRAMES(size);
+	/* sanity check for number_of_frames */
+	if(number_of_frames > 64){
+	  printf("sanity check for number_of_frames - %d failed..\n",number_of_frames);
+	  return -1;
+	}
         uint64_t temp=0xffffffffffffffff;
         temp=temp>>(64-number_of_frames);
 	for(uint64_t i=0;i<memory_size_in_frames/64+1;i++){

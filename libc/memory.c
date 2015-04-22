@@ -207,7 +207,7 @@ void free(void *ptr){
     if(valid_ptr(ptr)){
 	p_blk temp=get_meta_ptr(ptr);
 	temp->free=1;
-	if(temp->next==NULL){
+	/*	if(temp->next==NULL){
 	    //last block is being free'd
 	    //decrease the brk pointer to temp
 	   
@@ -224,7 +224,7 @@ void free(void *ptr){
 	    }
 	    if(!remove_last_blk(temp))
 		printf("unable to remove last blk, just marking it as free\n");;
-	}
+		}*/
 	/*
 	  TODO
 	  1.implement coalascing
