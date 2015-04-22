@@ -8,7 +8,7 @@
 
 uint64_t round_down(uint64_t addr,int n);
 
-int exec(char *path,char **argv){
+int exec(char *path,char **argv,char **envp){
 
 	//char *s,*last;
 	uint64_t i;
@@ -175,17 +175,34 @@ int exec(char *path,char **argv){
 		load_base(get_phys_addr((uint64_t)pml4_t)); /* loaded process page tables */
 		memcpy((void *)sp,argv[argc],strlen(argv[argc])+1); /* continue here */
 		load_base((uint64_t)pml4_base); /* load kernel page tables */
-		ustack[3+argc]=sp;
+		ustack[2+argc]=sp;
 	}
-	ustack[3+argc]=0;
+	ustack[2+argc]=0;
 	ustack[0]=0xffffffffffffffff; /* fake return PC */
 	ustack[1]=argc;
-	ustack[2]=sp-(argc+1)*8;	/* argv pointer */
-
-	sp-=(3+argc+1)*8;
+	argc++;
+	int envp_c;
+	/* for envp */
+	for(envp_c=0;envp[envp_c];argc++,envp_c++){
+		if(envp_c>=MAXARG){
+			if(pml4_t){
+				free_uvm(pml4_t);
+			}
+			free_vma_list(&head); /* free new vma */
+			return -1;
+		}
+		sp=round_down(sp-(strlen(envp[envp_c])+1),8); /* round down to 8 byte boundary */
+		load_base(get_phys_addr((uint64_t)pml4_t)); /* loaded process page tables */
+		memcpy((void *)sp,envp[envp_c],strlen(envp[envp_c])+1); /* continue here */
+		load_base((uint64_t)pml4_base); /* load kernel page tables */
+		ustack[2+argc]=sp;
+	}
+	ustack[2+argc]=0;
+	/* ustack[2]=sp-(argc+1)*8;	/\* argv pointer *\/ */
+	sp-=(3+argc)*8;
 
 	load_base(get_phys_addr((uint64_t)pml4_t)); /* loaded process page tables */
-	memcpy((void *)sp,(void *)ustack,(3+argc+1)*8);
+	memcpy((void *)sp,(void *)ustack,(3+argc)*8);
 	load_base((uint64_t)pml4_base); /* load kernel page tables */
 	
 

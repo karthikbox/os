@@ -4,6 +4,14 @@
 
 int main(int argc, char* argv[], char* envp[]) {
 	printf("hello\n");
+	printf("argc is %d\n",argc);
+	int i;
+	for(i=0;argv[i];i++){
+		printf("argv[%d]->%s\n",i,argv[i]);
+	}
+	for(i=0;envp[i];i++){
+		printf("envp[%d]->%s\n",i,envp[i]);
+	}
 	pid_t b=fork();
 	if(b>0){
 		printf("parent says hi\n");

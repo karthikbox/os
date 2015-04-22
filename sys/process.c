@@ -5,7 +5,7 @@
 #include<sys/pmmgr.h>
 
 extern void trapret();
-extern int exec(char *path,char **argv);
+extern int exec(char *path,char **argv,char **envp);
 struct proc *initproc;
 struct proc *proc;
 uint32_t proc_count=1;			/* this is the pid counter. starts from 1. */
@@ -107,10 +107,18 @@ void userinit(){
 	/* call exec */
 	proc=p;
 	char *a="bin/hello";
-	char *argv[2];
-	argv[0]=a;argv[1]=NULL;
+	char *argv[3];
+	argv[0]=a;argv[1]="os/sbunix";argv[2]=NULL;
+	char *envp[7];
+	envp[0]="PATH=/bin/ls:/bin/cat";
+	envp[1]="cwd=/sbush/shell";
+	envp[2]="envp1";
+	envp[3]="envp2";
+	envp[4]="envp3";
+	envp[5]="envp4";
+	envp[6]=NULL;
 	cli();
-	exec("bin/hello",argv);
+	exec("bin/hello",argv,envp);
 	//p->tf->cs=(SEG_);
 	/* ltr(0x2Bu); */
 	/* ltr 0x2B   with RPL of 3 for user??? */

@@ -15,10 +15,11 @@ void _start(void) {
 		"mov %%rsp,%0\n\t"
 		:"=r" (rsp)
 	);
-	argc=*(rsp+1);
-	argv=(char **)rsp+2;
-	envp=(char **)rsp+(argc+3);
+	argc=*(rsp+2);
+	argv=(char **)(rsp+3);
+	envp=(char **)(rsp+2+argc+2);
 	res = main(argc, argv, envp);
+	/* res=main(*(rsp+2),(char **)(*(rsp+3)),(char **)(*(rsp+*(rsp+2)+3))); */
 	exit(res);
 }
 

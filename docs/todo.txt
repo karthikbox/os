@@ -11,9 +11,12 @@ Eg:
 >>>>>>
 check format rflags. right now setting only interrupt enable flag while going to user process
 >>>>>>
-how to set TSS and to what value?
-
-
+Do not trust user space pointers
+>>>>>>
+1 page allocated for user stack
+Assume 40 pointers (argv+envp) pointing to array of 40 bytes each. Content = 40*40
+Pointers: 44*8=360
+All this can fit in 4KB user stack.
 >>>>>>
 user malloc, issue sbrk only on 8 byte alligned boundaries
 
