@@ -26,6 +26,11 @@
 
 #define T_SYSCALL 128
 
+struct timespec{
+    time_t tv_sec;//seconds
+    time_t tv_nsec;
+};
+
 void init_syscall();
 void do_yield();
 void do_fork();

@@ -1,5 +1,6 @@
 #include <sys/sbunix.h>
 #include <sys/utility.h>
+#include<sys/process.h>
 #define BUFF_SIZE 20
 
 int timer_ticks = 0;
@@ -25,8 +26,10 @@ void timer_handler(){
 		}
 		
 		print_time(hh,mm,ss);
+		update_sleep_queue();
 	}
 }
+
 
 //function to change the frequency of the timer
 //timer ticks 100 times per second

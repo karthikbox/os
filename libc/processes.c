@@ -4,11 +4,6 @@
 #include <sys/syscall.h>
 #include <syscall.h>
 
-struct timespec{
-    time_t tv_sec;
-    long tv_nsec;
-};
-
 pid_t fork(void) {
 	return  (pid_t) syscall_0(SYS_fork);
 }
@@ -50,5 +45,5 @@ unsigned int sleep(unsigned int seconds){
 }
 
 void yield(){
-  syscall_0(SYS_yield);
+	syscall_0(SYS_yield);
 }

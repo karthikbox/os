@@ -174,3 +174,26 @@ pid_t do_getppid(){
     return (pid_t)(proc->parent->pid);
   }
 }
+
+void do_nanosleep(struct timespec *req,struct timespec *rem){
+	if(req->tv_sec >= 0){
+		/* sleep time is >0 secs */
+		/* set state to SLEEPING */
+		proc->state=SLEEPING;
+		/* copy req to rem */
+		rem->tv_sec=req->tv_sec;
+		rem->tv_nsec=req->tv_nsec;
+		/* add <proc,rem> to sleep Q */
+		if(enqueue_sleep(proc,rem)==0){
+			/* enqueue failed */
+			/* sleep returns -1 */
+			proc->tf->rax=-1;
+			/* make proc RUNNING */
+			proc->state=RUNNING;
+			return ;
+		}
+		/* enqueue success */
+		/* schedule next process */
+		scheduler();
+	}
+}

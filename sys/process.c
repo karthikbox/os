@@ -11,6 +11,7 @@ struct proc *proc;
 uint32_t proc_count=1;			/* this is the pid counter. starts from 1. */
 struct cpu cpu;
 
+
 inline uint64_t get_virt_addr(uint64_t x){
 	return KERNBASE+x;
 }
@@ -114,6 +115,9 @@ void userinit(){
 	/* ltr(0x2Bu); */
 	/* ltr 0x2B   with RPL of 3 for user??? */
 	ltr(0x2Bu);
+
+	/* initialize sleep_head and sleep_tail to NULL */
+	init_sleep_queue();
 
 	/* printf writes to <1MB mem region. Now user page tables are loaded. We cannot access <1MB since we did not map that region into user process < 1MB VM aread */
 	/* printf("calling scheduler\n"); */
@@ -259,4 +263,83 @@ void free_pcb(struct proc *p){
 	kfree(p->kstack);
 	/* set proc state to UNUSED */
 	p->state=UNUSED;
+}
+
+
+int enqueue_sleep(struct proc *p,struct timespec *rem){
+	/* returns 0 on failure and 1 on success */
+	struct sleep_entry *t=(struct sleep_entry *)kmalloc(sizeof(struct sleep_entry));
+	t->proc=p;
+	t->rem=rem;
+	t->next=NULL;
+	if(t==NULL){
+		printf("unable to allocate memory...enqueue failed\n");
+		return 0;
+	}
+	if(sleep_head == NULL ){
+		/* Q is empty */	
+		sleep_head=sleep_tail=t;
+	}
+	else{
+		/* Q is not empty */
+		sleep_tail->next=t;
+		sleep_tail=t;
+	}
+	return 1;
+}
+
+void dequeue_sleep(struct sleep_entry *p){
+	/* remove given node from Q */
+	if(p==sleep_head){
+		/* first node */
+		if(sleep_head->next==NULL){
+			/* if only one node in Q */
+			sleep_head=sleep_tail=NULL;
+		}
+		else{
+			/* move head to next node */
+			sleep_head=p->next;
+		}
+		/* free cur node */
+		kfree(p);
+	}
+	else{
+		/* middle or end node */
+		struct sleep_entry *prev=NULL, *cur=sleep_head;
+		for(;cur!=NULL;prev=cur,cur=cur->next){
+			if(cur==p){
+				/* found node */
+				prev->next=cur->next;
+				if(cur->next==NULL){
+					sleep_tail=prev;
+				}
+				kfree(cur);
+			}
+		}
+	}
+	
+}
+
+void update_sleep_queue(){
+	struct sleep_entry *p=sleep_head;
+	for(;p!=NULL;p=p->next){
+		if(p->rem->tv_sec==0){
+			/* proc's sleep timer has expired */
+			/* make process RUNNABLE */
+			p->proc->state=RUNNABLE;
+			/* remove from sleep Q */
+			dequeue_sleep(p);
+		}
+		else{
+			/* decrement rem time of every proc in sleep Q */
+			p->rem->tv_sec-=1;			
+			p->rem->tv_nsec-=1000000000L;
+		}
+	}
+}
+
+void init_sleep_queue(){
+	/* initialize head and tail of sleep Q */
+	sleep_head=NULL;
+	sleep_tail=NULL;	
 }

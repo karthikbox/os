@@ -4,6 +4,7 @@
 #include<sys/defs.h>
 #include<sys/page.h>
 #include<sys/gdt.h>
+#include<sys/syscall.h>
 
 #define KERNBASE 0xffffffff80000000ul
 #define NPROC 64				/* maximum number of processes */
@@ -160,6 +161,21 @@ void free_vma_list(struct vma **p);
 
 /* free pcb */
 void free_pcb(struct proc *p);
+
+/* sleep */
+struct sleep_entry{
+	struct proc *proc;
+	struct timespec *rem;
+	struct sleep_entry *next;
+};
+
+struct sleep_entry*  sleep_head;
+struct sleep_entry*  sleep_tail;
+
+void init_sleep_queue();
+void update_sleep_queue();
+int enqueue_sleep(struct proc *p,struct timespec *rem);
+void dequeue_sleep(struct sleep_entry *p);
 
 void cli();
 void sti();
