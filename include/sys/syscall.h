@@ -25,7 +25,7 @@
 #define SYS_yield      24
 
 #define T_SYSCALL 128
-
+typedef uint32_t pid_t;
 void init_syscall();
 void do_yield();
 void do_fork();
