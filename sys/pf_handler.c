@@ -192,7 +192,7 @@ void handle_pf(uint64_t error){
 		return;
 	}	
 	printf("unable to match any error in page fault handler\n");
-
+	while(1);
 }
 
 inline uint64_t getErrorCode(uint64_t error){

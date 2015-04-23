@@ -10,6 +10,7 @@ int main(int argc, char* argv[], char* envp[]) {
 	for(i=0;envp[i];i++){
 		printf("test envp[%d]->%s\n",i,envp[i]);
 	}
+	sleep(4);
 	return 0;
 }
 

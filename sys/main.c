@@ -44,15 +44,6 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	
 	/* vm manager */
 	vm_init(physbase,physfree);
-	//*((char *)0xffffffff80000000ul+(uint64_t)physfree)='a';
-	//*((char *)(0xffffffff80000000ul+0x200000ul))='a';
-
-	/* printf("%p\n",(uint64_t)alloc_frame(PAGE_SIZE)); */
-	
-	/* printf("kcs-> %p \n",SEG_KCS()); */
-	/* printf("kds-> %p \n",SEG_KDS()); */
-	/* printf("ucs-> %p \n",SEG_UCS()); */
-	/* printf("uds-> %p \n",SEG_UDS()); */
 	
 
 	printf("%p\n",(uint64_t)alloc_frame(PAGE_SIZE));
@@ -63,32 +54,6 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	idt_init();
 	init_timer(100);
         
-	/* int* one=(int*)kmalloc(4096*2); */
-	/* printf("one: %p",one); */
-	/* int* two=(int*)kmalloc(8); */
-	/* printf("two: %p",two); */
-	/* int* three=(int*)kmalloc(4096); */
-	/* printf("three: %p",three); */
-	/* int* four=(int*)kmalloc(12); */
-	/* printf("four:%p",four); */
-	/* kfree(one); */
-	/* one=(int*)kmalloc(40); */
-	/* printf("one again: %p",one); */
-	/* int* five=(int*)kmalloc(4096); */
-	/* printf("five:last+1000 %p",five); */
-	int* num; 
-	for(int i=0; i<206; i++) {
-		num = (int*)kmalloc(sizeof(int)); 
-		printf("num is %p\n", num); 
-	}
-	//__asm__ __volatile__("int $0x00");
-	//__asm__ __volatile__("int $0x80");
-	/* uint64_t *elf_start; */
-	/* if(!(elf_start=tarfs_get_file("bin/initcode"))){ */
-	/* 	printf("elf not found\n"); */
-	/* } */
-	/* printf("found at %p\n",elf_start); */
-	/* printf("pml4_base->%p\n",(uint64_t)pml4_base); */	
 	struct ref_map ref_count_struct;
 	if(!init_ref_map(&ref_count_struct)){
 		printf("unable to allocate mem for ref count array...fatal");
