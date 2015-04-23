@@ -64,7 +64,11 @@ void* alloc_addr(size_t size)
 	temp = pfmgr_head;
 	while(temp != NULL)
 	{
-		if((temp->free == 1) && (temp->size >= size))
+		
+		if((temp->free == 1) && (temp->size == size)){
+			temp->free=0;
+		}
+		else if((temp->free == 1) && (temp->size > size))
 		{
 			if(!add_mgr_node(temp, size))
 			{
@@ -80,7 +84,22 @@ void* alloc_addr(size_t size)
 
 	//we couldn't allocate a chunk in the existing frame_manager list
 	//so create a new page and add to the existing frame_manager lise
-	p_fmgr node = frame_manager_last + 1;
+	
+	p_fmgr node=NULL;
+	/* check if there is space for one more pf_mgr in the current pf_mgr block */
+	if((frame_manager_start + ENTRIES_PER_FRAME_MGR) == frame_manager_last){
+		frame_manager_start = new_page_mgr_alloc(PAGE_SIZE);
+		if(!frame_manager_start){
+				return NULL;
+		}
+		frame_manager_last->next = frame_manager_start;		
+		node = frame_manager_start;		
+	}
+	else{
+		node = frame_manager_last + 1;
+	}
+
+	
 	prev->next = node;
 	frame_manager_last = node;
 
@@ -99,11 +118,12 @@ void* alloc_addr(size_t size)
 
 void* init_page(p_fmgr node,size_t size)
 {
-	page_phys_addr = (void*) get_virt_addr((uint64_t)alloc_frame(size));
+	page_phys_addr = (void*) get_virt_addr((uint64_t)alloc_frame(size));	
 	if(!page_phys_addr)
 	{
 		return NULL;
 	}
+	memset1((char *)page_phys_addr,0,size);
 	node->frame_start_addr = page_phys_addr;
 	node->offset = 0;
 	node->next = NULL;
@@ -150,6 +170,7 @@ void* add_mgr_node(p_fmgr node, size_t size)
 void* new_page_mgr_alloc(size_t size)
 {
 	void* frame_manager_phys_addr = alloc_frame(size);
+	memset1((char *)get_virt_addr((uint64_t)frame_manager_phys_addr),0,size);
 	if(!frame_manager_phys_addr)
 	{
 		return NULL;

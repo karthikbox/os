@@ -77,7 +77,7 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	/* int* five=(int*)kmalloc(4096); */
 	/* printf("five:last+1000 %p",five); */
 	int* num; 
-	for(int i=0; i<205; i++) {
+	for(int i=0; i<206; i++) {
 		num = (int*)kmalloc(sizeof(int)); 
 		printf("num is %p\n", num); 
 	}
