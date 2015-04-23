@@ -76,13 +76,11 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	/* printf("one again: %p",one); */
 	/* int* five=(int*)kmalloc(4096); */
 	/* printf("five:last+1000 %p",five); */
-	 int* num; 
-	 //for(int i=0; i<105; i++) 
-	  
-	 	num = (int*)kmalloc(sizeof(int)); 
-	  
-	 printf("num is %p\n", num); 
-
+	int* num; 
+	for(int i=0; i<205; i++) {
+		num = (int*)kmalloc(sizeof(int)); 
+		printf("num is %p\n", num); 
+	}
 	//__asm__ __volatile__("int $0x00");
 	//__asm__ __volatile__("int $0x80");
 	/* uint64_t *elf_start; */
@@ -90,12 +88,13 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	/* 	printf("elf not found\n"); */
 	/* } */
 	/* printf("found at %p\n",elf_start); */
-	/* printf("pml4_base->%p\n",(uint64_t)pml4_base); */
+	/* printf("pml4_base->%p\n",(uint64_t)pml4_base); */	
 	struct ref_map ref_count_struct;
 	if(!init_ref_map(&ref_count_struct)){
 		printf("unable to allocate mem for ref count array...fatal");
 	}
-     	userinit();
+	printf("calling userinit\n");
+	userinit();
 	printf("Infinite loop in sys_main.c\n");
 	//while(1);
 	/* blue background and white foreground */

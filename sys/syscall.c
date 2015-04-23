@@ -84,11 +84,8 @@ void do_fork(){
 	}
 	
 
-	/* copy trapframe of parent to child */
+	/* copy trapframe of parent to child, do not clear trapframe */
 	memcpy(p->tf,proc->tf,sizeof(struct trapframe));
-	memset1((char *)p->tf,0,15*sizeof(uint64_t));
-	p->tf->rflags=FL_IF;
-	
 	/* set return of fork of child to 0 */
 	p->tf->rax=0;
 	/* set size of child same as parent */

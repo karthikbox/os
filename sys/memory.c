@@ -64,7 +64,7 @@ void* alloc_addr(size_t size)
 	temp = pfmgr_head;
 	while(temp != NULL)
 	{
-		if((temp->free == 1) && temp->size >= size)
+		if((temp->free == 1) && (temp->size >= size))
 		{
 			if(!add_mgr_node(temp, size))
 			{

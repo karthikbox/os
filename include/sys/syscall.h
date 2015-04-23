@@ -45,4 +45,5 @@ pid_t do_getpid();
 pid_t do_getppid();
 void do_nanosleep(struct timespec *req,struct timespec *rem);
 void do_waitpid(pid_t pid, int *status, int options);
+void do_execve(char *filename, char* argv[], char* envp[]);
 #endif

@@ -2,7 +2,9 @@
 #include <sys/utility.h>
 #include<sys/syscall.h>
 #include<sys/process.h>
+#include<sys/memory.h>
 /* definition of idt entry */
+int exec(char *filename,char **kargv,char **kenvp);
 struct idt_entry{
 	uint16_t offset_0_15;
     uint16_t selector;
@@ -280,22 +282,85 @@ void isr_handler(struct stack_frame *s){
 			s->rax=do_write((int)s->rdi,(const void *)s->rsi,(size_t)s->rdx);
 		}
 		else if(s->rax==SYS_brk){
-		  do_brk((void *)s->rdi);
-	        }
+			do_brk((void *)s->rdi);
+		}
 		else if(s->rax==SYS_exit){
-		  do_exit((int)s->rdi);
+			do_exit((int)s->rdi);
 		}
 		else if(s->rax==SYS_getpid){
-		  s->rax=do_getpid();
+			s->rax=do_getpid();
 		}
 		else if(s->rax==SYS_getppid){
-		  s->rax=do_getppid();
+			s->rax=do_getppid();
 		}
 		else if(s->rax==SYS_nanosleep){
 			do_nanosleep((struct timespec *)s->rdi,(struct timespec *)s->rsi);
 		}
 		else if(s->rax==SYS_wait4){
-		  do_waitpid((pid_t)s->rdi, (int*)s->rsi, (int)s->rdx);
+			do_waitpid((pid_t)s->rdi, (int*)s->rsi, (int)s->rdx);
+		}
+		else if(s->rax==SYS_execve){
+			/* copy the contents of argv and envp to kernel stack */
+			char *filename=(char *)s->rdi;
+			char **argv=(char **)s->rsi;
+			char **envp=(char **)s->rdx;
+			int argc=0;
+			int envc=0;
+			printf("argc->%d, envc->%d\n",argc, envc);
+			while(argv[argc]){
+				argc++;
+			}
+			argc++;
+			while(envp[envc]){
+				envc++;
+			}
+			envc++;
+			printf("argc->%d, envc->%d\n",argc, envc);
+
+			char *kfilename=(char *)kmalloc(sizeof(char)*(strlen(filename)+1));
+			strcpy(kfilename,filename);
+
+			char **kargv=(char **)kmalloc(argc*sizeof(char *));
+			char **kenvp=(char **)kmalloc(envc*sizeof(char*));
+			/* clear kargv and kenvp */
+			memset1((char *)kargv,0,8*argc);
+			memset1((char *)kenvp,0,8*envc);
+			/* copy every argv into kargv */
+			int i;
+			for(i=0;argv[i];i++){
+				/* allocate memory */
+				char *mem=(char *)kmalloc(sizeof(char)*(strlen(argv[i])+1));
+				/* copy argv into mem */
+				strcpy(mem,argv[i]);
+				/* put mem into kargv */
+				kargv[i]=mem;
+			}
+			/* copy envp into kenvp */
+			for(i=0;envp[i];i++){
+				/* allocate memory */
+				char *mem=(char *)kmalloc(sizeof(char)*(strlen(envp[i])+1));
+				/* copy envp into mem */
+				strcpy(mem,envp[i]);
+				/* put mem into kargv */
+				kenvp[i]=mem;
+			}
+			int ret=exec(kfilename,kargv,kenvp);
+			/* free allocated kargv and kenvp since exec makes a copy of these in user stack */
+			/* free kargv */
+			for(i=0;kargv[i];i++){
+				kfree(kargv[i]);
+			}
+			kfree(kargv);
+			/* free kenvp */
+			for(i=0;kenvp[i];i++){
+				kfree(kenvp[i]);
+			}
+			kfree(kenvp);
+			/* free filename */
+			kfree(kfilename);
+			/* put return value of exec in rax and return to user */
+			s->rax=ret;
+
 		}
 	}
 }
