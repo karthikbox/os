@@ -306,7 +306,7 @@ void isr_handler(struct stack_frame *s){
 			char **envp=(char **)s->rdx;
 			int argc=0;
 			int envc=0;
-			printf("argc->%d, envc->%d\n",argc, envc);
+
 			while(argv[argc]){
 				argc++;
 			}
@@ -315,7 +315,6 @@ void isr_handler(struct stack_frame *s){
 				envc++;
 			}
 			envc++;
-			printf("argc->%d, envc->%d\n",argc, envc);
 
 			char *kfilename=(char *)kmalloc(sizeof(char)*(strlen(filename)+1));
 			strcpy(kfilename,filename);
@@ -361,6 +360,10 @@ void isr_handler(struct stack_frame *s){
 			/* put return value of exec in rax and return to user */
 			s->rax=ret;
 
+		}
+		else if(s->rax==SYS_read){
+
+			do_read((int)s->rdi, (void *)s->rsi, (size_t)s->rdx);
 		}
 	}
 }

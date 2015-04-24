@@ -76,9 +76,13 @@ void inituvm(pml4 *pml4_t, char *star,uint64_t sz){
 void userinit(){
 	struct proc *p;
 	printf("entered userinit\n");
+	/* allocate memory for stdin wait queue */
+	_stdin = (struct read_proc*)kmalloc(sizeof(struct read_proc));
+	memset1((char *)_stdin,0,sizeof(struct read_proc));
 	memset1((char *)ptable.proc,0,sizeof(ptable));
 	p=alloc_proc();
 	initproc=p;
+	fgproc=initproc;
 	if(!(p->pml4_t=load_kern_vm())){
 		/* panic code goes here*/
 		printf("unable to allocate pml4\n");
@@ -158,6 +162,8 @@ struct proc * alloc_proc(){
 			/* p->context=(struct context *)sp; */
 			/* memset1((char *)p->context,0,sizeof(struct context)); */
 			/* p->context->rip=(uint64_t)forkret; */
+			p->termbuf = NULL;
+			p->offset = p->termbuf;
 			return p;
 			/* allocate page table and load ernel memory into it */
 			

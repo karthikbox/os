@@ -146,6 +146,10 @@ void keyboard_handler(){
             clear_kbdglyph();
             print_char('\\');
             print_char('n');
+			/* add \n to the term buff */
+			/* flush termbuf to process buffer */
+			/* handle page fault */
+
         }
         else if(scancode == BACKSPACEDOWN)
         {

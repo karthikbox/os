@@ -7,10 +7,10 @@
 int brk(void *end_data_segment){
     void * ret = (void *) syscall_1(SYS_brk,(uint64_t)end_data_segment);
     if((uint64_t)ret==(uint64_t)end_data_segment){
-	return 0;
+		return 0;
     }
     else{
-	return -1;
+		return -1;
     }    
 }
 
@@ -23,12 +23,12 @@ void * sbrk(uint64_t offset){
     void * cur_brk = (void *) syscall_1(SYS_brk,(uint64_t)NULL);
     void * new_brk=(void *)((uint64_t)cur_brk+(uint64_t)offset);
     if(brk(new_brk)==-1){
-	//brk() did not set brk pointer to new_brk
-	return (void *)-1;
+		//brk() did not set brk pointer to new_brk
+		return (void *)-1;
     }
     else{
-	//brk() set the brk pointer to new_brk
-	return cur_brk;
+		//brk() set the brk pointer to new_brk
+		return cur_brk;
     }
     
 }

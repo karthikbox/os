@@ -217,3 +217,28 @@ void do_waitpid(pid_t pid, int* status, int options){
   /* schedule another process */
   scheduler();
 }
+
+void do_read(int fd, void* buf, size_t count){
+	/* check if fd is 0->STDIN */
+	printf("proc -> %d -> waitpid syscall\n",proc->pid);
+	if(fd==STDIN){
+		
+		/* check if foreground proc flag is set */
+		if(fgproc->pid==proc->pid){
+			/* allocate memory for the first time */
+			if(proc->termbuf == NULL){
+				proc->termbuf=(char *)kmalloc(sizeof(FRAME_SIZE));
+				proc->offset=proc->termbuf;
+			}
+			proc->state=SLEEPING;
+			_stdin->proc=proc;
+			_stdin->count=count;
+			_stdin->buf=buf;
+			scheduler();
+		}
+		else{
+			/* if set kill this process */
+			do_exit(0);
+		} 
+	}
+}

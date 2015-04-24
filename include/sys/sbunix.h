@@ -3,6 +3,10 @@
 
 #include <sys/defs.h>
 
+#define STDIN 0
+#define STDOUT 1
+#define STDERR 2
+
 void printf(const char *fmt, ...);
 
 /* declarations for console driver */

@@ -106,6 +106,16 @@ struct trapframe{
 	uint64_t ss;
 };
 
+struct proc *fgproc;
+
+struct read_proc{
+	struct proc *proc;
+	size_t count;
+	void *buf;
+};
+
+struct read_proc *_stdin;
+
 /* PCB - process control block */
 struct proc{
 	uint64_t size;				/* process memory size in bytes */
@@ -121,6 +131,8 @@ struct proc{
 	/* struct file *ofile[];		  /\* list of open files *\/ */
 	char name[32];				  /* process name */
 	struct vma *vma_head ;		  /* pointer to the first VMA */
+	char *termbuf;		    	  /* set to NULL during alloc_proc, allocate when process issues first read in do_read */
+	char *offset;				  /* track the offset of the termbuf */
 };
 
 
