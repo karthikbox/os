@@ -2,6 +2,8 @@
 #define __SYS_SYSCALL_H
 #include <sys/defs.h>
 
+struct proc;
+
 #define SYS_exit       60
 #define SYS_brk        12
 #define SYS_fork       57
@@ -31,9 +33,6 @@ struct timespec{
     time_t tv_nsec;
 };
 
-
-
-
 typedef uint32_t pid_t;
 
 void init_syscall();
@@ -42,7 +41,7 @@ void do_fork();
 void handle_pf();
 size_t do_write(int fd,const void *bf,size_t len);
 void do_brk(void *end_data_segment);
-void do_exit(int status);
+void do_exit(int status,struct proc *p);
 pid_t do_getpid();
 pid_t do_getppid();
 void do_nanosleep(struct timespec *req,struct timespec *rem);

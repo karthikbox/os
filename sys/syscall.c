@@ -145,20 +145,20 @@ void do_brk(void* end_data_segment){
   proc->tf->rax=(uint64_t)end_data_segment;
 }
 
-void do_exit(int status){
+void do_exit(int status, struct proc *p){
 
   printf("proc -> %d -> exit syscall\n",proc->pid);
   /* free vmas free_vma_list(head) */
-  free_vma_list(&(proc->vma_head));
+  free_vma_list(&(p->vma_head));
  
   /* free process page tables free_uvm(pml4_t) */
-  free_uvm(proc->pml4_t);
+  free_uvm(p->pml4_t);
 
   /* update waitpid Q */
-  update_waitpid_queue(proc);
+  update_waitpid_queue(p);
 
   /* free pcb */
-  free_pcb(proc);
+  free_pcb(p);
 
   /* call the scheduler */
   scheduler();
@@ -238,7 +238,7 @@ void do_read(int fd, void* buf, size_t count){
 		}
 		else{
 			/* if set kill this process */
-			do_exit(0);
+			do_exit(0,proc);
 		} 
 	}
 }

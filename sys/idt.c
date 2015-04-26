@@ -285,7 +285,7 @@ void isr_handler(struct stack_frame *s){
 			do_brk((void *)s->rdi);
 		}
 		else if(s->rax==SYS_exit){
-			do_exit((int)s->rdi);
+			do_exit((int)s->rdi,proc);
 		}
 		else if(s->rax==SYS_getpid){
 			s->rax=do_getpid();
