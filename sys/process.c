@@ -42,6 +42,10 @@ struct{
 	struct proc proc[NPROC];
 }ptable;
 
+/* gloable file table */
+struct {
+	struct file file[NFILE];
+}ftable;
 
 
 pml4 *load_kern_vm(){
@@ -159,13 +163,9 @@ struct proc * alloc_proc(){
 			/* set up new context to start executing at forkret, ehich returns to trapret */
 			sp-=8;
 			*(uint64_t *)sp=(uint64_t)trapret;
-			/* sp-=sizeof(struct context); */
-			/* p->context=(struct context *)sp; */
-			/* memset1((char *)p->context,0,sizeof(struct context)); */
-			/* p->context->rip=(uint64_t)forkret; */
+			/* clear contents of ofile array */
+			memset1((char *)p->ofile,0,sizeof(struct file *)*NOFILE);
 			return p;
-			/* allocate page table and load ernel memory into it */
-			
 		}
 	}
 	return NULL;
@@ -444,4 +444,78 @@ void init_stdin_queue(){
 	termbuf_head=termbuf_tail=termbuf;
 	isBufFull=0;
 	read_kstack=(char * )kmalloc(FRAME_SIZE);	
+}
+
+
+int pipealloc(struct file ** f0,struct file ** f1){
+	/* return 0 on success, -1 on failure  */
+	struct pipe *p;
+	p=0;
+	*f0=*f1=0;
+	if((*f0=filealloc())==0 || (*f1=filealloc())==0){
+		printf("no free file struct available\n");
+		/* free pipe structure */
+		if(p)
+			kfree(p);
+		/* free file struct */
+		if(*f0)
+			fileclose(*f0);
+		/* free file struct */
+		if(*f1)
+			fileclose(*f1);
+		return -1;
+	}
+	p=(struct pipe *)kmalloc(sizeof(struct pipe));
+	if(p==NULL){
+		/* kmalloc failed */
+		printf("kmalloc failed. no memory for pipe\n");
+		/* free pipe structure */
+		if(p)
+			kfree(p);
+		/* free file struct */
+		if(*f0)
+			fileclose(*f0);
+		/* free file struct */
+		if(*f1)
+			fileclose(*f1);
+		return -1;
+	}
+	p->readopen=1;
+	p->writeopen=1;
+	p->nread=0;
+	p->nwrite=0;
+	/* set up file struct for f0, which is read end of pipe */
+	(*f0)->type=FD_PIPE;
+	(*f0)->readable=1;
+	(*f0)->writable=0;
+	(*f0)->pipe=p;
+	/* set up file struct for f1, which is write end of pipe */
+	(*f1)->type=FD_PIPE;
+	(*f1)->readable=0;
+	(*f1)->writable=1;
+	(*f1)->pipe=p;
+	return 0;
+}
+
+struct file * filealloc(){
+	/* return NULL on failure, file struct ptr on success */
+	
+	struct file *f;
+	for(f=ftable.file;f < (ftable.file+NFILE);f++){
+		if(f->ref==0){
+			f->ref=1;
+			return f;
+		}
+	}
+	/* no avilable file structure */
+	return NULL;
+}
+
+int fdalloc(struct file *f){
+	/* return -1 on error, index of availabel local fd on succes which */
+	return -1;
+}
+
+void fileclose(struct file *f){
+	;
 }

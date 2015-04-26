@@ -295,3 +295,33 @@ void do_copy(){
 		isBufFull=0;
 	}
 }
+
+
+void do_pipe(int *fd_arr){
+	printf("proc -> %d -> pipe syscall\n",proc->pid);
+	/* allocate 2 FILE structs */
+	struct file *rf,*wf;
+	int fd0, fd1;
+	if(pipealloc(&rf,&wf) < 0){
+		proc->tf->rax=-1;
+		return;
+	}
+	fd0=-1;
+	/* put those pounters in local pcb ofiles fd table */
+	if((fd0=fdalloc(rf)) < 0 || (fd1=fdalloc(wf)) < 0){
+		/* fd alloc failed */
+		printf("unable to allocate local fd\n");
+		if(fd0 >= 0){
+			proc->ofile[fd0]=NULL;
+		}
+		fileclose(rf);
+		fileclose(wf);
+		proc->tf->rax=-1;
+		return ;
+	}
+	/* put index of local pcb ofiles fd table in fd_arr[0] and fd_arr[1] */
+	fd_arr[0]=fd0;
+	fd_arr[1]=fd1;
+	proc->tf->rax=0;
+	return ;
+}

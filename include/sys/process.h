@@ -11,7 +11,7 @@
 #define KSTACKSIZE 4096			/* size of per-process kernel stack */
 #define NOFILE 16				/* open files per process */
 #define MAXARG 32				/* max exec arguments */
-
+#define NFILE 100				/* maximum files open in entire system */
 
 #define USTACK 0xfffffeff70000000ul /* maps to 509 entry of pml4, can be anything as long as not 511 entry */
 #define STACK_THRESH 0x10000
@@ -107,6 +107,34 @@ struct trapframe{
 	uint64_t ss;
 };
 
+/* PIPE */
+#define PIPESIZE 1024
+
+struct pipe{
+	char data[PIPESIZE];
+	uint64_t nread;				/* number of bytes read */
+	uint64_t nwrite;			/* number of bytes written */
+	int readopen;				/* read fd is still open */
+	int writeopen;				/* write fd is still open */
+};
+
+
+
+/* FILE */
+
+struct file{
+	enum{FD_NONE,FD_PIPE,FD_INODE} type; /* type of file */
+	int ref;					/* refernce count */
+	char readable;				/* file is readable?? */
+	char writable;				/* file is writable?? */
+	struct pipe *pipe;			/* pointer to pipe struct */
+};
+struct file * filealloc();
+int pipealloc(struct file **f0,struct file **f1);
+int fdalloc(struct file *f);
+void fileclose(struct file *f);
+/* stdin */
+
 struct proc *fgproc;
 
 struct read_proc{
@@ -141,6 +169,7 @@ struct proc{
 	/* struct file *ofile[];		  /\* list of open files *\/ */
 	char name[32];				  /* process name */
 	struct vma *vma_head ;		  /* pointer to the first VMA */
+	struct file *ofile[NOFILE];	  /* pointers to file structs. */
 };
 
 
