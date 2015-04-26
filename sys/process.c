@@ -443,4 +443,5 @@ void init_stdin_queue(){
 	termbuf=(char * )kmalloc(TERMBUF_SIZE);	
 	termbuf_head=termbuf_tail=termbuf;
 	isBufFull=0;
+	read_kstack=(char * )kmalloc(FRAME_SIZE);	
 }

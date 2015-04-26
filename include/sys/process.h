@@ -124,6 +124,7 @@ int isBufFull;					/* flags wehther termbuf is full */
 void add_buf(char c);
 void do_copy();
 void init_stdin_queue();
+char *read_kstack;
 
 /* PCB - process control block */
 struct proc{

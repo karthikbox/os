@@ -131,7 +131,7 @@ void handle_pf(uint64_t error){
 		/* kill current proc */
 		return;
 	}
-	else if( (err_code == 6) || (err_code == 4) ){
+	else if( (err_code == 6) || (err_code == 4) || (err_code == 2) ){
 		/* if 110 */
 		/* this could be, user writing heap or stack. */
 		/* This could be a valid(in heap or near stack vma) or invalid(not in heap and not near stack vma ) */

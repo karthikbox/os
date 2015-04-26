@@ -1,6 +1,6 @@
 #include <sys/sbunix.h>
 #include <sys/utility.h>
-
+#include<sys/process.h>
 //scan codes for shift key
 #define LEFTSHIFTDOWN 0x2a
 #define RIGHTSHIFTDOWN 0x36
@@ -140,6 +140,7 @@ void keyboard_handler(){
             clear_kbdglyph();
             print_char(carat);
             print_char(kdbus[scancode]);
+			/* if ctrl-C then kill proc */
         }
         else if(scancode == ENTERDOWN)
         {
@@ -149,19 +150,26 @@ void keyboard_handler(){
 			/* add \n to the term buff */
 			/* flush termbuf to process buffer */
 			/* handle page fault */
+			if(isBufFull==0)
+				add_buf('\n');
 
         }
         else if(scancode == BACKSPACEDOWN)
         {
             clear_kbdglyph();
             print_char('\\');
-            print_char('b');   
+            print_char('b');
+			if(isBufFull==0)
+				add_buf('\b');
+
         }
         else if(scancode == TABDOWN)
         {
             clear_kbdglyph();
             print_char('\\');
             print_char('t');
+			if(isBufFull==0)
+				add_buf('\t');
         }
         else if(scancode == ESCDOWN)
         {
@@ -176,6 +184,8 @@ void keyboard_handler(){
             //printf("%x\n", scancode);
             clear_kbdglyph();
             print_char(shift_kdbus[scancode]);
+			if(isBufFull==0)
+				add_buf(shift_kdbus[scancode]);
         }
         //shift key is not pressed, print the normal characters
         else if(shift_flag == 0){
@@ -183,8 +193,62 @@ void keyboard_handler(){
         	//printf("%x\n", scancode);
             clear_kbdglyph();
         	print_char(kdbus[scancode]);
+			/* if buf is empty, process has not emptied the buffer */
+			if(isBufFull==0){
+				/* add to buffer */
+				add_buf(kdbus[scancode]);
+			}
         }
         	
         
     }
+}
+
+void add_buf(char c){
+	if(termbuf_tail < termbuf + 0x1000ul){
+		/* there is still place in termbuffer */
+		if(c=='\n'){
+			*termbuf_tail='\n';
+			/* read 1 line feed. no more additions to buffer, allow process to read */
+			isBufFull=1;
+			/* do copy */
+			do_copy();
+
+			/* wake up waiting proc */
+			_stdin->proc->state=RUNNABLE;
+
+			/* dequeu the proc from the stdin Q */
+			_stdin->proc=NULL;
+
+		}
+		else if(c=='\b'){
+			/* if there is content */
+			/* remove last character from buffer */
+			if(termbuf_tail==termbuf){
+				/* begining of buffer, i.e no contents in buffer */
+				/* \b matters not */
+				return ;
+			}
+			else{
+				/* there is some content in buffer, \b deletes one character */
+				termbuf_tail--;
+			}
+		}
+		else{
+			/* add to the buffer */
+			*termbuf_tail=c;
+			termbuf_tail++;
+		}
+	}
+	else{
+		/* no place in termbuf for another character */
+		isBufFull=1;
+		/* do the copy */
+		do_copy();
+		/*  wake up proc */
+		_stdin->proc->state=RUNNABLE;
+		/* deque the proc from the stdin Q*/
+		_stdin->proc=NULL;
+
+	}
 }

@@ -219,26 +219,77 @@ void do_waitpid(pid_t pid, int* status, int options){
 }
 
 void do_read(int fd, void* buf, size_t count){
-	/* check if fd is 0->STDIN */
-	printf("proc -> %d -> waitpid syscall\n",proc->pid);
+	printf("proc -> %d -> read syscall\n",proc->pid);
+	/* add check if buf is in any of VMA's */
 	if(fd==STDIN){
-		
 		/* check if foreground proc flag is set */
-		if(fgproc->pid==proc->pid){
-			/* allocate memory for the first time */
-			if(proc->termbuf == NULL){
-				proc->termbuf=(char *)kmalloc(sizeof(FRAME_SIZE));
-				proc->offset=proc->termbuf;
+		if(fgproc==proc){
+			if(_stdin->proc!=NULL){
+				printf("_stdin Q is not free, someother process in it which is not fgproc\n");
+				while(1);
 			}
-			proc->state=SLEEPING;
+			/* add it to stdin Q */
 			_stdin->proc=proc;
 			_stdin->count=count;
 			_stdin->buf=buf;
-			scheduler();
+			/* if the terembuf is full, then we copy the requested bytes to the process and return to the process */
+			if(isBufFull==1){
+				do_copy();
+				/* deque the process from the Q */
+				_stdin->proc=NULL;
+			}
+			else{
+				/* since the buffer is empty, wait till the stdin has received 1 line feed */
+				_stdin->proc->state=SLEEPING;
+				/* schedule next process */
+				scheduler();
+				/* this process is woken up when keyboard.c receives a line feed of chars into the stdin buffer */
+			}
 		}
 		else{
-			/* if set kill this process */
+			/* If Set Kill This Process */
+			printf("Proc -> %d Not Foreground Proc. Killing It\n",proc->pid);
 			do_exit(0,proc);
-		} 
+		}
+	}
+}
+
+void do_copy(){
+
+	if(termbuf_head + _stdin->count <= termbuf_tail){
+		/* load waiting procs page table */
+		load_base(get_phys_addr((uint64_t)_stdin->proc->pml4_t));
+		tss.rsp0=(uint64_t)read_kstack;
+		struct proc *p=proc;
+		proc=_stdin->proc;
+		memcpy(_stdin->buf,termbuf_head,_stdin->count);
+		proc=p;
+		tss.rsp0=(uint64_t)p->kstack+KSTACKSIZE;
+		/* load current procs page tables */
+		load_base(get_phys_addr((uint64_t)p->pml4_t));
+		termbuf_head+=_stdin->count;
+	}
+	else{
+		/* user requested more than present in buffer */
+		/* load waiting procs page table */
+		load_base(get_phys_addr((uint64_t)_stdin->proc->pml4_t));
+		tss.rsp0=(uint64_t)read_kstack;
+		struct proc *p=proc;
+		proc=_stdin->proc;
+		/* return till termbuf_tail */
+		memcpy(_stdin->buf,termbuf_head,(termbuf_tail - termbuf_head));
+		proc=p;
+		tss.rsp0=(uint64_t)p->kstack+KSTACKSIZE;
+		/* load current procs page tables */
+		load_base(get_phys_addr((uint64_t)p->pml4_t));
+		/* handle page faults */
+		termbuf_head+=(termbuf_tail - termbuf_head);
+	}
+	if(termbuf_head==termbuf_tail){
+		/* all termbuf has been read */
+		/* restart from begining */
+		termbuf_head=termbuf_tail=termbuf;
+		/* termbuf is empty */
+		isBufFull=0;
 	}
 }
