@@ -166,8 +166,8 @@ void handle_pf(uint64_t error){
 			}
 			else if(p->flags & (PF_GROWSDOWN)){
 				/* lets consider stack */
-				if((pf_va < p->end) && (pf_va < p->start)  &&((p->start - pf_va) <= 4)){
-					/* if faulting virt address is within 4B of stk_vma.start  */
+				if((pf_va < p->end) && (pf_va < p->start)  &&((p->start - pf_va) < STACK_THRESH)){
+					/* if faulting virt address is within 64KB of stk_vma.start  */
 					/* then allocate frame for stack, increase(lower) stack vma.start  */
 					/* give permissions as PT_USER|PT_WRITBALE to page */
 					if(allocuvm(proc->pml4_t,pf_va,1,PT_WRITABLE|PT_USER)==0){
@@ -175,12 +175,16 @@ void handle_pf(uint64_t error){
 						/* kill process ?? */
 					}
 					/* extend heap vma by one page downwards*/
-					p->start -= FRAME_SIZE;
+					p->start -= STACK_THRESH; /* DO */
 					return;
 				}
-				/* sanity check */
 				if((pf_va < p->end) && (pf_va >= p->start)){
-					printf("page fault within bounds of allocated satck pages....which should not happen\n");
+					/* USE CASE */
+					if(allocuvm(proc->pml4_t,pf_va,1,PT_WRITABLE|PT_USER)==0){
+						printf("out of memory...unable to esticth in page for this va..\n");
+						/* kill process ?? */
+					}
+					return ;
 				}
 			}
 			p=p->next;

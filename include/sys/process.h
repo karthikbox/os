@@ -14,6 +14,7 @@
 
 
 #define USTACK 0xfffffeff70000000ul /* maps to 509 entry of pml4, can be anything as long as not 511 entry */
+#define STACK_THRESH 0x10000
 
 #define FL_IF 0x0000000000000200 /* interrupt enable */
 
@@ -116,6 +117,14 @@ struct read_proc{
 
 struct read_proc *_stdin;
 
+#define TERMBUF_SIZE 1024		/* size of termbuf  */
+char *termbuf;					/* _stdin's kernel buffer. allocated in userinit. size 4KB */
+char *termbuf_head,*termbuf_tail;
+int isBufFull;					/* flags wehther termbuf is full */
+void add_buf(char c);
+void do_copy();
+void init_stdin_queue();
+
 /* PCB - process control block */
 struct proc{
 	uint64_t size;				/* process memory size in bytes */
@@ -131,8 +140,6 @@ struct proc{
 	/* struct file *ofile[];		  /\* list of open files *\/ */
 	char name[32];				  /* process name */
 	struct vma *vma_head ;		  /* pointer to the first VMA */
-	char *termbuf;		    	  /* set to NULL during alloc_proc, allocate when process issues first read in do_read */
-	char *offset;				  /* track the offset of the termbuf */
 };
 
 
