@@ -16,18 +16,24 @@ int main(int argc, char* argv[], char* envp[]) {
 		printf("parent waiting for child process %d\n",b);
 		printf("argc is %d\n",argc);
 		/* pid=waitpid(-1,&status,0); */
-		char *a=(char *)malloc(10000*sizeof(char));
-		printf("a->%x\n",(uint64_t)a);
-		int x;
-		for(x=0;x<10;x++){
-			read(STDIN,a,1);
-			printf("parent a->%s\n",a);
-		}
+		char *a=(char *)malloc(0x10000*sizeof(char));
+		printf("enter string\n");
+		scanf("%s",a);
+		printf("a->%s\n",a);
+		int num;
+		printf("enter number\n");
+		scanf("%d",&num);
+		printf("num->%d\n",num);
+		printf("enter string\n");
+		scanf("%s",a+0x1000);
+		printf("a->%s\n",a+0x1000);
+		printf("enter string\n");
+		scanf("%s",a+0x2000);
+		printf("a->%s\n",a+0x2000);
+		printf("enter number\n");
+		scanf("%d",&num);
+		printf("num->%d\n",num);
 
-		read(STDIN,a,5);
-		printf("parent a->%s\n",a);
-		read(STDIN,a,3);
-		printf("parent a->%s\n",a);
 		yield();
 	}
 	else if(b==0){

@@ -150,7 +150,7 @@ void keyboard_handler(){
 			/* add \n to the term buff */
 			/* flush termbuf to process buffer */
 			/* handle page fault */
-			if(isBufFull==0)
+			if(isBufFull==0 && _stdin->proc!=NULL)
 				add_buf('\n');
 
         }
@@ -159,7 +159,7 @@ void keyboard_handler(){
             clear_kbdglyph();
             print_char('\\');
             print_char('b');
-			if(isBufFull==0)
+			if(isBufFull==0 && _stdin->proc!=NULL)
 				add_buf('\b');
 
         }
@@ -168,7 +168,7 @@ void keyboard_handler(){
             clear_kbdglyph();
             print_char('\\');
             print_char('t');
-			if(isBufFull==0)
+			if(isBufFull==0 && _stdin->proc!=NULL)
 				add_buf('\t');
         }
         else if(scancode == ESCDOWN)
@@ -184,7 +184,7 @@ void keyboard_handler(){
             //printf("%x\n", scancode);
             clear_kbdglyph();
             print_char(shift_kdbus[scancode]);
-			if(isBufFull==0)
+			if(isBufFull==0 && _stdin->proc!=NULL)
 				add_buf(shift_kdbus[scancode]);
         }
         //shift key is not pressed, print the normal characters
@@ -194,7 +194,7 @@ void keyboard_handler(){
             clear_kbdglyph();
         	print_char(kdbus[scancode]);
 			/* if buf is empty, process has not emptied the buffer */
-			if(isBufFull==0){
+			if(isBufFull==0 && _stdin->proc!=NULL){
 				/* add to buffer */
 				add_buf(kdbus[scancode]);
 			}
@@ -205,11 +205,13 @@ void keyboard_handler(){
 }
 
 void add_buf(char c){
+	printf("%c",c);
 	if(termbuf_tail < termbuf + 0x1000ul){
 		/* there is still place in termbuffer */
 		if(c=='\n'){
 			*termbuf_tail='\n';
 			/* read 1 line feed. no more additions to buffer, allow process to read */
+			termbuf_tail++;
 			isBufFull=1;
 			/* do copy */
 			do_copy();

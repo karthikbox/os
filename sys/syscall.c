@@ -268,6 +268,7 @@ void do_copy(){
 		/* load current procs page tables */
 		load_base(get_phys_addr((uint64_t)p->pml4_t));
 		termbuf_head+=_stdin->count;
+		_stdin->proc->tf->rax=_stdin->count;
 	}
 	else{
 		/* user requested more than present in buffer */
@@ -284,6 +285,7 @@ void do_copy(){
 		load_base(get_phys_addr((uint64_t)p->pml4_t));
 		/* handle page faults */
 		termbuf_head+=(termbuf_tail - termbuf_head);
+		_stdin->proc->tf->rax=(termbuf_tail - termbuf_head);
 	}
 	if(termbuf_head==termbuf_tail){
 		/* all termbuf has been read */

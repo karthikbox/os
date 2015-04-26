@@ -59,7 +59,7 @@ int scanf(const char *format, ...) {
 				number = va_arg(val, int* );
 				while(read(0, buf, sizeof(buf) > 0)) {
 
-					if(buf[0] == '\n') {
+					if(buf[0] == '\n' || buf[0]==' ') {
 						numberString[i] = '\0';
 						atoi(numberString, number, 10);
 						break;
@@ -74,7 +74,7 @@ int scanf(const char *format, ...) {
 				number = va_arg(val, int*);
 				while(read(0, buf, sizeof(buf) > 0)) {
 
-					if(buf[0] == '\n') {
+					if(buf[0] == '\n' || buf[0]==' ') {
 						numberString[i] = '\0';
 						atoi(numberString, number, 16);
 						break;
