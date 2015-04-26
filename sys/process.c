@@ -131,6 +131,7 @@ void userinit(){
 	/* initialize sleep_head and sleep_tail to NULL */
 	init_sleep_queue();
 	init_waitpid_queue();
+	init_stdin_queue();
 	/* printf writes to <1MB mem region. Now user page tables are loaded. We cannot access <1MB since we did not map that region into user process < 1MB VM aread */
 	/* printf("calling scheduler\n"); */
 	scheduler();
@@ -162,8 +163,6 @@ struct proc * alloc_proc(){
 			/* p->context=(struct context *)sp; */
 			/* memset1((char *)p->context,0,sizeof(struct context)); */
 			/* p->context->rip=(uint64_t)forkret; */
-			p->termbuf = NULL;
-			p->offset = p->termbuf;
 			return p;
 			/* allocate page table and load ernel memory into it */
 			
@@ -439,3 +438,9 @@ void dequeue_waitpid(struct waitpid_entry *p){
   
 }
 
+void init_stdin_queue(){
+	/* allocate 4KB of kernel memory for stdin buffer */
+	termbuf=(char * )kmalloc(TERMBUF_SIZE);	
+	termbuf_head=termbuf_tail=termbuf;
+	isBufFull=0;
+}
