@@ -188,7 +188,6 @@ void scheduler(){
 
 	struct proc *p;
 	
-	p=proc+1;
 	while(1){
 		/* set interrupts ??? */
 		for(;p<&ptable.proc[NPROC];p++){
@@ -213,6 +212,10 @@ void scheduler(){
 		p=&ptable.proc[0];		/* restart from beginning */
 	}
 
+}
+
+void sched(){
+	swtch(&proc->context,cpu.scheduler);
 }
 
 void swtch(struct context **cpu,struct context *new ){
@@ -432,21 +435,21 @@ int enqueue_waitpid(struct proc *p, int pid){
 
 void update_waitpid_queue(struct proc *p){
   /* traverse through the queue */
-  struct waitpid_entry *t=waitpid_head;
-  for(;t!=NULL;t=t->next){
-     /* compare the current process' parents pid with the process ids in the queue */
-    if((t->pid==-1) || (t->pid==p->pid)){
-      if(p->parent->pid == t->parent_proc->pid){
-
-	/* remove from waitpid Q */
-	dequeue_waitpid(t);
-
-	/* if the pids match, return the pid of the current process */
-	t->parent_proc->tf->rax=p->pid;
-	t->parent_proc->state=RUNNABLE;
-      }
-    }
-  }
+	struct waitpid_entry *t=waitpid_head;
+	for(;t!=NULL;t=t->next){
+		/* compare the current process' parents pid with the process ids in the queue */
+		if((t->pid==-1) || (t->pid==p->pid)){
+			if(p->parent->pid == t->parent_proc->pid){
+				
+				/* remove from waitpid Q */
+				dequeue_waitpid(t);
+				
+				/* if the pids match, return the pid of the current process */
+				t->parent_proc->tf->rax=p->pid;
+				t->parent_proc->state=RUNNABLE;
+			}
+		}
+	}
 }
 
 void dequeue_waitpid(struct waitpid_entry *p){

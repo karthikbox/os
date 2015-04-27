@@ -219,9 +219,6 @@ void add_buf(char c){
 			/* wake up waiting proc */
 			_stdin->proc->state=RUNNABLE;
 
-			/* dequeu the proc from the stdin Q */
-			_stdin->proc=NULL;
-
 		}
 		else if(c=='\b'){
 			/* if there is content */
@@ -249,8 +246,6 @@ void add_buf(char c){
 		do_copy();
 		/*  wake up proc */
 		_stdin->proc->state=RUNNABLE;
-		/* deque the proc from the stdin Q*/
-		_stdin->proc=NULL;
 
 	}
 }

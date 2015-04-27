@@ -11,7 +11,7 @@ int main(int argc, char* argv[], char* envp[]) {
 		printf("test envp[%d]->%s\n",i,envp[i]);
 	}
 	sleep(4);
-	printf("proc 4 after sleep\n");
+	printf("proc 2 after sleep\n");
 	return 0;
 }
 

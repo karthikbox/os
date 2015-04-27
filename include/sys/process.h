@@ -202,6 +202,7 @@ void forkret();
 
 pml4 *load_kern_vm();
 void scheduler();
+void sched();
 void switchuvm(struct proc *p);
 
 /* VMA related */
