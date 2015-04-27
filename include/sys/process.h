@@ -63,7 +63,6 @@ enum procstate{
 
 struct context{
 	uint64_t rbx;
-	uint64_t rsp;
 	uint64_t rbp;
 	uint64_t r12;
 	uint64_t r13;
@@ -172,7 +171,7 @@ struct proc{
 	struct file *ofile[NOFILE];	  /* pointers to file structs. */
 };
 
-
+void swtch(struct context **cpu,struct context *new );
 
 /* VMA */
 
