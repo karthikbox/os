@@ -122,7 +122,7 @@ struct pipe{
 /* FILE */
 
 struct file{
-	enum{FD_NONE,FD_PIPE,FD_INODE} type; /* type of file */
+	enum{FD_NONE,FD_PIPE,FD_INODE,FD_STDIN,FD_STDOUT,FD_STDERR} type; /* type of file */
 	int ref;					/* refernce count */
 	char readable;				/* file is readable?? */
 	char writable;				/* file is writable?? */
@@ -135,6 +135,7 @@ int pipewrite(struct pipe *p, char *addr, size_t n);
 int piperead(struct pipe *p, char *addr, size_t n);
 int fdalloc(struct file *f);
 void fileclose(struct file *f);
+struct file * filedup(struct file *f);
 /* stdin */
 
 struct proc *fgproc;

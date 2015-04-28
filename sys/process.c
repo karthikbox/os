@@ -132,6 +132,46 @@ void userinit(){
 	/* ltr(0x2Bu); */
 	/* ltr 0x2B   with RPL of 3 for user??? */
 	ltr(0x2Bu);
+	/* clear ftable */
+	memset1((char *)ftable.file,0,sizeof(struct file)*NFILE);
+	/* clear file descriptor table of proc,i.e initproc */
+	int fd=0;
+	for(fd=0;fd<NOFILE;fd++){
+		proc->ofile[fd]=NULL;
+	}
+	struct file *fp=NULL;
+	/* give initproc STDIN, STDOUT,STDERR*/
+	proc->ofile[STDIN]=filealloc();
+	if(proc->ofile[STDIN]==NULL){
+		printf("STDIN fiel struct not allocd for initproc\n");
+		/* panic. kill proc */
+	}
+	fp=proc->ofile[STDIN];
+	fp->type=FD_STDIN;
+	fp->readable=1;	/* mark readable */
+	fp->writable=0;	/* mark not writable */
+
+	proc->ofile[STDOUT]=filealloc();
+	if(proc->ofile[STDOUT]==NULL){
+		printf("STDOUT file struct not allocd for initproc\n");
+		/* panic. kill proc */
+	}
+	fp=proc->ofile[STDOUT];
+	fp->type=FD_STDOUT;
+	fp->readable=0;	/* mark NOT readable */
+	fp->writable=1;	/* mark writable */
+
+
+	proc->ofile[STDERR]=filealloc();
+	if(proc->ofile[STDERR]==NULL){
+		printf("STDERR fiel struct not allocd for initproc\n");
+		/* panic. kill proc */
+	}
+	fp=proc->ofile[STDERR];
+	fp->type=FD_STDERR;
+	fp->readable=0;	/* mark NOT readable */
+	fp->writable=1;	/* mark  writable */
+
 
 	/* initialize sleep_head and sleep_tail to NULL */
 	init_sleep_queue();
@@ -318,10 +358,30 @@ void free_vma_list(struct vma **p){
 }
 
 void free_pcb(struct proc *p){
+	/* free open files */
+	int fd=0;
+	for(fd=0;fd<NOFILE;fd++){
+		if(p->ofile[fd]){	/* if local fd is present */
+			fileclose(p->ofile[fd]); /* fileclose decrs refcount or marks file strct as unused */
+			p->ofile[fd]=NULL;		/* delink */
+		}
+	}
+
+
 	/* free the process kernel stack */
 	kfree(p->kstack);
 	/* set proc state to UNUSED */
 	p->state=UNUSED;
+}
+
+struct file * filedup(struct file *f){
+	if(f->ref < 1){
+		printf("file struct ref count less than 1\n. filedup error\n");
+		/* panic(filedup) */
+		/* kill proc */
+	}
+	f->ref++;
+	return f;
 }
 
 
@@ -578,6 +638,7 @@ void fileclose(struct file *f){
 	/* if ref count of file less than one, panic */
 	if(f->ref < 1){
 		printf("reference count of file less than one..\n");
+		/* panic. kill proc??? */
 		return ;
 	}
 
