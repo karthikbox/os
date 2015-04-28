@@ -1,3 +1,4 @@
+
 #include<sys/sbunix.h>
 #include<sys/utility.h>
 #include<sys/process.h>
@@ -513,9 +514,98 @@ struct file * filealloc(){
 
 int fdalloc(struct file *f){
 	/* return -1 on error, index of availabel local fd on succes which */
+	/* traverse through process file entries to find a free entry */
+	/* start from position 3 as 0,1,2 are reserved for STDIN, STDOUT, STDERR */
+	int fd;
+	for(fd=3;fd<NOFILE;fd++){
+		/* found a free space, put the file pointer at the same position */
+		if(proc->ofile[fd]==0){
+			proc->ofile[fd]=f;
+			return fd;
+		}
+	}
 	return -1;
 }
 
 void fileclose(struct file *f){
-	;
+	
+	struct file ff;
+	/* if ref count of file less than one, panic */
+	if(f->ref < 1){
+		printf("reference count of file less than one..\n");
+		return ;
+	}
+
+	/* if ref count is greater than one, decrement the count by one */
+	else if(f->ref > 1){
+		f->ref--;
+		return ;
+	}
+
+	/* if ref count is equal to one then make it 0 and change type to FD_NONE */
+	ff=*f;
+	f->ref=0;
+	f->type=FD_NONE;
+	
+	/* if file type is pipe */
+	if(ff.type==FD_PIPE){
+		pipeclose(ff.pipe, ff.writable);
+	}
+}
+
+void pipeclose(struct pipe *p, int writable){
+	/* pipe is write end, close the write end of the pipe */
+	if(writable==1){
+		p->writeopen=0;
+		/* wakeup on nread */
+	}
+	/* pipe is read end, close the read end of the pipe */
+	else{
+		p->readopen=0;
+		/* wakeup on nwrite */
+	}
+	
+	/* if both ends are closed, free pipe */
+	if(p->readopen==0 && p->writeopen==0){
+		kfree(p);
+	}
+}
+
+int pipewrite(struct pipe *p, char *addr, int n){
+	/* return -1 on failure, number of bytes written on success */
+	/* copy the n bytes from addr to pipe's data buffer */
+
+	/* if not full, place addr into pipe's data buffer */
+	int i;
+	for(i=0;i<n;i++){
+		/* pipe data buffer is full, wakeup the read end and sleep the write end  */
+		while(p->nwrite == p->nread + PIPESIZE){
+			/* pipe's read end is closed or process is killed/unused */
+			if(p->readopen==0 || proc->state==UNUSED){
+				return -1;
+			}
+			/* wakeup read end */
+			/* sleep write end */
+		}
+		
+		p->data[p->nwrite++ % PIPESIZE]=addr[i];
+	}
+	/* data available for read end */
+	/* wakeup read end */
+	return n;
+}
+
+int piperead(struct pipe *p, char *addr, int n){
+	/* return -1 on failure, number of bytes read on success */
+	/* buffer is empty, sleep the process */
+	while(p->nread == p->nwrite && p->writeopen){
+			if(proc->state==UNUSED){
+				return -1;
+			}
+	}
+	
+	/* copy the n bytes from pipe's data buffer to addr */
+
+	/* copy the contents of pipe buffer to addr */
+	return 0;
 }
