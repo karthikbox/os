@@ -72,8 +72,8 @@ void do_fork(){
 	/* copy open files from parent to child */
 	int fd=0;
 	for(fd=0;fd<NOFILE;fd++){
-		if(proc->ofile[i]){		/* if parent's fd exists */
-			p->ofile[i]=filedup(proc->ofile[i]); /* filedup incrs refcount of file struct parent points to */
+		if(proc->ofile[fd]){		/* if parent's fd exists */
+			p->ofile[fd]=filedup(proc->ofile[fd]); /* filedup incrs refcount of file struct parent points to */
 		}
 	}
 
