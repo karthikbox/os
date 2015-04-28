@@ -113,7 +113,7 @@ size_t do_write(int fd, const void* bf, size_t len){
 
 	/* check the file type */
 	/* if file type is STDOUT, printf */
-	if(proc->ofile[fd]->type==STDOUT){
+	if(proc->ofile[fd]->type==FD_STDOUT){
 		for(i=0;i<len;i++){
 			printf("%c",buf[i]);
 		}
@@ -236,7 +236,7 @@ void do_waitpid(pid_t pid, int* status, int options){
 void do_read(int fd, void* buf, size_t count){
 	printf("proc -> %d -> read syscall\n",proc->pid);
 	/* add check if buf is in any of VMA's */
-	if(proc->ofile[fd]->type==STDIN){
+	if(proc->ofile[fd]->type==FD_STDIN){
 		/* check if foreground proc flag is set */
 		if(fgproc==proc){
 			if(_stdin->proc!=NULL){
@@ -343,4 +343,16 @@ void do_pipe(int *fd_arr){
 	fd_arr[1]=fd1;
 	proc->tf->rax=0;
 	return ;
+}
+
+void do_close(int fd){
+
+	/* decrease the reference count of the file by calling fileclose */
+	fileclose(proc->ofile[fd]);
+
+	/* make the file entry of the process to 0 meaning free */
+	proc->ofile[fd]=0;
+
+	/* store the return value */
+	proc->tf->rax=0;
 }

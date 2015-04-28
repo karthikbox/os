@@ -368,5 +368,8 @@ void isr_handler(struct stack_frame *s){
 		else if(s->rax==SYS_pipe){
 			do_pipe((int *)s->rdi);
 		}
+		else if(s->rax==SYS_close){
+			do_close((int)s->rdi);
+		}
 	}
 }
