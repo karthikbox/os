@@ -131,7 +131,8 @@ struct file{
 struct file * filealloc();
 int pipealloc(struct file **f0,struct file **f1);
 void pipeclose(struct pipe *p, int writable);
-int pipewrite(struct pipe *p, char *addr, int n);
+int pipewrite(struct pipe *p, char *addr, size_t n);
+int piperead(struct pipe *p, char *addr, size_t n);
 int fdalloc(struct file *f);
 void fileclose(struct file *f);
 struct file * filedup(struct file *f);
