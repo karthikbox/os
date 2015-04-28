@@ -105,10 +105,13 @@ size_t do_write(int fd, const void* bf, size_t len){
 	
 	size_t i=0;
 	const char *buf=(const char *)bf;
-	if(fd==1){
+	if(fd==STDOUT){
 		for(i=0;i<len;i++){
 			printf("%c",buf[i]);
 		}
+	}
+	else{
+		;
 	}
 	return i;
 } 

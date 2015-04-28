@@ -191,7 +191,7 @@ void scheduler(){
 	
 	while(1){
 		/* set interrupts ??? */
-		for(;p<&ptable.proc[NPROC];p++){
+		for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
 			if(p->state!=RUNNABLE){
 				continue;
 			}
@@ -210,7 +210,6 @@ void scheduler(){
 			/* __asm__ volatile("retq;"); */
 			
 		}
-		p=&ptable.proc[0];		/* restart from beginning */
 	}
 
 }
@@ -671,3 +670,31 @@ int piperead(struct pipe *p, char *addr, int n){
 	wakeup(&p->nwrite);
 	return i;
 }
+
+
+void sleep(void *chan){
+	/* if(proc==1){ */
+	/* 	panic("sleep"); */
+	/* } */
+	proc->chan =chan;
+	proc->state=SLEEPING;
+	sched();
+	proc->chan=NULL;
+	
+}
+
+
+void wakeup(void *chan){
+	wakeup1(chan);
+}
+
+void wakeup1(void *chan){
+	struct proc *p;
+	for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+		if( (p->state==SLEEPING) && (p->chan == chan)){
+			p->state=RUNNABLE;
+		}
+	}
+}
+
+
