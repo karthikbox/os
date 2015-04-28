@@ -164,6 +164,9 @@ struct proc * alloc_proc(){
 			/* set up new context to start executing at forkret, ehich returns to trapret */
 			sp-=8;
 			*(uint64_t *)sp=(uint64_t)trapret;
+			sp-=(sizeof(struct context));
+			sp+=8;
+			p->context=(struct context *)sp;
 			/* clear contents of ofile array */
 			memset1((char *)p->ofile,0,sizeof(struct file *)*NOFILE);
 			return p;
@@ -186,7 +189,6 @@ void scheduler(){
 
 	struct proc *p;
 	
-	p=proc+1;
 	while(1){
 		/* set interrupts ??? */
 		for(;p<&ptable.proc[NPROC];p++){
@@ -197,16 +199,15 @@ void scheduler(){
 			proc=p;
 			switchuvm(p);
 			p->state=RUNNING;
-			//swtch(&cpu->scheduler,proc->context);
-			__asm__ volatile(
-					"movq %0,%%rsp;"
-					:
-					:"r"((char *)(proc->tf) - 8)
-					:
-							 );
+			swtch(&cpu.scheduler,p->context);
+			/* __asm__ volatile( */
+			/* 		"movq %0,%%rsp;" */
+			/* 		: */
+			/* 		:"r"((char *)(proc->tf) - 8) */
+			/* 		: */
+			/* 				 ); */
 
-
-			__asm__ volatile("retq;");
+			/* __asm__ volatile("retq;"); */
 			
 		}
 		p=&ptable.proc[0];		/* restart from beginning */
@@ -214,6 +215,51 @@ void scheduler(){
 
 }
 
+void sched(){
+	swtch(&proc->context,cpu.scheduler);
+}
+
+void swtch(struct context **cpu,struct context *new ){
+	__asm__ __volatile__("	pushq %%rbx;"
+				  "pushq %%rbp;"
+				  "pushq %%r12;"
+				  "pushq %%r13;"
+				  "pushq %%r14;"
+				  "pushq %%r15;"
+				  "movq %%rsp,(%0);"
+				  "movq %1,%%rsp;"
+				  "popq %%r15;"
+				  "popq %%r14;"
+				  "popq %%r13;"
+				  "popq %%r12;"
+				  "popq %%rbp;"
+				  "popq %%rbx;"
+				  "retq;"
+				  :
+				  :"r"(cpu),"r"(new)
+				  );
+	/* push callee save regs */
+	/* pushq %%rbx; */
+	/* pushq %%rbp; */
+	/* pushq %%r11; */
+	/* pushq %%r12; */
+	/* pushq %%r13; */
+	/* pushq %%r14; */
+	/* pushq %%r15; */
+	/* movq rsp to *cur */
+	/* movq %%rsp,%0; */
+	/* movq *new to rsp */
+	/* movq %1,%%rsp */
+	/* pop calle save regs */
+	/* popq %%r15; */
+	/* popq %%r14; */
+	/* popq %%r13; */
+	/* popq %%r12; */
+	/* popq %%r11; */
+	/* popq %%rbp; */
+	/* popq %%rbx; */
+	/* retq */
+}
 
 void switchkvm(){
 	load_base(get_phys_addr((uint64_t)pml4_base));
@@ -390,21 +436,21 @@ int enqueue_waitpid(struct proc *p, int pid){
 
 void update_waitpid_queue(struct proc *p){
   /* traverse through the queue */
-  struct waitpid_entry *t=waitpid_head;
-  for(;t!=NULL;t=t->next){
-     /* compare the current process' parents pid with the process ids in the queue */
-    if((t->pid==-1) || (t->pid==p->pid)){
-      if(p->parent->pid == t->parent_proc->pid){
-
-	/* remove from waitpid Q */
-	dequeue_waitpid(t);
-
-	/* if the pids match, return the pid of the current process */
-	t->parent_proc->tf->rax=p->pid;
-	t->parent_proc->state=RUNNABLE;
-      }
-    }
-  }
+	struct waitpid_entry *t=waitpid_head;
+	for(;t!=NULL;t=t->next){
+		/* compare the current process' parents pid with the process ids in the queue */
+		if((t->pid==-1) || (t->pid==p->pid)){
+			if(p->parent->pid == t->parent_proc->pid){
+				
+				/* remove from waitpid Q */
+				dequeue_waitpid(t);
+				
+				/* if the pids match, return the pid of the current process */
+				t->parent_proc->tf->rax=p->pid;
+				t->parent_proc->state=RUNNABLE;
+			}
+		}
+	}
 }
 
 void dequeue_waitpid(struct waitpid_entry *p){

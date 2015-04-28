@@ -37,7 +37,7 @@ void init_syscall(){
 void do_yield(){
 	proc->state=RUNNABLE;
 	/* printf("proc -> %d -> yield syscall\n",proc->pid); */
-	scheduler();
+	sched();
 	
 }
 
@@ -147,22 +147,23 @@ void do_brk(void* end_data_segment){
 
 void do_exit(int status, struct proc *p){
 
-  printf("proc -> %d -> exit syscall\n",proc->pid);
-  /* free vmas free_vma_list(head) */
-  free_vma_list(&(p->vma_head));
- 
-  /* free process page tables free_uvm(pml4_t) */
-  free_uvm(p->pml4_t);
+	printf("proc -> %d -> exit syscall\n",proc->pid);
+	/* free vmas free_vma_list(head) */
+	free_vma_list(&(p->vma_head));
+	
+	/* free process page tables free_uvm(pml4_t) */
+	free_uvm(p->pml4_t);
+	
+	/* update waitpid Q */
+	update_waitpid_queue(p);
 
-  /* update waitpid Q */
-  update_waitpid_queue(p);
-
-  /* free pcb */
-  free_pcb(p);
-
-  /* call the scheduler */
-  scheduler();
+	/* free pcb */
+	free_pcb(p);
+	
+	/* call the sched */
+	sched();
 }
+
 pid_t do_getpid(){
   return (pid_t)(proc->pid);
 }
@@ -195,7 +196,7 @@ void do_nanosleep(struct timespec *req,struct timespec *rem){
 		}
 		/* enqueue success */
 		/* schedule next process */
-		scheduler();
+		sched();
 	}
 }
 
@@ -215,7 +216,7 @@ void do_waitpid(pid_t pid, int* status, int options){
   }
   /* enqueue success */
   /* schedule another process */
-  scheduler();
+  sched();
 }
 
 void do_read(int fd, void* buf, size_t count){
@@ -235,16 +236,17 @@ void do_read(int fd, void* buf, size_t count){
 			/* if the terembuf is full, then we copy the requested bytes to the process and return to the process */
 			if(isBufFull==1){
 				do_copy();
-				/* deque the process from the Q */
-				_stdin->proc=NULL;
 			}
 			else{
 				/* since the buffer is empty, wait till the stdin has received 1 line feed */
 				_stdin->proc->state=SLEEPING;
 				/* schedule next process */
-				scheduler();
+				sched();
 				/* this process is woken up when keyboard.c receives a line feed of chars into the stdin buffer */
 			}
+			/* deque the proc from the stdin Q*/
+			_stdin->proc=NULL;
+
 		}
 		else{
 			/* If Set Kill This Process */
