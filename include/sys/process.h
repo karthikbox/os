@@ -175,6 +175,8 @@ struct proc{
 
 void swtch(struct context **cpu,struct context *new );
 
+
+
 /* VMA */
 
 #define PF_GROWSUP 0x10			/* custom def, for heap */
@@ -206,6 +208,10 @@ pml4 *load_kern_vm();
 void scheduler();
 void sched();
 void switchuvm(struct proc *p);
+void wakeup1(void *chan);
+void wakeup(void *chan);
+void sleep(void *chan);
+
 
 /* VMA related */
 void free_vma_list(struct vma **p);
