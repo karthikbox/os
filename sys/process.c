@@ -413,24 +413,24 @@ void init_waitpid_queue(){
 }
 
 int enqueue_waitpid(struct proc *p, int pid){
-  struct waitpid_entry *t=(struct waitpid_entry *)kmalloc(sizeof(struct waitpid_entry));
-  t->parent_proc=p;
-  t->pid=pid;
-  t->next=NULL;
-  if(t==NULL){
-    printf("unable to allocate memory..enqueue_waitpid failed\n");
-    return 0;
-  }
-  if(waitpid_head==NULL){
-    /* Q is empty */
-    waitpid_head=waitpid_tail=t;
-  }
-  else{
-    /* Q is not empty */
-    waitpid_tail->next=t;
-    waitpid_tail=t;
-  }
-  return 1;
+	struct waitpid_entry *t=(struct waitpid_entry *)kmalloc(sizeof(struct waitpid_entry));
+	t->parent_proc=p;
+	t->pid=pid;
+	t->next=NULL;
+	if(t==NULL){
+		printf("unable to allocate memory..enqueue_waitpid failed\n");
+		return 0;
+	}
+	if(waitpid_head==NULL){
+		/* Q is empty */
+		waitpid_head=waitpid_tail=t;
+	}
+	else{
+		/* Q is not empty */
+		waitpid_tail->next=t;
+		waitpid_tail=t;
+	}
+	return 1;
 }
 
 void update_waitpid_queue(struct proc *p){
@@ -618,7 +618,7 @@ void pipeclose(struct pipe *p, int writable){
 	}
 }
 
-int pipewrite(struct pipe *p, char *addr, int n){
+int pipewrite(struct pipe *p, char *addr, size_t n){
 	/* return -1 on failure, number of bytes written on success */
 	/* copy the n bytes from addr to pipe's data buffer */
 
@@ -645,7 +645,7 @@ int pipewrite(struct pipe *p, char *addr, int n){
 	return n;
 }
 
-int piperead(struct pipe *p, char *addr, int n){
+int piperead(struct pipe *p, char *addr, size_t n){
 	/* return -1 on failure, number of bytes read on success */
 	/* buffer is empty, sleep the process */
 	while(p->nread == p->nwrite && p->writeopen){

@@ -105,14 +105,25 @@ size_t do_write(int fd, const void* bf, size_t len){
 	
 	size_t i=0;
 	const char *buf=(const char *)bf;
-	if(fd==STDOUT){
+
+	/* check if the file is writable or not */	
+	if(proc->ofile[fd]->writable==0){
+		return -1;
+	}
+
+	/* check the file type */
+	/* if file type is STDOUT, printf */
+	if(proc->ofile[fd]->type==STDOUT){
 		for(i=0;i<len;i++){
 			printf("%c",buf[i]);
 		}
 	}
-	else{
-		;
+
+	/* if file type is pipe, call pipewrite */
+	else if(proc->ofile[fd]->type==FD_PIPE){
+		return pipewrite(proc->ofile[fd]->pipe, (char *)bf, len);
 	}
+
 	return i;
 } 
 void do_brk(void* end_data_segment){
@@ -225,7 +236,7 @@ void do_waitpid(pid_t pid, int* status, int options){
 void do_read(int fd, void* buf, size_t count){
 	printf("proc -> %d -> read syscall\n",proc->pid);
 	/* add check if buf is in any of VMA's */
-	if(fd==STDIN){
+	if(proc->ofile[fd]->type==STDIN){
 		/* check if foreground proc flag is set */
 		if(fgproc==proc){
 			if(_stdin->proc!=NULL){
@@ -256,6 +267,9 @@ void do_read(int fd, void* buf, size_t count){
 			printf("Proc -> %d Not Foreground Proc. Killing It\n",proc->pid);
 			do_exit(0,proc);
 		}
+	}
+	else if(proc->ofile[fd]->type==FD_PIPE){
+		proc->tf->rax=piperead(proc->ofile[fd]->pipe, (char*)buf, count);
 	}
 }
 
