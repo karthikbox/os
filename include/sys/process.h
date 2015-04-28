@@ -134,6 +134,7 @@ void pipeclose(struct pipe *p, int writable);
 int pipewrite(struct pipe *p, char *addr, int n);
 int fdalloc(struct file *f);
 void fileclose(struct file *f);
+struct file * filedup(struct file *f);
 /* stdin */
 
 struct proc *fgproc;

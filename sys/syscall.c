@@ -69,6 +69,13 @@ void do_fork(){
 		return ;
 
 	}
+	/* copy open files from parent to child */
+	int fd=0;
+	for(fd=0;fd<NOFILE;fd++){
+		if(proc->ofile[i]){		/* if parent's fd exists */
+			p->ofile[i]=filedup(proc->ofile[i]); /* filedup incrs refcount of file struct parent points to */
+		}
+	}
 
 	/* copy VMAs from parent to child */
 	if((p->vma_head=copyvma(proc->vma_head))==NULL){

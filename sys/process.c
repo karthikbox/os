@@ -321,9 +321,9 @@ void free_pcb(struct proc *p){
 	/* free open files */
 	int fd=0;
 	for(fd=0;fd<NOFILE;fd++){
-		if(proc->ofile[fd]){	/* if local fd is present */
-			fileclose(proc->ofile[fd]); /* fileclose decrs refcount or marks file strct as unused */
-			proc->ofile[fd]=NULL;		/* delink */
+		if(p->ofile[fd]){	/* if local fd is present */
+			fileclose(p->ofile[fd]); /* fileclose decrs refcount or marks file strct as unused */
+			p->ofile[fd]=NULL;		/* delink */
 		}
 	}
 
@@ -332,6 +332,16 @@ void free_pcb(struct proc *p){
 	kfree(p->kstack);
 	/* set proc state to UNUSED */
 	p->state=UNUSED;
+}
+
+struct file * filedup(struct file *f){
+	if(f->ref < 1){
+		printf("file struct ref count less than 1\n. filedup error\n");
+		/* panic(filedup) */
+		/* kill proc */
+	}
+	f->ref++;
+	return f;
 }
 
 
