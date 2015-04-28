@@ -318,6 +318,16 @@ void free_vma_list(struct vma **p){
 }
 
 void free_pcb(struct proc *p){
+	/* free open files */
+	int fd=0;
+	for(fd=0;fd<NOFILE;fd++){
+		if(proc->ofile[fd]){	/* if local fd is present */
+			fileclose(proc->ofile[fd]); /* fileclose decrs refcount or marks file strct as unused */
+			proc->ofile[fd]=NULL;		/* delink */
+		}
+	}
+
+
 	/* free the process kernel stack */
 	kfree(p->kstack);
 	/* set proc state to UNUSED */
@@ -578,6 +588,7 @@ void fileclose(struct file *f){
 	/* if ref count of file less than one, panic */
 	if(f->ref < 1){
 		printf("reference count of file less than one..\n");
+		/* panic. kill proc??? */
 		return ;
 	}
 
