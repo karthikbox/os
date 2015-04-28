@@ -604,11 +604,13 @@ void pipeclose(struct pipe *p, int writable){
 	if(writable==1){
 		p->writeopen=0;
 		/* wakeup on nread */
+		wakeup(&p->nread);
 	}
 	/* pipe is read end, close the read end of the pipe */
 	else{
 		p->readopen=0;
 		/* wakeup on nwrite */
+		wakeup(&p->nwrite);
 	}
 	
 	/* if both ends are closed, free pipe */
@@ -631,13 +633,16 @@ int pipewrite(struct pipe *p, char *addr, int n){
 				return -1;
 			}
 			/* wakeup read end */
+			wakeup(&p->nread);
 			/* sleep write end */
+			sleep(&p->nwrite);
 		}
 		
 		p->data[p->nwrite++ % PIPESIZE]=addr[i];
 	}
 	/* data available for read end */
 	/* wakeup read end */
+	wakeup(&p->nread);
 	return n;
 }
 
@@ -648,10 +653,21 @@ int piperead(struct pipe *p, char *addr, int n){
 			if(proc->state==UNUSED){
 				return -1;
 			}
+			/* sleep the read end */
+			sleep(&p->nread);
 	}
 	
 	/* copy the n bytes from pipe's data buffer to addr */
-
-	/* copy the contents of pipe buffer to addr */
-	return 0;
+	int i;
+	for(i=0;i<n;i++){
+		/* pipe data buffer is empty, break and return i */
+		if(p->nread == p->nwrite){
+			break;
+		}
+		/* copy the contents of pipe buffer to addr */
+		addr[i]=p->data[p->nread++ % PIPESIZE];
+	}
+	/* wakeup the write end of the pipe */
+	wakeup(&p->nwrite);
+	return i;
 }
