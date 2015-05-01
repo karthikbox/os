@@ -376,7 +376,7 @@ void free_pcb(struct proc *p){
 
 struct file * filedup(struct file *f){
 	if(f->ref < 1){
-		printf("file struct ref count less than 1\n. filedup error\n");
+		printf("file struct ref count less than 1\n. filedup error\nproc pid->%d\n",proc->pid);
 		/* panic(filedup) */
 		/* kill proc */
 	}
@@ -620,9 +620,9 @@ struct file * filealloc(){
 int fdalloc(struct file *f){
 	/* return -1 on error, index of availabel local fd on succes which */
 	/* traverse through process file entries to find a free entry */
-	/* start from position 3 as 0,1,2 are reserved for STDIN, STDOUT, STDERR */
+	/* start from position 0 as 0,1,2 are already marked reserved for STDIN, STDOUT, STDERR */
 	int fd;
-	for(fd=3;fd<NOFILE;fd++){
+	for(fd=0;fd<NOFILE;fd++){
 		/* found a free space, put the file pointer at the same position */
 		if(proc->ofile[fd]==0){
 			proc->ofile[fd]=f;

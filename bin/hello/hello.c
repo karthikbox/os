@@ -58,50 +58,58 @@ int main(int argc, char* argv[], char* envp[]) {
 	for(i=0;envp[i];i++){
 		printf("envp[%d]->%s\n",i,envp[i]);
 	}
-	int status=0,pid=0;
+	/* int /\* status=0, *\/pid=0; */
 	int fd[2];
 	if(pipe(fd)==-1){
 		printf("pipe failed\n");
 	}
-	pid_t b=fork();
-	char *x="pipe content!!!\n";
+	pid_t b;
+	/* int run=0; */
+	/* for(;run<65;run++){ */
+	/* 	b=fork(); */
+	/* 	if(b>0){ */
+	/* 		printf("run = %d && pid = %d\n",run,b); */
+	/* 		continue; */
+	/* 	} */
+	/* 	else if(b==0){ */
+	/* 		printf("run = %d && pid = %d\n",run,b); */
+	/* 		exit(0); */
+	/* 	} */
+	/* 	else{ */
+	/* 		printf("run = %d && pid = %d\n",run,b); */
+
+	/* 	} */
+	/* } */
+	/* yield(); */
+	b=fork();
+	char *x="pipe content###\n";
 	if(b>0){
 		printf("parent says hi\n");
 		close(fd[0]);			/* parent closing read end */
-		write(fd[1],x,strlen(x));
+		/* dup2 stdout to write end of pipe */
+		int ret=dup2(fd[1],STDOUT);
+		if(ret==-1)
+			printf("dup2 failed\n");
+		printf("%s",x);
 		yield();
-		printf("parent sleeps\n");
-		sleep(4);
-		printf("parent wakes up\n");
-		char *y="extra content\n";
-		int ret=write(fd[1],y,strlen(y));
-		printf("parent valid write returns %d\n",ret);
-		ret=write(fd[0],y,strlen(y));
-		printf("parent invalid write returns %d\n",ret);
-		pid=waitpid(-1,&status,0);
-		char *a=(char *)malloc(0x10000*sizeof(char));
-		printf("enter string\n");
-		scanf("%s",a);
-		printf("a->%s\n",a);
+		printf("hello my son\n");
 		yield();
 	}
 	else if(b==0){
-		int k=fork();
+		/* int k=fork(); */
+		int k=3;
 		if(k>0){
 			printf("child says hi\n");
 			close(fd[1]);		/* child closing write end */
-			char c[1000];
-			int len;
-			printf("1 read %d bytes\n",(len=read(fd[0],c,strlen(x)-5)));
-			c[len]='\0';
-			printf("child read %s\n",c);
-			printf("2 read %d bytes\n",(len=read(fd[0],c,strlen(x))));
-			c[len]='\0';
-			printf("child read %s\n",c);
-			printf("3 read %d bytes\n",(len=read(fd[0],c,strlen(x))));
-			c[len]='\0';
-			printf("child read %s\n",c);
-			execve("bin/exec",argv,envp);
+			/* dup2 STDIN to read end of pipe  */
+			dup2(fd[0],STDIN);
+			char t[100];
+			scanf("%s",t);
+			printf("child  read -> %s\n",t);
+			scanf("%s",t);
+			printf("child  read -> %s\n",t);
+			scanf("%s",t);
+			printf("child  read -> %s\n",t);
 			exit(0);
 		}
 		else if(k==0){
@@ -110,7 +118,9 @@ int main(int argc, char* argv[], char* envp[]) {
 				yield();
 		}
 	}
-	printf("parent child exited %d && %d\n",b,pid);
+	else{
+		printf("fork failed\n");
+	}
 	while(1)
 		yield();
 	return 0;

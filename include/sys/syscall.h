@@ -50,4 +50,6 @@ void do_execve(char *filename, char* argv[], char* envp[]);
 void do_read(int fd, void *buf, size_t count);
 void do_pipe(int * fd_arr);
 void do_close(int fd);
+int do_dup(int old_fd);
+int do_dup2(int old_fd,int new_fd);
 #endif
