@@ -112,6 +112,9 @@ size_t do_write(int fd, const void* bf, size_t len){
 	
 	size_t i=0;
 	const char *buf=(const char *)bf;
+	if(proc->ofile[fd]==NULL){
+		return -1;				/* no local file decriptor */
+	}
 
 	/* check if the file is writable or not */	
 	if(proc->ofile[fd]->writable==0){
@@ -242,6 +245,10 @@ void do_waitpid(pid_t pid, int* status, int options){
 
 void do_read(int fd, void* buf, size_t count){
 	printf("proc -> %d -> read syscall\n",proc->pid);
+	if(proc->ofile[fd]==NULL){
+		proc->tf->rax=-1;		/* no local file decriptor */
+		return ;
+	}
 	/* add check if buf is in any of VMA's */
 	if(proc->ofile[fd]->type==FD_STDIN){
 		/* check if foreground proc flag is set */
