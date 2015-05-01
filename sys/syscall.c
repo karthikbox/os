@@ -181,6 +181,14 @@ void do_exit(int status, struct proc *p){
 	/* update waitpid Q */
 	update_waitpid_queue(p);
 
+	/* if current process is present in stdin Q, and we decide to kill process */
+	/* then dequeu proc from stdin Q first */
+	/* this use case will mostly occur during page fault in do_copy */
+	if(_stdin->proc == p){
+		/* p is enqued in stdin Q */
+		/* dequue from stdin Q */
+		_stdin->proc=NULL;
+	}
 	/* free pcb */
 	free_pcb(p);
 	
