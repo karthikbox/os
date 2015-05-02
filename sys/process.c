@@ -4,7 +4,7 @@
 #include<sys/process.h>
 #include<sys/page.h>
 #include<sys/pmmgr.h>
-
+#include<sys/tarfs.h>
 extern void trapret();
 extern int exec(char *path,char **argv,char **envp);
 struct proc *initproc;
@@ -113,18 +113,22 @@ void userinit(){
 	
 	
 	printf("calling exec\n");
+	
 	/* call exec */
 	proc=p;
+	/* set cwd of initproc to root '/' */
+	strcpy(proc->cwd,"/");
+
 	char *a="bin/hello";
 	char *argv[3];
 	argv[0]=a;argv[1]="os/sbunix";argv[2]=NULL;
 	char *envp[7];
 	envp[0]="PATH=/bin/ls:/bin/cat";
-	envp[1]="cwd=/sbush/shell";
-	envp[2]="envp1";
-	envp[3]="envp2";
-	envp[4]="envp3";
-	envp[5]="envp4";
+	envp[1]="envp1";
+	envp[2]="envp2";
+	envp[3]="envp3";
+	envp[4]="envp4";
+	envp[5]="envp5";
 	envp[6]=NULL;
 	cli();
 	exec("bin/hello",argv,envp);
@@ -177,6 +181,9 @@ void userinit(){
 	init_sleep_queue();
 	init_waitpid_queue();
 	init_stdin_queue();
+
+	/* initialize inodes */
+	/* init_inodes(); */
 	/* printf writes to <1MB mem region. Now user page tables are loaded. We cannot access <1MB since we did not map that region into user process < 1MB VM aread */
 	/* printf("calling scheduler\n"); */
 	scheduler();
@@ -209,6 +216,8 @@ struct proc * alloc_proc(){
 			p->context=(struct context *)sp;
 			/* clear contents of ofile array */
 			memset1((char *)p->ofile,0,sizeof(struct file *)*NOFILE);
+			/* clear contents of cwd */
+			memset1((char *)p->cwd,0,sizeof(char)*NCHARS);
 			return p;
 		}
 	}
@@ -759,3 +768,23 @@ void wakeup1(void *chan){
 }
 
 
+void init_inodes(){
+	/* scan throught the tarfs */
+	struct posix_header_ustar *p= (struct posix_header_ustar *)&_binary_tarfs_start;
+	struct posix_header_ustar *p_e= (struct posix_header_ustar *)&_binary_tarfs_end;
+	while(p<p_e && !(strlen(p->name)==0)){
+		/* printf("cur name->%s, lookup name->%s, cur location->%p\n",p->name,name,p); */
+		printf("cur name->%s, is of type->%c, size is %x\n",p->name,*p->typeflag,round_up(oct_to_dec(p->size),512));
+		/* add all directories */
+
+
+		/* goto next file header by adding size of header and header->size */
+		/* header->size should be rounded up next 512 multiple */
+		//printf("%s->%u",oct_to_dec("00000 0000 0000"))
+		p=(struct posix_header_ustar *)((char *)p+sizeof(struct posix_header_ustar ) + round_up(oct_to_dec(p->size),512));
+	}
+	for(;;)
+		;
+	
+	
+}

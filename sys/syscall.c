@@ -101,6 +101,8 @@ void do_fork(){
 	p->parent=proc;
 	/* give child the same name as parent */
 	strcpy(p->name,proc->name);
+	/* give child same working dir as parent */
+	strcpy(p->cwd,proc->cwd);
 	/* return pid of child to parent */
 	proc->tf->rax=p->pid;
 	/* set state of child to runnable */
@@ -413,4 +415,31 @@ int do_dup2(int old_fd, int new_fd){
 	proc->ofile[new_fd]=proc->ofile[old_fd];
 	filedup(proc->ofile[new_fd]); /* increment ref count file struct  */
 	return new_fd;
+}
+
+int valid_addr(uint64_t addr){
+	return 1;
+}
+
+char *do_getcwd(char *buf,size_t size){
+	/* check if buf is a valid addr */
+	/* if it falls in any of the proc's vmas */
+	if(valid_addr((uint64_t)buf)==0){
+		/* not a valid addr */
+		/* kill proc?? */
+		do_exit(0,proc);
+		return NULL;			/* will never return NULL */		
+	}
+	else{
+		/* valid ptr */
+		if((strlen(proc->cwd)+1) > size ){
+			/* cwd doesnt fit in buf */
+			return NULL;
+		}		   
+		else{
+			/* cwd fits in user buf */
+			strcpy(buf,proc->cwd);
+			return buf;
+		}
+	}
 }

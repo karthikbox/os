@@ -11,6 +11,7 @@ void clear_gpr(struct trapframe *s);
 
 int exec(char *path,char **argv,char **envp){
 
+	/* path is being used below */
 	//char *s,*last;
 	uint64_t i;
 	char *off;

@@ -12,6 +12,7 @@
 #define NOFILE 16				/* open files per process */
 #define MAXARG 32				/* max exec arguments */
 #define NFILE 100				/* maximum files open in entire system */
+#define NCHARS 100				/* maximum inode childrene */
 
 #define USTACK 0xfffffeff70000000ul /* maps to 509 entry of pml4, can be anything as long as not 511 entry */
 #define STACK_THRESH 0x10000
@@ -173,6 +174,8 @@ struct proc{
 	char name[32];				  /* process name */
 	struct vma *vma_head ;		  /* pointer to the first VMA */
 	struct file *ofile[NOFILE];	  /* pointers to file structs. */
+	char cwd[NCHARS];			  /* name of cwd */
+	
 };
 
 void swtch(struct context **cpu,struct context *new );
@@ -196,6 +199,7 @@ struct vma{
 };
 
 
+void init_inodes();
 
 
 uint64_t get_virt_addr(uint64_t x);

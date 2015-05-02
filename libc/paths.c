@@ -5,21 +5,16 @@
 #include <syscall.h>
 
 char *getcwd(char *buf, size_t size) {
-	long l;
+	uint64_t l;
     l = syscall_2(SYS_getcwd, (uint64_t) buf, (uint64_t) size);
 
-    //while(buf[i] != '\0')
-    //   	i++;
    
-    if(l>0){
-    	//printf("getcwd worked\n");
-	return buf;
+    if((uint64_t *)l!=NULL){
+    	printf("getcwd->%s\n",buf);
+		return buf;
     }
-    else if(l < 0){
-    	//printf("getcwd error\n");
-	return NULL;
-    }
-    return NULL;
+	else
+		return NULL;
 }
 
 int chdir(const char *path) {

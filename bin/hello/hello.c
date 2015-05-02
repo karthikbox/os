@@ -58,73 +58,23 @@ int main(int argc, char* argv[], char* envp[]) {
 	for(i=0;envp[i];i++){
 		printf("envp[%d]->%s\n",i,envp[i]);
 	}
-	int fd[2];
-	if(pipe(fd)==-1){
-		printf("pipe failed\n");
-	}
-	pid_t b;
-	/* int run=0; */
-	/* for(;run<65;run++){ */
-	/* 	b=fork(); */
-	/* 	if(b>0){ */
-	/* 		printf("run = %d && pid = %d\n",run,b); */
-	/* 		continue; */
-	/* 	} */
-	/* 	else if(b==0){ */
-	/* 		printf("run = %d && pid = %d\n",run,b); */
-	/* 		exit(0); */
-	/* 	} */
-	/* 	else{ */
-	/* 		printf("run = %d && pid = %d\n",run,b); */
-
-	/* 	} */
-	/* } */
-	/* yield(); */
-	b=fork();
+	char *new_argv[2];
+	new_argv[0]="bin/sbush";
+	new_argv[1]=NULL;
+	int b=fork();
 	if(b>0){
-		printf("parent says hi\n");
-		yield();
-		int r;
-		scanf("%d",&r);
-		printf("parent okay\n");
-		/* close(fd[0]);			/\* parent closing read end *\/ */
-		/* dup2 stdout to write end of pipe */
-		/* int ret=dup2(fd[1],STDOUT); */
-		/* if(ret==-1) */
-		/* 	printf("dup2 failed\n"); */
-		/* printf("%s",x); */
+		while(1){
+			yield();
+		}
 	}
 	else if(b==0){
-		int k=fork();
-		if(k>0){
-			printf("child says hi\n");
-			printf("enter string\n");
-			char t[1000];
-			scanf("%s",t);
-			printf("%s\n",t);
-			/* dup2 STDIN to read end of pipe  */
-			/* dup2(fd[0],STDIN); */
-			/* char t[100]; */
-			/* scanf("%s",t); */
-			/* printf("child  read -> %s\n",t); */
-			/* scanf("%s",t); */
-			/* printf("child  read -> %s\n",t); */
-			/* scanf("%s",t); */
-			/* printf("child  read -> %s\n",t); */
-			exit(0);
-		}
-		else if(k==0){
-			printf("child child says hi\n");
-			while(1)
-				yield();
-		}
+		int ret=execve("bin/sbush",new_argv,envp);
+		if(ret==-1)
+			printf("exec failed\n");
 	}
 	else{
 		printf("fork failed\n");
 	}
-	printf("parent exits\n");
-	while(1)
-		yield();
 	return 0;
 }
 
