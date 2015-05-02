@@ -21,7 +21,7 @@ int exec(char *path,char **argv,char **envp){
 	Elf64_Ehdr *elf;
 	Elf64_Phdr *ph;
 	pml4 *pml4_t,*old_pml4_t;
-	elf=(Elf64_Ehdr *)tarfs_get_file(path);
+	elf=(Elf64_Ehdr *)tarfs_get_file(path,REGTYPE);
 	/* if elf is null, then no file exists with that name */
 	if(elf==NULL)
 		return -1;

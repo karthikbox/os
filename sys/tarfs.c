@@ -5,15 +5,21 @@
 #include<sys/process.h>
 #include<sys/memory.h>
 
-uint64_t * tarfs_get_file(char name[]){
+uint64_t * tarfs_get_file(char name[], char type){
 	struct posix_header_ustar *p= (struct posix_header_ustar *)&_binary_tarfs_start;
 	struct posix_header_ustar *p_e= (struct posix_header_ustar *)&_binary_tarfs_end;
 	
 	while(p<p_e && !(strlen(p->name)==0)){
 		/* printf("cur name->%s, lookup name->%s, cur location->%p\n",p->name,name,p); */
 		if(strcmp(p->name,name)==0){
-			/* this is the required file name */
-			return (uint64_t *)(p+1);			/* return pointer to start of ELF binary */
+			if(*p->typeflag==type){
+				/* this is the required file name */
+				return (uint64_t *)(p+1);			/* return pointer to start of ELF binary */
+			}
+			else{
+				return NULL;
+			}
+ 
 		}
 		else{
 			/* goto next file header by adding size of header and header->size */

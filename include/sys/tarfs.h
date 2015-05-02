@@ -5,6 +5,8 @@
 
 /* elf  */
 #define ELF_PROG_LOAD 1
+#define REGTYPE '0'
+#define DIRTYPE '5'
 
 
 /* tarfs */
@@ -99,7 +101,7 @@ void closedir(uint64_t dir_addr);
 #define DIRECTORY 5
 #define FILE_TYPE 0
 
-uint64_t * tarfs_get_file(char file_path[]);
+uint64_t * tarfs_get_file(char file_path[], char type);
 uint64_t oct_to_dec(char str[]);
 uint64_t round_up(uint64_t sz,uint64_t mul);
 uint64_t *get_absolute_path(char path[]);

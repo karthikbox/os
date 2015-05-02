@@ -126,7 +126,7 @@ size_t do_write(int fd, const void* bf, size_t len){
 
 	/* check the file type */
 	/* if file type is STDOUT, printf */
-	if(proc->ofile[fd]->type==FD_STDOUT){
+	if((proc->ofile[fd]->type==FD_STDOUT) || (proc->ofile[fd]->type==FD_STDERR)){
 		for(i=0;i<len;i++){
 			printf("%c",buf[i]);
 		}
@@ -457,7 +457,7 @@ int do_chdir(const char *path){
 	}
 	if(strcmp(kpath, "")){
 		/* check if the path is valid or not */
-		tarfs_file = tarfs_get_file(kpath);
+		tarfs_file = tarfs_get_file(kpath,DIRTYPE);
 		/* change proc->cwd, if path is valid */
 		if(tarfs_file == NULL){
 			return -1;
