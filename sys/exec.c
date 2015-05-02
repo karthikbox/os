@@ -7,6 +7,7 @@
 #include<sys/memory.h>
 
 uint64_t round_down(uint64_t addr,int n);
+void clear_gpr(struct trapframe *s);
 
 int exec(char *path,char **argv,char **envp){
 
@@ -217,6 +218,7 @@ int exec(char *path,char **argv,char **envp){
 	proc->size=sz;				/* in bytes */
 	proc->tf->rip=elf->e_entry;	/* main */
 	proc->tf->rsp=sp;
+	clear_gpr(proc->tf);		/* clear only the gprs of trapframe */
 	switchuvm(proc);
 	free_vma_list(&proc->vma_head);		/* free the old vmas */
 	proc->vma_head=head;		/* store head of vma's in proc */
@@ -224,6 +226,25 @@ int exec(char *path,char **argv,char **envp){
 	return 0;
 }
 
+
+void clear_gpr(struct trapframe *s){
+	s->rbp=0x0ul;
+	s->r15=0x0ul;
+	s->r14=0x0ul;
+	s->r13=0x0ul;
+	s->r12=0x0ul;
+	s->r11=0x0ul;
+	s->r10=0x0ul;
+	s->r9=0x0ul;
+	s->r8=0x0ul;
+	s->rdi=0x0ul;
+	s->rsi=0x0ul;
+	s->rdx=0x0ul;
+	s->rcx=0x0ul;
+	s->rbx=0x0ul;
+	s->rax=0x0ul;
+	
+}
 
 uint64_t round_down(uint64_t addr,int n){
 	if(addr%n==0){
