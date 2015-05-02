@@ -98,3 +98,47 @@ void strcpy(char* dest, char* src)
     }
     dest[i] = '\0';
 }
+
+char** strtoken(const char *s, const char *delim,int *len) {
+    int i=0, j=0, k=0;
+    char **tokens = (char**)kmalloc(NCHARS*sizeof(char*));
+
+    tokens[j] = (char*)kmalloc(NCHARS*sizeof(char));
+
+    while(s[i] != '\0') {
+        if(s[i] == *delim)
+        {
+            tokens[j][k] = '\0';
+            if(strlen(tokens[j]) > 0)
+            {
+                j++;
+                tokens[j] = (char*)kmalloc(NCHARS*sizeof(char));
+            }
+            k=0;
+        }
+        else
+        {
+            tokens[j][k] = s[i];
+            k++;
+        }
+        i++;
+    }
+    if(strlen(tokens[j])>0)
+    {
+        tokens[j][k] = '\0';
+        tokens[++j] = 0;
+    }
+    else
+        tokens[j] = 0;
+    
+    *len=j;
+
+    return tokens;
+}
+
+void free_array(char **tokens,int len) {
+    int i;
+    for(i=0; i<len; i++)
+        kfree(tokens[i]);
+    kfree(tokens);
+}

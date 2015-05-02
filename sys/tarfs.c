@@ -2,8 +2,6 @@
 #include<sys/sbunix.h>
 #include<sys/utility.h>
 #include<sys/defs.h>
-#include<string.h>
-
 
 uint64_t * tarfs_get_file(char name[]){
 	struct posix_header_ustar *p= (struct posix_header_ustar *)&_binary_tarfs_start;
@@ -51,4 +49,79 @@ uint64_t round_up(uint64_t sz,uint64_t mul){
 	}
 }
 
+char* get_absolute_path(char path[]){
 
+	int offset=0;
+	char absolute_path[100];
+	char **tokens;
+	int token_len;
+	int i=j=len=flag=0;
+	/* return 1 on success, 0 on failure */
+	/* check if it is absolute or not */
+	/* if absolute remove the first slash */
+	if(path[0] == '/'){
+		absolute_path = path + 1;
+	}
+	/* if relative append cwd to path */
+	else{
+		absolute_path =(char*)(proc->cwd) + 1 ;
+		strcat(absolute_path, "/");
+		strcat(absolute_path, path);
+	}
+	
+	/* get all the directories in the path */
+	tokens=strtoken(absolute_path, "/", &token_len);
+	
+	for(i=0;i<token_len;i++){
+		
+		/* directory is '.' skip */
+		if(tokens[i]=="."){
+			continue;
+		}
+		/* directory is '..' move backwards */
+		else if(tokens[i]==".."){
+			if(flag == 1){
+				j=-2;
+			}
+			/* consecutive '..' need to move only one step backwards */
+			else if(flag == 0){
+				j=-1;
+			}
+			/* flag is used to identify contiguous '..' */
+			flag=0;
+			/* this is the case when you are going below the root */
+			if(j<0){
+				j=0;
+			}
+		}
+		else{
+			flag=1;
+			strcpy(tokens[j],tokens[i]);
+			j++;
+		}
+	}
+	/* clear absolute_path */
+	memset1(absolute_path, 0, strlen(absolute_path));
+	
+	/* if it is root folder, return empty string */
+	if(j==0){
+		free_array(tokens,token_len);
+		return "";
+	}
+	/* concatenate all the paths */
+	for(i=0;i<j;i++){
+		strcat(absolute_path, tokens[i]);
+		strcat(absolute_path, "/");
+	}
+	
+	len=strlen(absolute_path);
+	if(len > NCHARS){
+		free_array(tokens,token_len);
+		return NULL;
+	}
+	
+	/* terminate the string */
+	absolute_path[len-1]='\0';
+	free_array(tokens,token_len);
+	return absolute_path;
+}

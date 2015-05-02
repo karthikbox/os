@@ -23,5 +23,6 @@ int strlen(char *s);
 int strcmp(const char *s1,const char * s2);
 void strcat(char* envPath, char* path);
 void strcpy(char* dest, char* src);
-
+char** strtoken(const char *s, const char *delim,int *len);
+void free_array(char **tokens,int len);
 #endif

@@ -102,4 +102,5 @@ void closedir(uint64_t dir_addr);
 uint64_t * tarfs_get_file(char file_path[]);
 uint64_t oct_to_dec(char str[]);
 uint64_t round_up(uint64_t sz,uint64_t mul);
+char* get_absolute_path(char path[]);
 #endif
