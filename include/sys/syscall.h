@@ -53,4 +53,5 @@ void do_close(int fd);
 int do_dup(int old_fd);
 int do_dup2(int old_fd,int new_fd);
 char * do_getcwd(char *buf,size_t size);
+int do_chdir(const char *path);
 #endif

@@ -2,6 +2,8 @@
 #include<sys/sbunix.h>
 #include<sys/utility.h>
 #include<sys/defs.h>
+#include<sys/process.h>
+#include<sys/memory.h>
 
 uint64_t * tarfs_get_file(char name[]){
 	struct posix_header_ustar *p= (struct posix_header_ustar *)&_binary_tarfs_start;
@@ -49,22 +51,23 @@ uint64_t round_up(uint64_t sz,uint64_t mul){
 	}
 }
 
-char* get_absolute_path(char path[]){
+uint64_t * get_absolute_path(char *path){
 
-	int offset=0;
 	char absolute_path[100];
 	char **tokens;
 	int token_len;
-	int i=j=len=flag=0;
+	int i,j,len,flag;
+	i=j=len=flag=0;
+	printf("initial path is %s\n",path);
 	/* return 1 on success, 0 on failure */
 	/* check if it is absolute or not */
 	/* if absolute remove the first slash */
 	if(path[0] == '/'){
-		absolute_path = path + 1;
+		strcpy(absolute_path, path+1);
 	}
 	/* if relative append cwd to path */
 	else{
-		absolute_path =(char*)(proc->cwd) + 1 ;
+		strcpy(absolute_path,(char*)(proc->cwd) + 1) ;
 		strcat(absolute_path, "/");
 		strcat(absolute_path, path);
 	}
@@ -75,11 +78,11 @@ char* get_absolute_path(char path[]){
 	for(i=0;i<token_len;i++){
 		
 		/* directory is '.' skip */
-		if(tokens[i]=="."){
+		if(!strcmp(tokens[i],".")){
 			continue;
 		}
 		/* directory is '..' move backwards */
-		else if(tokens[i]==".."){
+		else if(!strcmp(tokens[i],"..")){
 			if(flag == 1){
 				j=-2;
 			}
@@ -106,7 +109,7 @@ char* get_absolute_path(char path[]){
 	/* if it is root folder, return empty string */
 	if(j==0){
 		free_array(tokens,token_len);
-		return "";
+		strcpy(path, "");
 	}
 	/* concatenate all the paths */
 	for(i=0;i<j;i++){
@@ -121,7 +124,53 @@ char* get_absolute_path(char path[]){
 	}
 	
 	/* terminate the string */
-	absolute_path[len-1]='\0';
+	absolute_path[len]='\0';
+	strcpy(path, absolute_path);
+	printf("final path is %s\n",path);
 	free_array(tokens,token_len);
-	return absolute_path;
+	return (uint64_t*)path;
+}
+
+char** strtoken(const char *s, const char *delim,int *len) {
+    int i=0, j=0, k=0;
+    char **tokens = (char**)kmalloc(NCHARS*sizeof(char*));
+
+    tokens[j] = (char*)kmalloc(NCHARS*sizeof(char));
+
+    while(s[i] != '\0') {
+        if(s[i] == *delim)
+        {
+            tokens[j][k] = '\0';
+            if(strlen(tokens[j]) > 0)
+            {
+                j++;
+                tokens[j] = (char*)kmalloc(NCHARS*sizeof(char));
+            }
+            k=0;
+        }
+        else
+        {
+            tokens[j][k] = s[i];
+            k++;
+        }
+        i++;
+    }
+    if(strlen(tokens[j])>0)
+    {
+        tokens[j][k] = '\0';
+        tokens[++j] = 0;
+    }
+    else
+        tokens[j] = 0;
+    
+    *len=j;
+
+    return tokens;
+}
+
+void free_array(char **tokens,int len) {
+    int i;
+    for(i=0; i<len; i++)
+        kfree(tokens[i]);
+    kfree(tokens);
 }

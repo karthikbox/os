@@ -380,6 +380,9 @@ void isr_handler(struct stack_frame *s){
 		else if(s->rax==SYS_getcwd){
 			s->rax=(uint64_t)do_getcwd((char *)s->rdi,(size_t)s->rsi);
 		}
+		else if(s->rax==SYS_chdir){
+			s->rax=do_chdir((const char*) s->rdi);
+		}
 		else{
 			printf("incorrect syscall number\nproc pid->%d\n",proc->pid);
 		}

@@ -4,6 +4,7 @@
 #include<sys/page.h>
 #include<sys/pmmgr.h>
 #include<sys/syscall.h> 
+#include<sys/tarfs.h>
 
 extern void isr128();
 
@@ -442,4 +443,29 @@ char *do_getcwd(char *buf,size_t size){
 			return buf;
 		}
 	}
+}
+
+int do_chdir(const char *path){
+	/* On success returns 0, on failure returns -1 */
+	uint64_t *tarfs_file;
+	/* copy path to kernel memory */
+	char *kpath = (char*)kmalloc(NCHARS*sizeof(char));
+	strcpy(kpath, (char *)path);
+	/* get the absolute path  */
+	if(get_absolute_path(kpath) == NULL){
+		return -1;
+	}
+	if(strcmp(kpath, "")){
+		/* check if the path is valid or not */
+		tarfs_file = tarfs_get_file(kpath);
+		/* change proc->cwd, if path is valid */
+		if(tarfs_file == NULL){
+			return -1;
+		}
+	}
+	
+	strcpy(proc->cwd, "/");
+	strcat(proc->cwd, kpath);
+	kfree(kpath);
+	return 0;
 }
