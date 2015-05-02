@@ -20,6 +20,9 @@ int exec(char *path,char **argv,char **envp){
 	Elf64_Phdr *ph;
 	pml4 *pml4_t,*old_pml4_t;
 	elf=(Elf64_Ehdr *)tarfs_get_file(path);
+	/* if elf is null, then no file exists with that name */
+	if(elf==NULL)
+		return -1;
 	/* assume it's ELF header */
 	/* allocate  page table*/
 	pml4_t = load_kern_vm();
