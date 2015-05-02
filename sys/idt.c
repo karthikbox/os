@@ -371,5 +371,17 @@ void isr_handler(struct stack_frame *s){
 		else if(s->rax==SYS_close){
 			do_close((int)s->rdi);
 		}
+		else if(s->rax==SYS_dup){
+			s->rax=do_dup((int)s->rdi);
+		}
+		else if(s->rax==SYS_dup2){
+			s->rax=do_dup2((int)s->rdi,(int)s->rsi);
+		}
+		else if(s->rax==SYS_getcwd){
+			s->rax=(uint64_t)do_getcwd((char *)s->rdi,(size_t)s->rsi);
+		}
+		else{
+			printf("incorrect syscall number\nproc pid->%d\n",proc->pid);
+		}
 	}
 }

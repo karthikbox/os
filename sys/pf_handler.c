@@ -193,6 +193,8 @@ void handle_pf(uint64_t error){
 		/* segmentaion fault */
 		printf("segmentation fault\n");		
 		/* kill proc  */
+		for(;;)
+			;
 		return;
 	}	
 	printf("unable to match any error in page fault handler\n");

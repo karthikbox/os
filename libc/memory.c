@@ -186,9 +186,9 @@ void split(p_blk t,size_t size){
     temp->ptr=temp->start;
     temp->next=t->next;
     temp->prev=t;
-
-    t->next->prev=temp;
-
+	if(t->next!=NULL){
+		t->next->prev=temp;		/* if there is a next meta blk, otherwise no point */
+	}
     t->next=temp;
     t->size=size;
     t->free=0;

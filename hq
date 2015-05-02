@@ -1,0 +1,1252 @@
+[33mcommit 9cf64d929bf00f8bf4317fa42c40aee6cc9e44f0[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Fri May 1 14:02:00 2015 -0400
+
+    test case for scanf tested. scanf gives lock to the first proc which issues scanf command. while the lock is held by this proc, any other proc whioch requests scanf will be killed. this change is in previous commit.
+
+[33mcommit 602ffa2943ceb4218a4776551de876122bdb30bd[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Fri May 1 13:53:37 2015 -0400
+
+    implemented dup and dup2. tested dup2, works. removed fgproc logic
+
+[33mcommit c6eb440f2bd1c42f6e4c7e259260e07a83aae642[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Thu Apr 30 20:19:43 2015 -0400
+
+    pipe read and write tested
+
+[33mcommit 4bde195d8ce5f652eb446df2b3c5b9041accd31e[m
+Merge: dd906ff 25143b9
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-16.local>
+Date:   Mon Apr 27 22:08:57 2015 -0400
+
+    Merge branch 'SYS_read' of ssh://bitbucket.org/karthikbox/os_s15 into SYS_read
+
+[33mcommit dd906ff933cc8a0fc1be829e85c196c6bead4cef[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-16.local>
+Date:   Mon Apr 27 21:58:15 2015 -0400
+
+    implemented close system call
+
+[33mcommit 25143b9191d17e619835654500bab462d4f10aa1[m
+Merge: 499a1c7 ef86e5c
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Apr 27 22:05:14 2015 -0400
+
+    Merge branch 'SYS_read' of bitbucket.org:karthikbox/os_s15 into SYS_read
+
+[33mcommit 499a1c7cfb86fb5ba33db4dfcba3fe6988603de7[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Apr 27 22:04:54 2015 -0400
+
+    initproc receives for allocated file descriptors for STDIN,STDOUT and STDERR
+
+[33mcommit ef86e5c18735059f8c86898b397af790df251a8a[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-16.local>
+Date:   Mon Apr 27 21:37:29 2015 -0400
+
+    modified do_write and do_read with respect to file structures
+
+[33mcommit 77cf119e22422b6ae66a011cee91056fa0d8d1cb[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Apr 27 21:35:03 2015 -0400
+
+    filedup implemented. fork copies parents open files to child
+
+[33mcommit e4825b4339d38533ba2e380765c196a960b9ea12[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Apr 27 21:23:09 2015 -0400
+
+    free open files added to free_pcb
+
+[33mcommit f263051c805bcc0faa25f1d6f7b2e670ddd4c690[m
+Merge: 860bc27 85e7c62
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-16.local>
+Date:   Mon Apr 27 20:50:58 2015 -0400
+
+    Merge branch 'SYS_read' of ssh://bitbucket.org/karthikbox/os_s15 into SYS_read
+
+[33mcommit 860bc27b33d50f1c8332d031609d1853688af025[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-16.local>
+Date:   Mon Apr 27 20:50:39 2015 -0400
+
+    added wakeup and sleep statements in pipes
+
+[33mcommit 85e7c620e16fd7d0c33b145018eea57c99df74e0[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Apr 27 20:49:43 2015 -0400
+
+    added sleep and wakeup.added chan field to PCB.
+
+[33mcommit 865db2488fc9ec4da89c504dcceb1c9e45883747[m
+Merge: 743d243 2d1c209
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-16.local>
+Date:   Mon Apr 27 20:08:36 2015 -0400
+
+    Merge branch 'SYS_read' of ssh://bitbucket.org/karthikbox/os_s15 into SYS_read
+
+[33mcommit 743d243cf839abcc10bdfe95592e34e26d838c7a[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-16.local>
+Date:   Mon Apr 27 20:08:16 2015 -0400
+
+    pipe implementation in progress.
+
+[33mcommit 2d1c20937144d10b3b3d994f21a527355f8881d7[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Apr 27 13:24:46 2015 -0400
+
+    yield, read, sleep, waitpid,exit use sched to call scheduler. tested
+
+[33mcommit bbb13f29be9253302e661b609e7238173b08676f[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Apr 27 04:49:26 2015 -0400
+
+    swtch implemented. TODO: change all scheduler calls to sched except in userinit after girst exec
+
+[33mcommit 723ca93dd25ea2b3733cb3ef6aa7f6ac98ea59b9[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sun Apr 26 15:28:48 2015 -0400
+
+    pipes implemntation in progress. do_pipe, pipealloc, filealloc,fdalloc, chacnged proc struc.
+
+[33mcommit b332dcf02fff023301d0c4b5c954973d3ee5f6bf[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sun Apr 26 02:37:29 2015 -0400
+
+    read bug fixed. scanf bugs fixed.
+
+[33mcommit d29619431c13a50455113a0dbb9ebdf16ed4929a[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sun Apr 26 01:08:42 2015 -0400
+
+    read implemnted. works for simple cases
+
+[33mcommit 358a00e60fa1dfd5359938ec1080657ae2cf79ae[m
+Merge: 3f0f7a0 995d365
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sat Apr 25 21:09:35 2015 -0400
+
+    Merge branch 'vm_mgr' of bitbucket.org:karthikbox/os_s15 into vm_mgr
+
+[33mcommit 3f0f7a0bfffb7ce7e4257fbfe376ad35758dfbc6[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sat Apr 25 21:06:24 2015 -0400
+
+    stdin Q structures modified. added stdin init function
+
+[33mcommit ab55eaf3f7f91d006dcfa9a6d08ab824ab06eaab[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sat Apr 25 21:01:11 2015 -0400
+
+    update stackgrowing threshold to 64KB
+
+[33mcommit 995d365a7465c786ddbf4bc657b757c9f70e23b8[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-16.local>
+Date:   Sat Apr 25 20:19:14 2015 -0400
+
+    changed do_exit(int status) to do_exit(int status, struct proc *p)
+
+[33mcommit 2b61813d874895217460037c2e7bd98537e20f82[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-16.local>
+Date:   Fri Apr 24 03:55:26 2015 -0400
+
+    sys read implementation in progress
+
+[33mcommit 8b30f9a3ab20ad6cae1825d57c8ed1ba52613707[m
+Merge: 11317c1 0dd1e34
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Thu Apr 23 16:43:01 2015 -0400
+
+    fixed infinite loop and page fault bug in kmalloc. exec works. exec arg, env passing works. cleaned up main.c. added infinite loop to pf_handler, when no error code match
+
+[33mcommit 11317c1b0a85cb92b114b4d6956b6575fdeb1b19[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Thu Apr 23 02:30:34 2015 -0400
+
+    tracing while loop infinite bug in progress
+
+[33mcommit 0dd1e345918c279e3ba05bc1fcb1ef442d3d00ff[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-16.local>
+Date:   Thu Apr 23 02:23:56 2015 -0400
+
+    modified sys main.c
+
+[33mcommit 61c2cde45ab7f6147a095a57e48b9058553493ac[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Thu Apr 23 00:57:04 2015 -0400
+
+    exec, infinite loop bug
+
+[33mcommit e1276d721440f3a4e839a725f1f8049e283458de[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Wed Apr 22 17:17:03 2015 -0400
+
+    testcase included for both waitpid and argv, envp variable
+
+[33mcommit 959cacb01c3643f7da008bd36afded4b9173df0c[m
+Merge: a179d96 a3ee0a7
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Wed Apr 22 15:23:27 2015 -0400
+
+    merge
+
+[33mcommit a179d96b0b84f842c54b2dfb08491ddf8bde8d0e[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Wed Apr 22 15:20:47 2015 -0400
+
+    argv and envp passed to exec
+
+[33mcommit a3ee0a718e155d5c28a231e577fbff61fb022328[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-16.local>
+Date:   Wed Apr 22 06:38:41 2015 -0400
+
+    implemented waitpid, tested and working fine
+
+[33mcommit 727df0fed84ae15827a2f5806eb094788a7f8324[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Wed Apr 22 02:40:13 2015 -0400
+
+    removed libc-sleep.c
+
+[33mcommit 8290f43dd7af7ccc277e51bae3f2dd7667b7968f[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Wed Apr 22 02:38:36 2015 -0400
+
+    implemented sleep syscall, tested and working, resolved address bug in syscall
+
+[33mcommit c2b1c15994edb010498c1aa7742c79abb179a1fd[m
+Merge: 0589959 85d6573
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Wed Apr 22 00:51:22 2015 -0400
+
+    implemented sleep Q. no make errors
+
+[33mcommit 85d6573236c681b4a82bb20af696a922384a8702[m
+Merge: 1a626ca 54150f6
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Wed Apr 22 00:46:55 2015 -0400
+
+    Merge branch 'vm_mgr' of bitbucket.org:karthikbox/os_s15 into vm_mgr
+
+[33mcommit 54150f6a61cf517be9ba54a5d579cf80b57f0fea[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-16.local>
+Date:   Wed Apr 22 00:44:54 2015 -0400
+
+    typedef uint32_t pid_t added to include/sys/syscall.h
+
+[33mcommit 05899590fbb585e35894f0235c612295abe36255[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Wed Apr 22 00:29:40 2015 -0400
+
+    implemented sleep Q
+
+[33mcommit 1a626cab04b517c6831007917f238da18fd317a1[m
+Merge: ccef88b fdd7f82
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Tue Apr 21 20:50:04 2015 -0400
+
+    merge
+
+[33mcommit fdd7f8235e03c2b732737a919cedca1b63170fb9[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-2-16.local>
+Date:   Tue Apr 21 02:39:44 2015 -0400
+
+    implemented getpid and getppid syscalls
+
+[33mcommit da578b338b8ab955a559f31163665b553f553070[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-2-16.local>
+Date:   Tue Apr 21 02:09:29 2015 -0400
+
+    sanity check added for mem_map_first_free for number of frames greater than 64
+
+[33mcommit 4a603d7591a66960cd965cdfe481e0e0ee1f404b[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-2-16.local>
+Date:   Tue Apr 21 02:03:49 2015 -0400
+
+    kmalloc clears the memory before it returns the address using memset1
+
+[33mcommit bae4d89ff2cc669f6acd61c9d46c60a299a3f609[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-2-16.local>
+Date:   Tue Apr 21 01:57:10 2015 -0400
+
+    implemented exit syscall, fork working for three processes
+
+[33mcommit f31378283367976877c4460f5c6832f59413bb80[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-2-16.local>
+Date:   Mon Apr 20 22:55:47 2015 -0400
+
+    Implemented brk system call, tested malloc-working, changed syscall_1 asm code, changed initial vma_heap end-now vma_heap will have 1 byte
+
+[33mcommit 9764e5242e0c0efc5eb717b651f478bca4ab9f71[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-2-16.local>
+Date:   Mon Apr 20 16:02:50 2015 -0400
+
+    brk working with syscall_3, syscall_1 modification leads to segmentation fault even though it is not using
+
+[33mcommit ccef88be71d5b9f59d3de5b15cccb8950594ab95[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Apr 20 10:51:48 2015 -0400
+
+    modified syscall_0 code
+
+[33mcommit dc7e36e9fad7889a912cf2f30a20bb4fd061dfc0[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sun Apr 19 20:17:02 2015 -0400
+
+    added TLB flush to pf_handler
+
+[33mcommit 9e9ea13c49ac3ccf873dbd943fdb977b1c5928bf[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sun Apr 19 20:09:33 2015 -0400
+
+    flushing TLB during fork. flush TLB after fork modifies pt entries.
+
+[33mcommit 9e57758fcd6532207e4772bc89f8be77c6d9abe1[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sun Apr 19 15:06:11 2015 -0400
+
+    implemented do_write. changed syscall_3 to int x80 call. some prinf cleanup
+
+[33mcommit 5bf425fc9acc5c8c0f50a4e603772982347ecf33[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sun Apr 19 12:31:29 2015 -0400
+
+    Fixed bug in copyvma. syscall0 changed to int 0x80. changed head to pfmgr_head in memory.h. clearing child gprs, rflags set to FL_IF
+
+[33mcommit f45da6a04cd729918ce3807f2b3c8b4d5fb78110[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sat Apr 18 20:39:24 2015 -0400
+
+    implemented cow fork-page fault handler
+
+[33mcommit 6caa50e1817b99aa779fd3f762dea6a14b466ced[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sat Apr 18 17:35:16 2015 -0400
+
+    free_uvm checks ref_counts
+
+[33mcommit 74deb94d8cae9319d34f2bd17dcde6f40a00d5e6[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sat Apr 18 03:15:18 2015 -0400
+
+    implemented fork,copyuvm, copyvma,free_pcb. TODO: free_uvm
+
+[33mcommit ef214a0acf309b0f635774935777c5f86415def6[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sat Apr 18 02:20:55 2015 -0400
+
+    changed vma heap start to an offset of 0x3000
+
+[33mcommit 150b3c231b55f318e5fc60786dc8e3aee1ce71f4[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Sat Apr 18 00:13:08 2015 -0400
+
+    copyuvm in progress..
+
+[33mcommit c42d46b12ee3c19cac7aace0efde15a264c3db3d[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Fri Apr 17 20:27:29 2015 -0400
+
+    updated hello.c
+
+[33mcommit 8ff4920ad11800f95958659010852f6fcfbba7c7[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Fri Apr 17 18:42:17 2015 -0400
+
+    implemented page fault handler. user process give ring 3. pml4 511 entry given supervisor and writable. stack upper limit changed so that it falls in 509 entry of pml4.
+
+[33mcommit 9dbb0b253ae4eb57a8e708858b97b5b0de2e4284[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Fri Apr 17 13:04:11 2015 -0400
+
+    implmented pf_handler, needs to be tested
+
+[33mcommit cb735fc32ac596090e1ee63461c161f7fba6aa7e[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Thu Apr 16 20:25:55 2015 -0400
+
+    changed dpl of 0x80 idt entry to 3
+
+[33mcommit fc1038611b4723aaf807be2b9a46c40db29c5e01[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Thu Apr 16 20:22:12 2015 -0400
+
+    allocuvm now sets permissions to page table entries
+
+[33mcommit 49e83f765144d558aa33a18b856400450f41976e[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Thu Apr 16 17:45:54 2015 -0400
+
+    removed printf from kmalloc
+
+[33mcommit eae688f58715d82956ac6ed8c84e719d5cd7e09f[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Thu Apr 16 17:44:19 2015 -0400
+
+    heap vma initialized
+
+[33mcommit d0b1daf170d40f6cea8bf0a55791950dbacb5fda[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Wed Apr 15 04:10:40 2015 -0400
+
+    changed vma_free_list.
+
+[33mcommit c4102cc4192c9308c7bd09299713af395a0c1150[m
+Merge: 31e99b2 80e4568
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Wed Apr 15 03:29:00 2015 -0400
+
+    merge
+
+[33mcommit 31e99b242ed490d7fe5f258adc547697efa0f801[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Wed Apr 15 03:25:56 2015 -0400
+
+    free_vma_list implemented. created and initialized vma
+
+[33mcommit 10dc29038a93223bc2cb70474931cd35914318af[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Apr 13 03:34:03 2015 -0400
+
+    kmalloc returns NULL; kmalloc.h renamed to memory.h
+
+[33mcommit 80e45685065c50af5bc82224683be3e14a3c1f76[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Apr 13 03:05:56 2015 -0400
+
+    implemented frame ref count
+
+[33mcommit 40963b47f99f4650c9c6f94a153d8a6e2ba24554[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sun Apr 12 14:36:46 2015 -0400
+
+    implemented do_fork. TODO: copyuvm
+
+[33mcommit 65ed3b24e7be7c1a3a1b75e469f636423e4f08a1[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sun Apr 12 13:19:36 2015 -0400
+
+    implmented free_uvm
+
+[33mcommit 92babb38e6f4a186c2aac702896a6ce1b0ab5172[m
+Author: Sree Harsha Subraveti <harsha.subraveti@gmail.com>
+Date:   Fri Apr 10 17:29:14 2015 -0400
+
+    syscall opcode working in amd64 arch
+
+[33mcommit 595ed0ce4f0859d86aa16873ff6d8e5cf8b4c2ea[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Fri Apr 10 01:59:20 2015 -0400
+
+    updated todo.txt
+
+[33mcommit 0f6a6c1601fa5065e1f85c5c6e54553577b87e6c[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Fri Apr 10 01:33:01 2015 -0400
+
+    imlemented yield. yield works for the first process
+
+[33mcommit 2754edd51a093f26f4ecada67939a77254977a0d[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Thu Apr 9 21:15:12 2015 -0400
+
+    ltr implmented. loads 0x2B, rpl of 3
+
+[33mcommit b2a44798bb487e9768770026efb5e9bb7472db22[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Thu Apr 9 20:21:15 2015 -0400
+
+    addresses in printf changed to virtual addrs. kernel virt addr chacnged to KERNBASE onwards for accessing mem less than 1MB
+
+[33mcommit 5718ae0d9012bd13010d8638d7bb16bb78f3dcaa[m
+Merge: 4e435ee a77b7a0
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Thu Apr 9 01:50:01 2015 -0400
+
+    merge
+
+[33mcommit 4e435ee7ab5fb91d8f02698d3feefee02edb8761[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Thu Apr 9 01:43:58 2015 -0400
+
+    implemented scheduler. unable to context switch to user process. GPF arrives as soon as iretq.
+
+[33mcommit a77b7a0ac108903ed089c94b208bb326bf7b5225[m
+Author: Sree_harsha Subraveti <ssubraveti@compute-2-22.local>
+Date:   Sun Apr 5 03:28:26 2015 -0400
+
+    kmalloc works for size>4096. alloc_frame(size) modfied
+
+[33mcommit 6e4ca025f10b36f5fdf785a108b10a7847a76b32[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sat Apr 4 14:01:55 2015 -0400
+
+    removed variable definitions in kmalloc.h and moved them into memory.c. Added docs directory
+
+[33mcommit 4f21db4dfd8d660f5d603c9a0f8d2ebac6a5ec17[m
+Merge: 016107f 07cf02a
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sat Apr 4 10:43:25 2015 -0400
+
+    merge
+
+[33mcommit 016107fb11faa816a9181f7ad8bc4bb3c667ee35[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sat Apr 4 10:37:28 2015 -0400
+
+    implemented allouvm.
+
+[33mcommit 07cf02a4e951821070756ab78bd73ffabb094939[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-16.local>
+Date:   Sat Apr 4 08:28:21 2015 -0400
+
+    Updated the behavior of kmalloc and kfree functions; TODO: get contiguous frames if malloc requests more than 4096 bytes
+
+[33mcommit 9a7814d3460a6a46d77fd0a8f42fe77f7e2982ec[m
+Merge: 88d81a6 ed87ea5
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Fri Apr 3 14:37:22 2015 -0400
+
+    Merge branch 'vm_mgr' of bitbucket.org:karthikbox/os_s15 into vm_mgr
+
+[33mcommit 88d81a668a4a45e6fb075de51bc3383da8ae83f7[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Fri Apr 3 14:37:11 2015 -0400
+
+    listing file contents of tarfs.
+
+[33mcommit ed87ea5712711a62d0d03fb10b11db7572d0b9f0[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-16.local>
+Date:   Fri Apr 3 08:45:34 2015 -0400
+
+    Enhanced kmalloc() and kfree(). kmalloc() works similar to user malloc(). Tested and working.
+
+[33mcommit 5e3565ef3e6c76798803c591b3bfeb346a7dbe2b[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-17.local>
+Date:   Mon Mar 30 03:01:53 2015 -0400
+
+    Implemented basic kmalloc and kfree;
+
+[33mcommit af68f0137074dc830118a4da83221da61181f461[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Mar 30 02:40:23 2015 -0400
+
+    skeleton of alloc_proc. created user kernel stack. setup trap frame. setup kernel context.
+
+[33mcommit b1f6ccbcd8733338ca39ff99434fb19871b3314f[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sun Mar 29 23:56:31 2015 -0400
+
+    implemented get_phys_addr and get_virt_addr. working on pcb, context switching.
+
+[33mcommit 0a0f66ee85b3ab7b4a3fc3290120c15e0335e2a1[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Fri Mar 27 15:21:49 2015 -0400
+
+    setup process.h. defined PCB. setting creat_process().
+
+[33mcommit 01c1dfc4b25bc00dc45b33a2e7b80080c80c2fef[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Mar 23 21:44:18 2015 -0400
+
+    implemented vm_map_page. needs testing
+
+[33mcommit 625c4f20a42e945524fa4e5891187d8828956ff2[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Mar 23 14:48:30 2015 -0400
+
+    vm_init implemented. vm_map_page in progress. made all preprocesssor functions as inline for better warning from compiler.
+
+[33mcommit 58329b87cbb23fd24229b64ce56cf0a003e4a872[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Mar 23 01:44:08 2015 -0400
+
+    defined header file for page data structures
+
+[33mcommit 30e9255f4d02133a59b5eca7f52f54f1808846ec[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Mar 23 01:42:52 2015 -0400
+
+    physical frame allocator. fixed some bugs
+
+[33mcommit d97c06d9d41ebdcf8477a5d23f51ba3fdc33d17b[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sun Mar 22 15:23:15 2015 -0400
+
+    implemented physical memory manager. tested. works
+
+[33mcommit 6bd60a21de00caa6f88f13f06d43ece7abcb2de2[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sat Mar 21 10:49:55 2015 -0400
+
+    updated README with details of physical memory manager
+
+[33mcommit 3cdbfe50bcdafb8baa2253e38a83907d25a43a10[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Fri Mar 20 14:23:21 2015 -0400
+
+    updated README with instructions to run quemu
+
+[33mcommit c5abf0af332ba9b23f814a5d3a33e0aae1a3b371[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Fri Mar 20 14:18:24 2015 -0400
+
+    physical manager implemented. needs testing.
+
+[33mcommit 54474b55eea222ffc56e0ae5b9c26e0d754e139d[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Wed Mar 18 21:52:25 2015 -0400
+
+    created header file
+
+[33mcommit 2ce432746ba919bfe296d09acaa95da160f6f3dd[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Wed Mar 18 21:51:11 2015 -0400
+
+    updated README
+
+[33mcommit 6fb2c1b65f64956a5561a788a2a35720c1bf0100[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-17.local>
+Date:   Wed Mar 4 15:51:58 2015 -0500
+
+    resolved a bug in keyboard.c;
+
+[33mcommit 070433bed5423cfc07d261259cff4bf0520ab465[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-16.local>
+Date:   Tue Mar 3 15:44:16 2015 -0500
+
+    Added clear_kdbglyph(); keyboard handles \n, \b, \t, ^3(esc), ^ characters
+
+[33mcommit 845c386a5fee6e13e6b84ae6103682e755ba27fc[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sun Mar 1 18:35:30 2015 -0500
+
+    clear last line. added clear_lin().
+
+[33mcommit 6d3f8ec825daa0fc0598b8b8908fa3e6955f2b5a[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-16.local>
+Date:   Thu Feb 26 04:00:14 2015 -0500
+
+    Timer and last pressed prints at the bottom right corner of the screen; TORESOLVE: when keyboard interrupt occurs, timer prints unwanted characters
+
+[33mcommit 4777b904c194b2972acff96678b1d4184c9a40a9[m
+Author: Satya_Hara_Pavan_Kumar Maguluri <smaguluri@compute-3-17.local>
+Date:   Wed Feb 25 19:41:18 2015 -0500
+
+    Implemented inportb function; Timer frequency changed from 18 to 100; Keyboard handler now handles Shift and Control; TODO: Print time and last pressed key on the bottom right corner
+
+[33mcommit bbfa62dabe43cb7c0216dcdb3b83cff2b9774760[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Tue Feb 24 23:05:54 2015 -0500
+
+    Implemented outport function; Timer and Keyboard interrupts are triggering.. Need to implement the original functionality of timer and keyboard interrupts
+
+[33mcommit 875d1b87bada7534eadd540869733bad72b248bd[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Feb 23 21:49:28 2015 -0500
+
+    tested exceptions. works fine. no need to cli or sti. return from jmp using retq. return from function call using iretq.
+
+[33mcommit 4ad13fd7343dc113075355d1dc54b1c4889012bc[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Feb 23 19:56:13 2015 -0500
+
+    added code for isr0-31, needs testing
+
+[33mcommit cbb0b1f989ee16bdf6744335ee450c5f9fc96150[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Feb 23 02:53:00 2015 -0500
+
+    working on irt. implemented stack frame structure
+
+[33mcommit 0ca97540c0ecb3de39d26c5d19ab7aee94f4bf95[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sun Feb 22 22:15:16 2015 -0500
+
+    idt work in progress, writing ISRs for 0-31
+
+[33mcommit 7941d3166718702eb1f95362d0627d3b1625321f[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sun Feb 22 22:14:26 2015 -0500
+
+    added memset1, which acts at 1 byte granularity, to utility.h and utility.c
+
+[33mcommit b9f08f7cfdc31c49b252f114336af0139e2f354b[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sat Feb 21 03:31:53 2015 -0500
+
+    implemented kernel printf, which writes to the text console. Added %p format specifier to printf. Created utilities.c, has memset and memcpy. Added itoa64 bit version to printf kernel. Printf works. Console drive works. Clear screen, change color, scroll_down features present.
+
+[33mcommit f4a8a0362edbf849d65a94e4d4953a0017134314[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Fri Feb 20 19:36:08 2015 -0500
+
+    working on kernel printf, utilities
+
+[33mcommit 4296712b7c08f95ea2f001d4e23063a27974982a[m
+Merge: d3e8e01 2c4f846
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Thu Feb 19 22:54:19 2015 -0500
+
+    pulled W2 handout into master which was earlier merged with shell
+
+[33mcommit d3e8e01e8ad324822a619482a5bd04074fb10bac[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Thu Feb 19 22:42:09 2015 -0500
+
+    renamed README.txt to README
+
+[33mcommit 1d75715a0374ea52e4e3db13cd9bb90491b905bb[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Tue Feb 17 02:59:26 2015 -0500
+
+    shortened script.sh
+
+[33mcommit 76db75c0a15243d01be244b22533bd0d259bf1f7[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Tue Feb 17 02:42:24 2015 -0500
+
+    Modified LICENSE, README, MAKEFILE; Modified cmd_binary perror statement.
+
+[33mcommit e6547eca12336d480f313774462cfe01c2d66116[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Tue Feb 17 02:11:52 2015 -0500
+
+    Resolved a bug in set PATH, set PS1 commands. resolved by initializing sbushpath with \0 after mallocing.
+
+[33mcommit 51622f22be9935fec590e2cfe3617a16a725dc16[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Tue Feb 17 01:01:24 2015 -0500
+
+    ls.c
+
+[33mcommit 659b33bbf7a99913d392c4a8c9d652efabe5fc59[m
+Merge: e9e9223 b7bf854
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Tue Feb 17 00:41:02 2015 -0500
+
+    Merge branch 'shell' of bitbucket.org:karthikbox/os_s15 into shell
+
+[33mcommit e9e9223b86ee3209a92d014d9929638633e63dc3[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Tue Feb 17 00:40:02 2015 -0500
+
+    implemented ls. Updated README for ls
+
+[33mcommit b7bf85418df963f1b024b1d08c696023218ba2b0[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Tue Feb 17 00:35:52 2015 -0500
+
+    Resolved a bug in printf(), now supports for negative numbers as well. scanf() supports for negative numbers and %c
+
+[33mcommit 7860449e0788ca4fc1d2a3d7c378d5366e3be069[m
+Merge: cbacb52 d6dbc4b
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Mon Feb 16 22:43:14 2015 -0500
+
+    Merge branch 'shell' of ssh://bitbucket.org/karthikbox/os_s15 into shell
+
+[33mcommit cbacb52320c1c5600351d57c1e88357774a2ff55[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Mon Feb 16 22:43:07 2015 -0500
+
+    Scanf added for %d and %x and tested.
+
+[33mcommit d6dbc4bafe1f69fe6be2c180bdc992f628fe6767[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Feb 16 21:50:25 2015 -0500
+
+    added perror function. Added its definition in stdio.h. Changed all error printfs to perrors in shell.c
+
+[33mcommit ee77661d5db046bc4d58cf201f77a11674919341[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Feb 16 17:03:56 2015 -0500
+
+    changed execution order of binaries in cmd_binary function. first check if given input is filepath. if so it executes directly, otherwise its a filename. It looks up the filename in every path directory and executes it. updated README. tried script execution as ./script, cmd argument, interactively. interactively sbush. tried pipes
+
+[33mcommit fa40faa4302afa148210dab9542a8a59b70f7184[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Mon Feb 16 03:18:35 2015 -0500
+
+    scanf->EOF. printf->%c. shell.c->ignores #.ignores new lines. scripts, path, ps1, cd , pwd, binaries, pipes. TODO:scanf %c %d %x. error.h
+
+[33mcommit 2c4f846c4dbb274d424459f7a54164c7fa3ddd87[m
+Author: Andrew Guthrie <aguthrie@sbrocks.cewit.stonybrook.edu>
+Date:   Sun Feb 15 22:36:57 2015 -0500
+
+    Removed .gitkeep file, replaced with .empty file
+
+[33mcommit 22ebec1bf0acae6fe6d301c1d1d77fc3bd0e7805[m
+Author: Andrew Guthrie <aguthrie@sbrocks.cewit.stonybrook.edu>
+Date:   Sun Feb 15 22:16:30 2015 -0500
+
+    Adding Kernel/ folder to rootfs/boot
+
+[33mcommit d9f28c917e2a1802b2b18a6c6ffd9fb5d9d6c3fa[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Sun Feb 15 19:49:34 2015 -0500
+
+    fixed bug in execve,getcwd,waitpid
+
+[33mcommit 3c514f45cd6d8acaf9c68111338e41aa314022f2[m
+Merge: ebd51d2 33d906f
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Sun Feb 15 17:35:17 2015 -0500
+
+    Merge branch 'shell' of bitbucket.org:karthikbox/os_s15 into shell
+
+[33mcommit ebd51d21f2ae587849087752570c0d79f799a4b4[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Sun Feb 15 17:34:49 2015 -0500
+
+    merged libc and shell. Modified scanf call in shell.c. cd works. binaries not working
+
+[33mcommit 46f2f2e1cb22b7764f6df8fbeee93752baf43cac[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Sun Feb 15 11:44:18 2015 -0500
+
+    bug fix in scanf. testing of shell.c in progress
+
+[33mcommit 38768e03f340274c172c2742d06d2f50edf58743[m
+Merge: 7241450 e9a31b3
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Sun Feb 15 10:53:26 2015 -0500
+
+    merged libc into shell. Added close() to shell.c, so that it closes file descriptor of script file before exiting
+
+[33mcommit e9a31b33e21e51446413b62ea03584402cd5f552[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Sun Feb 15 10:41:28 2015 -0500
+
+    added a corner case: EOF, to scanf
+
+[33mcommit 4e3681558ababcc2c9eccceecd2d7a33641268a7[m
+Author: Andrew Guthrie <aguthrie@sbrocks.cewit.stonybrook.edu>
+Date:   Sat Feb 14 23:58:56 2015 -0500
+
+    Committing new changes mae by Prof
+
+[33mcommit 070110025145c34a529065ad2754c0d17f3db90c[m
+Author: Andrew Guthrie <aguthrie@sbrocks.cewit.stonybrook.edu>
+Date:   Sat Feb 14 23:41:36 2015 -0500
+
+    Warmup Project 2
+
+[33mcommit 263e697a2c1e4d6aff632707b78418336f16b741[m
+Merge: 1ec537d 37adc62
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sat Feb 14 11:33:38 2015 -0500
+
+    Merge branch 'master' of /home/stufs1/aguthrie/NewRepo/s15-w1 into libc
+
+[33mcommit 1ec537df481c4b5d85667b47c8dc6e926ee70f8d[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Sat Feb 14 11:20:18 2015 -0500
+
+    updated Makefile from andrew's repo. Hello.c has test cases for waitpid. It works. Removed previous harsha commit and it files.
+
+[33mcommit d1856322ae1c8c6756462cea4d72a9b27f517b65[m
+Merge: d5a8d78 95b5413
+Author: Harsha <harsha049@gmail.com>
+Date:   Fri Feb 13 22:13:42 2015 -0500
+
+    Merge branch 'libc' of bitbucket.org:karthikbox/os_s15 into libc
+
+[33mcommit d5a8d786f46dd2fe5b182b0c45a71c8b9d5d9988[m
+Author: Harsha <harsha049@gmail.com>
+Date:   Fri Feb 13 22:09:25 2015 -0500
+
+    sleep working
+
+[33mcommit 95b541354cfa634c69cd073bcab688534c89b85b[m
+Merge: 9f1df91 6670596
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Fri Feb 13 22:06:25 2015 -0500
+
+    Merge branch 'libc' of ssh://bitbucket.org/karthikbox/os_s15 into libc
+    
+    Conflicts:
+    	bin/hello/hello.c
+
+[33mcommit 9f1df91a02baf867a838cb4598b573c7b386f923[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Fri Feb 13 22:02:31 2015 -0500
+
+    Added scanf() and execve(); resolved bug in printf() TODO : execute needs to be tested
+
+[33mcommit 66705967f357f3336e14109c3efd7564ecb9bf3f[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Fri Feb 13 21:58:39 2015 -0500
+
+    test cases for opendir,readdir,closedir and malloc&free. Works. Checked with gdb.
+
+[33mcommit 10808886f0dc7981e862121853fc4ba2e58ae105[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Fri Feb 13 21:43:18 2015 -0500
+
+    implemented opendir, readdir, closedir. Tested. Works. Fixed bug in free()
+    
+    BUG FIX:
+    free gives segmentation fault when free'ing, if there is only one node in memory block linjed list. Fixed by checking, explicitly if it is the only block block and then setting tail and head to NULL.
+
+[33mcommit bb9fbcb35f7e99bb9a04bb73fa14c185331a4983[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Fri Feb 13 12:44:08 2015 -0500
+
+    cleaned up crt1.c
+    tested argc, argv, envp
+    checked pavans printf bug fix
+    test case for argc argv and envp added in hello.c
+
+[33mcommit 78955c0df17fe4f13db8ee23f63b0d54e3b82ae3[m
+Merge: ae0f81f 8f04515
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Fri Feb 13 03:07:10 2015 -0500
+
+    Merge branch 'libc' of ssh://bitbucket.org/karthikbox/os_s15 into libc
+
+[33mcommit ae0f81fdcd60f4b52afdbb7dbb6cbea65aa24c4e[m
+Author: Harsha <harsha049@gmail.com>
+Date:   Fri Feb 13 02:07:38 2015 -0500
+
+    Resolved issue with printf() with respect to the previous commit.
+
+[33mcommit 8f04515ffecec3a1202a575c9529e58281c8e2cd[m
+Author: Harsha <harsha049@gmail.com>
+Date:   Fri Feb 13 02:07:38 2015 -0500
+
+    argc,argv,envp implemented, needs testing,BUG in %s PRINTF: passed string also has %s, then getting segmentation fault
+
+[33mcommit 31a9cacb24a24c3974170961e01826c00164c7ce[m
+Author: Harsha <harsha049@gmail.com>
+Date:   Thu Feb 12 18:33:17 2015 -0500
+
+    crt1.c displays argv. TODO: put it into char* by address manipulations
+
+[33mcommit 4ccbce8b9c6ca2965b07b0e7775669496da150fe[m
+Author: Harsha <harsha049@gmail.com>
+Date:   Thu Feb 12 01:20:22 2015 -0500
+
+    commented printf inside while loop. need to verify if %s input is correct
+
+[33mcommit 086b03e015d573fcf5c0202ecca9a2d846e07f4a[m
+Author: Harsha <harsha049@gmail.com>
+Date:   Thu Feb 12 01:16:54 2015 -0500
+
+    crt1 file..issue with %s. need to check how to input it.
+
+[33mcommit 659ae1c89091fd153153521908f680a3643524ac[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Thu Feb 12 01:00:56 2015 -0500
+
+    implemented malloc and free. tested. works. TODO: NEED TO IMPLEMENT COALASCING FOR FREE
+
+[33mcommit 529808100404e724491d9552bb5c1e610ce2676f[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Wed Feb 11 17:40:43 2015 -0500
+
+    implemented malloc. Need to verify behavior
+
+[33mcommit 5ace21a01226ac6483822326a40eee80a1fd6ab8[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Wed Feb 11 01:36:48 2015 -0500
+
+    implemented brk and sbrk. printf working. Issue with printf showing wrong ouput. But prints correctly through debugger. fix this issue
+
+[33mcommit 70689d0edb9346f776842061414fd4ed245bf43d[m
+Merge: 5961f5c 586d7c1
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Tue Feb 10 23:20:16 2015 -0500
+
+    Merge branch 'libc' of bitbucket.org:karthikbox/os_s15 into libc
+
+[33mcommit 5961f5cedc3ef847d8af1c366571a31d9c9a2ef7[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Tue Feb 10 23:18:13 2015 -0500
+
+    added *.a to .gitignore
+
+[33mcommit 586d7c153b60ca2d31098200c2d09a5f4ada4c1f[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Tue Feb 10 09:11:02 2015 -0500
+
+    pipe, lseek, printf for %d, %x, %s working and tested with hello.c. Created README.txt to track the status of all the functions.
+
+[33mcommit 37adc621a5594f9f5ad76b6a091c253418633fe0[m
+Author: Andrew Guthrie <aguthrie@sbrocks.cewit.stonybrook.edu>
+Date:   Mon Feb 9 03:23:43 2015 -0500
+
+    Replaced Makefile due to submit not working
+
+[33mcommit 1433942782edeae90503cf6ce8b75137010ac0f3[m
+Merge: 9ef8546 3ad6de7
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Mon Feb 9 02:14:45 2015 -0500
+
+    Merge branch 'libc' of bitbucket.org:karthikbox/os_s15 into libc
+
+[33mcommit 9ef85467055d89ef13c8e53826db1864799cd9d2[m
+Merge: 7fad4f3 c2ac29f
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Mon Feb 9 02:14:38 2015 -0500
+
+    merge
+
+[33mcommit 3ad6de720cd239674c221d2a2668e079948c6046[m
+Merge: 74d27f9 c2ac29f
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Mon Feb 9 02:13:36 2015 -0500
+
+    Merge branch 'libc' of ssh://bitbucket.org/karthikbox/os_s15 into libc
+
+[33mcommit 74d27f97b5b952e4bb6a638f62f86d51c772df99[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Mon Feb 9 02:05:59 2015 -0500
+
+    Added syscall.h; fork(), exit(), write(), read(), close(), dup(), dup2(), printf(), open(), getpid(), getppid(), getcwd() functions working; Tested with hello.c.
+
+[33mcommit 7fad4f32a76999b5376cc217ed7a2e7078166759[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Mon Feb 9 02:08:07 2015 -0500
+
+    in progress
+
+[33mcommit c2ac29f50a484147b5b6989792de1729f4bd5ba6[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Mon Feb 9 02:05:59 2015 -0500
+
+    fork(), exit(), write(), read(), close(), dup(), dup2(), printf(), open(), getpid(), getppid(), getcwd() functions working. Tested with hello.c.
+
+[33mcommit 33d906f9eece79e18f0ca8d7ad07d261480e0fb5[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Mon Feb 9 01:53:55 2015 -0500
+
+    Please ignore this commit
+
+[33mcommit 9f9e142944cdd68da6692f39ed719c884633e34d[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Mon Feb 9 01:26:46 2015 -0500
+
+    libc has working exit and write. sleep and malloc in progress
+
+[33mcommit 7c6d3d3601922e41e350639101a71fb3ce3dd341[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Sun Feb 8 15:25:23 2015 -0500
+
+    malloc in progress
+
+[33mcommit da6e737896044507279f7f3d5af774454b99661a[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Sat Feb 7 16:03:10 2015 -0500
+
+    Removed lines which ignores the first character (#) for an interpreter script.
+
+[33mcommit 7241450377de99953ac278be70dc689e12a10595[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Fri Feb 6 00:00:26 2015 -0500
+
+    adjusted TOKEN_SIZE = 2000
+
+[33mcommit 8f96731b4d279e382338c72b7099cfdf0de90713[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Thu Feb 5 23:59:27 2015 -0500
+
+    fixed token size bug for long path strings
+
+[33mcommit 4303848a4f8d67bddcb83a2da5fbb17196a1d1e0[m
+Merge: 89643e7 ea9b0e8
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Thu Feb 5 22:09:04 2015 -0500
+
+    Merge branch 'master' of /home/stufs1/aguthrie/NewRepo/s15-w1
+
+[33mcommit ea9b0e81d3e1b5ea668b0b67fdeb5f22032f4cf4[m
+Author: Andrew Guthrie <aguthrie@sbrocks.cewit.stonybrook.edu>
+Date:   Wed Feb 4 18:49:13 2015 -0500
+
+    Re-commiting to make sure all files are present
+
+[33mcommit c3577eb31c2bc0f2449c15bfd6b83a39db2bc450[m
+Author: Andrew Guthrie <aguthrie@sbrocks.cewit.stonybrook.edu>
+Date:   Wed Feb 4 12:45:37 2015 -0500
+
+    Warm-up Project 1 Part 2
+
+[33mcommit 1c02e3a94cf8d85df71f27c62d05eb5ed397a321[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Wed Feb 4 01:29:43 2015 -0500
+
+    Added trim function which removes leading and trailing spaces of a string; Modified README.txt
+
+[33mcommit b9a310b385dff2e448c6450757f882803725519f[m
+Merge: 717fa9d 27a40a0
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Tue Feb 3 01:30:43 2015 -0500
+
+    Upadated README.txt
+
+[33mcommit 717fa9dba695b35fbab0130b0dad46d32280f57c[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Tue Feb 3 01:25:57 2015 -0500
+
+    Pipe functionality integrated and works fine; Tested script and binary executions
+
+[33mcommit 27a40a0e7d3195333a0856e1d2336d252cf8c569[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Tue Feb 3 01:19:08 2015 -0500
+
+    modified README file
+
+[33mcommit af5a5d3eab7f2d4d69cab0a7050ddb2cdafe729d[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Mon Feb 2 03:52:14 2015 -0500
+
+    Added README.txt to describe the functionalities
+
+[33mcommit fbf225440082dadf1e8190a4d6a79772388e01f9[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Mon Feb 2 03:41:45 2015 -0500
+
+    Added functionality for setting the PATH and PS1 variables
+
+[33mcommit 0f12bda6a4b31ad9fed970dd054c8fa5c028a299[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Mon Feb 2 02:49:21 2015 -0500
+
+    beautifying and book-keeping
+
+[33mcommit b543e033d3860be3487ac15331f846d674551055[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Mon Feb 2 02:38:35 2015 -0500
+
+    bookkeeping
+
+[33mcommit e90a4f3ca4ad3775bda6aeb2ed69146fe4162da5[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Mon Feb 2 02:32:39 2015 -0500
+
+    implemented script execution, NEED TO FIX HARDCODED SBUSH SHELL BINARY PATH
+    USE AS: sbush <filepath>
+    forks a child , executes sbush shell commands in the filepath and exits, no changes made to the parent
+    works with binary execution too
+    isScript - first token has to be sbush, path of sbush binary hardcoded as ./rootfs/bin/sbush which ma cause errors
+    
+    fixed double free run time error, which maybe because of copy on write
+
+[33mcommit 88016633dd88fa821d18631096a3b9d05535fe7f[m
+Merge: 9a07850 1ffd4e7
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Sun Feb 1 22:53:23 2015 -0500
+
+    cmd_binary works, first tries with the path user gave, if it doesnt succeds will try other folders in the PATH variable
+
+[33mcommit 9a0785023ad4b777d5c5965ee3b301bb2a689057[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Sun Feb 1 21:32:42 2015 -0500
+
+    cmd_binary - in work
+
+[33mcommit 1ffd4e79bbb2565ef6d2fc2c4fb1df3e444d7bea[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Sun Feb 1 21:31:11 2015 -0500
+
+    strcat() functionality added
+
+[33mcommit 247ab93e7effb79932416a0c172e3aa9cc42ebf0[m
+Author: Andrew Guthrie <aguthrie@sbrocks.cewit.stonybrook.edu>
+Date:   Sun Feb 1 20:29:16 2015 -0500
+
+    Added patch from Mike
+
+[33mcommit 27b42900bff4d73bcf0b69e99718c7fcedd1d9d1[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Sun Feb 1 16:34:32 2015 -0500
+
+    getPath integrated, compiles successfully, cd works, exit works, execve of absolute and relative filepaths works, child termination fixed
+
+[33mcommit 1739485dca8ea18fa0d44ba30f66048106caec12[m
+Merge: d9a34c8 c035c6d
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Sun Feb 1 15:17:26 2015 -0500
+
+    merged - added getPath
+
+[33mcommit c035c6d266965ba8538800f0be28e1a37abd069c[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Sun Feb 1 03:31:10 2015 -0500
+
+    added getpath() function
+
+[33mcommit fc8103b9cbf22a505815756ce9505abfccd2df8f[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Sun Feb 1 02:33:44 2015 -0500
+
+    test1
+
+[33mcommit d9a34c87647447b00999548990f8cf8aeda75905[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Sun Feb 1 02:12:18 2015 -0500
+
+    binary dev
+
+[33mcommit 5bdae2c2cf7c0d54c343c34716164206f6ff5a07[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Sun Feb 1 02:10:25 2015 -0500
+
+    test
+
+[33mcommit 93e11dec9ff1f0084b621bf361b3deec47684d25[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Sat Jan 31 21:42:40 2015 -0500
+
+    free token array - memory leak fix
+
+[33mcommit 76592baedad55722f3d40ac2d86f14b3c669c22b[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Sat Jan 31 21:34:20 2015 -0500
+
+    cd works
+
+[33mcommit 2c84b1bcc075b6ca0b190f205cd7e2ab95cf9464[m
+Author: Pavan Mvsh <pavan@Pavans-MacBook-Pro.local>
+Date:   Sat Jan 31 20:29:12 2015 -0500
+
+    strtoken implemented
+
+[33mcommit 1cb207db36f7ae76130c30b8166c31593f14da5b[m
+Author: karthik reddy acer <karthik.gakkidi@gmail.com>
+Date:   Sat Jan 31 17:13:32 2015 -0500
+
+    strcmp implemented
+
+[33mcommit aa37ca566f08c08b8602ca4706218c5039d5170e[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sat Jan 31 14:45:28 2015 -0500
+
+    modified shell.c
+
+[33mcommit 89643e7acab0199d06b04144f28c6a11b7bf7799[m
+Merge: 5f488a4 9c79eb1
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sat Jan 31 13:11:17 2015 -0500
+
+    Merge branch 'master' of /home/stufs1/aguthrie/NewRepo/s15-w1
+
+[33mcommit 5f488a4fd11d5606718e604faa6331c5086c8a3e[m
+Author: Karthik Reddy <kgreddy@cs.stonybrook.edu>
+Date:   Sat Jan 31 12:31:01 2015 -0500
+
+    first commit, added shell.c
+
+[33mcommit 9c79eb18c6855f7064f00a99ae1a4aef6cb0fd28[m
+Author: Andrew Guthrie <aguthrie@sbrocks.cewit.stonybrook.edu>
+Date:   Sat Jan 31 11:26:40 2015 -0500
+
+    Added dup() and dup2() to stdlib
+
+[33mcommit 08cc02a24703c72a48ea21c87491e4aa0b687f66[m
+Author: Andrew Guthrie <aguthrie@sbrocks.cewit.stonybrook.edu>
+Date:   Fri Jan 30 16:16:18 2015 -0500
+
+    Creating CSE506 Spring 15 Repo

@@ -101,6 +101,8 @@ void do_fork(){
 	p->parent=proc;
 	/* give child the same name as parent */
 	strcpy(p->name,proc->name);
+	/* give child same working dir as parent */
+	strcpy(p->cwd,proc->cwd);
 	/* return pid of child to parent */
 	proc->tf->rax=p->pid;
 	/* set state of child to runnable */
@@ -181,6 +183,14 @@ void do_exit(int status, struct proc *p){
 	/* update waitpid Q */
 	update_waitpid_queue(p);
 
+	/* if current process is present in stdin Q, and we decide to kill process */
+	/* then dequeu proc from stdin Q first */
+	/* this use case will mostly occur during page fault in do_copy */
+	if(_stdin->proc == p){
+		/* p is enqued in stdin Q */
+		/* dequue from stdin Q */
+		_stdin->proc=NULL;
+	}
 	/* free pcb */
 	free_pcb(p);
 	
@@ -244,7 +254,7 @@ void do_waitpid(pid_t pid, int* status, int options){
 }
 
 void do_read(int fd, void* buf, size_t count){
-	printf("proc -> %d -> read syscall\n",proc->pid);
+	/* printf("proc -> %d -> read syscall\n",proc->pid); */
 	if(proc->ofile[fd]==NULL){
 		proc->tf->rax=-1;		/* no local file decriptor */
 		return ;
@@ -252,11 +262,11 @@ void do_read(int fd, void* buf, size_t count){
 	/* add check if buf is in any of VMA's */
 	if(proc->ofile[fd]->type==FD_STDIN){
 		/* check if foreground proc flag is set */
-		if(fgproc==proc){
-			if(_stdin->proc!=NULL){
-				printf("_stdin Q is not free, someother process in it which is not fgproc\n");
-				while(1);
-			}
+		if(_stdin->proc==NULL){
+			/* if(_stdin->proc!=NULL){ */
+			/* 	printf("_stdin Q is not free, someother process in it which is not fgproc\n"); */
+			/* 	while(1); */
+			/* } */
 			/* add it to stdin Q */
 			_stdin->proc=proc;
 			_stdin->count=count;
@@ -274,10 +284,11 @@ void do_read(int fd, void* buf, size_t count){
 			}
 			/* deque the proc from the stdin Q*/
 			_stdin->proc=NULL;
-
+			
 		}
 		else{
 			/* If Set Kill This Process */
+			/* there is someother proc using stdin  */
 			printf("Proc -> %d Not Foreground Proc. Killing It\n",proc->pid);
 			do_exit(0,proc);
 		}
@@ -369,4 +380,66 @@ void do_close(int fd){
 
 	/* store the return value */
 	proc->tf->rax=0;
+}
+
+int do_dup(int old_fd){
+	if( (old_fd < 0) || (old_fd >= NOFILE))
+		return -1;
+	
+	/* allocate new local fd and make it point to old fd's file struct */
+	int fd;
+	if((fd=fdalloc(proc->ofile[old_fd])) ==-1){
+		return -1;				/* no available local fd */
+	}
+	filedup(proc->ofile[old_fd]); /* increment ref count file struct  */
+	return fd;
+}
+
+int do_dup2(int old_fd, int new_fd){
+
+	if( (old_fd < 0) || (old_fd >= NOFILE))
+		return -1;
+
+	if( (new_fd < 0) || (new_fd >= NOFILE))
+		return -1;
+
+
+	/* check if new fd is pointing to some file struct */
+	if(proc->ofile[new_fd]!=NULL){
+		/* unlink new_fd from this file struct */
+		fileclose(proc->ofile[new_fd]);;
+		proc->ofile[new_fd]=NULL;
+	}
+	/* new fd is empty */
+	/* make new_fd point to old_fd struct */
+	proc->ofile[new_fd]=proc->ofile[old_fd];
+	filedup(proc->ofile[new_fd]); /* increment ref count file struct  */
+	return new_fd;
+}
+
+int valid_addr(uint64_t addr){
+	return 1;
+}
+
+char *do_getcwd(char *buf,size_t size){
+	/* check if buf is a valid addr */
+	/* if it falls in any of the proc's vmas */
+	if(valid_addr((uint64_t)buf)==0){
+		/* not a valid addr */
+		/* kill proc?? */
+		do_exit(0,proc);
+		return NULL;			/* will never return NULL */		
+	}
+	else{
+		/* valid ptr */
+		if((strlen(proc->cwd)+1) > size ){
+			/* cwd doesnt fit in buf */
+			return NULL;
+		}		   
+		else{
+			/* cwd fits in user buf */
+			strcpy(buf,proc->cwd);
+			return buf;
+		}
+	}
 }
