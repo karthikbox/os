@@ -472,3 +472,60 @@ int do_chdir(const char *path){
 	kfree(kpath);
 	return 0;
 }
+
+int do_open(char *buf, uint64_t flags){
+	uint64_t *tarfs_file;
+	/* copy path to kernel memory */
+	char *kpath = (char*)kmalloc(NCHARS*sizeof(char));
+	strcpy(kpath, (char *)buf);	
+	char type;
+	int lfd;
+	if(flags & O_DIRECTORY){
+		/* is directory */
+		type=DIRTYPE;
+	}
+	/* lookup the path */
+	/* get the absolute path  */
+	if(get_absolute_path(kpath) == NULL){
+		kfree(kpath);
+		return -1;
+	}
+
+	/* if it is not root directory */
+	if(strcmp(kpath, "")){
+		/* check if the path is valid or not */
+		tarfs_file = tarfs_get_file(kpath,type);
+		/* change proc->cwd, if path is valid */
+		if(tarfs_file == NULL){
+			kfree(kpath);
+			return -1;
+		}
+	}
+
+	else{
+		/* if it is a root dir */
+		/* points to first tarfs entry */
+		tarfs_file=(uint64_t *)&_binary_tarfs_start;
+	}
+	
+	/* create global file structures */
+	struct file *fd;
+	/* alloc local fd to point global file struct */
+	if((fd=filealloc())<0){
+		kfree(kpath);
+		return -1;
+	}
+	/* initialise global file struct */
+	fd->type=FD_DIR;
+	fd->readable=1;
+	fd->writable=0;
+	fd->offset=0;
+	fd->addr=(uint64_t *)tarfs_file;
+	/* return local fd */
+	if((lfd=fdalloc(fd)<0)){
+		kfree(kpath);
+		fileclose(fd);
+		return -1;
+	}
+	return lfd;
+}

@@ -123,11 +123,13 @@ struct pipe{
 /* FILE */
 
 struct file{
-	enum{FD_NONE,FD_PIPE,FD_INODE,FD_STDIN,FD_STDOUT,FD_STDERR} type; /* type of file */
+	enum{FD_NONE,FD_PIPE,FD_INODE,FD_STDIN,FD_STDOUT,FD_STDERR,FD_DIR} type; /* type of file */
 	int ref;					/* refernce count */
 	char readable;				/* file is readable?? */
 	char writable;				/* file is writable?? */
+	uint64_t *addr;				/* pointer to the first byte of content, directory->first directory tarfs hdr, file, exec->first content byte */
 	struct pipe *pipe;			/* pointer to pipe struct */
+	uint64_t offset; 			/* stores the offset */
 };
 struct file * filealloc();
 int pipealloc(struct file **f0,struct file **f1);

@@ -8,7 +8,7 @@
 #define STDERR 2
 
 void printf(const char *fmt, ...);
-
+enum { O_RDONLY = 0, O_WRONLY = 1, O_RDWR = 2, O_CREAT = 0x40, O_DIRECTORY = 0x10000 };
 /* declarations for console driver */
 /* defined in /sys/printf.c */
 void putchars(const char *str);
