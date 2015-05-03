@@ -47,7 +47,7 @@ void handle_pf(uint64_t error){
 					   : "=r"(pf_va)
 					   :
 					   );
-	printf("proc -> %d -> page fault -> err is %d->pf_va is %p\n",proc->pid,(int)error,pf_va);
+	//printf("proc -> %d -> page fault -> err is %d->pf_va is %p\n",proc->pid,(int)error,pf_va);
 	if (err_code==7){
 		/* if 111 */
 		/* illegal write on existing pages */

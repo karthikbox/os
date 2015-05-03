@@ -453,13 +453,16 @@ int do_chdir(const char *path){
 	strcpy(kpath, (char *)path);
 	/* get the absolute path  */
 	if(get_absolute_path(kpath) == NULL){
+		kfree(kpath);
 		return -1;
 	}
+	/* if it is not root directory */
 	if(strcmp(kpath, "")){
 		/* check if the path is valid or not */
 		tarfs_file = tarfs_get_file(kpath,DIRTYPE);
 		/* change proc->cwd, if path is valid */
 		if(tarfs_file == NULL){
+			kfree(kpath);
 			return -1;
 		}
 	}

@@ -64,7 +64,7 @@ uint64_t * get_absolute_path(char *path){
 	int token_len;
 	int i,j,len,flag;
 	i=j=len=flag=0;
-	printf("initial path is %s\n",path);
+
 	/* return 1 on success, 0 on failure */
 	/* check if it is absolute or not */
 	/* if absolute remove the first slash */
@@ -132,7 +132,6 @@ uint64_t * get_absolute_path(char *path){
 	/* terminate the string */
 	absolute_path[len]='\0';
 	strcpy(path, absolute_path);
-	printf("final path is %s\n",path);
 	free_array(tokens,token_len);
 	return (uint64_t*)path;
 }

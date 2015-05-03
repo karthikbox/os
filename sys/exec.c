@@ -21,7 +21,19 @@ int exec(char *path,char **argv,char **envp){
 	Elf64_Ehdr *elf;
 	Elf64_Phdr *ph;
 	pml4 *pml4_t,*old_pml4_t;
-	elf=(Elf64_Ehdr *)tarfs_get_file(path,REGTYPE);
+
+	/* copy path to kernel memory */
+	char *kpath = (char*)kmalloc(NCHARS*sizeof(char));
+	strcpy(kpath, (char *)path);
+
+	if(get_absolute_path(kpath) == NULL){
+		kfree(kpath);
+		return -1;
+	}
+	/* files don't have trailing slash */
+	kpath[strlen(kpath)-1]='\0';
+	elf=(Elf64_Ehdr *)tarfs_get_file(kpath,REGTYPE);
+	kfree(kpath);
 	/* if elf is null, then no file exists with that name */
 	if(elf==NULL)
 		return -1;

@@ -2,8 +2,9 @@
 #include <stdlib.h>
 
 int main(int argc, char* argv[], char* envp[]) {
-	printf("test exec successful\n");
-	perror("test after sleep\n");
+	char str[100];
+	printf("test exec1 successful\n");
+	scanf("%s", str);
+	printf("%s\n",str);
 	return 0;
 }
-
