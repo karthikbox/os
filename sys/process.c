@@ -183,7 +183,7 @@ void userinit(){
 	init_stdin_queue();
 
 	/* initialize inodes */
-	/* init_inodes(); */
+	init_inodes();
 	/* printf writes to <1MB mem region. Now user page tables are loaded. We cannot access <1MB since we did not map that region into user process < 1MB VM aread */
 	/* printf("calling scheduler\n"); */
 	scheduler();
@@ -768,23 +768,53 @@ void wakeup1(void *chan){
 }
 
 
+
+struct inode *head=NULL;
+
+
+
+int link_alloc(struct inode *p){
+	/* returns first available position in link array */
+	/* >=0 on success */
+	/* -1 on failure */
+	int i=0;
+	for(i=0;i<NLINKS;i++){
+		if(p->link[i]==NULL){
+			/* empty */
+			return i;
+		}
+	}
+	return -1;
+}
+
+
 void init_inodes(){
 	/* scan throught the tarfs */
 	struct posix_header_ustar *p= (struct posix_header_ustar *)&_binary_tarfs_start;
 	struct posix_header_ustar *p_e= (struct posix_header_ustar *)&_binary_tarfs_end;
 	while(p<p_e && !(strlen(p->name)==0)){
 		/* printf("cur name->%s, lookup name->%s, cur location->%p\n",p->name,name,p); */
-		printf("cur name->%s, is of type->%c, size is %x\n",p->name,*p->typeflag,round_up(oct_to_dec(p->size),512));
+		printf("cur name->%s, is of type->%c, size is %x, addr ->%p\n",p->name,*p->typeflag,round_up(oct_to_dec(p->size),512),p);
 		/* add all directories */
-
-
+		if(head==NULL){
+		    /* create an entry for root */
+		    head=(struct inode *)kmalloc(sizeof(struct inode));
+			/* clear the contents of links */
+			memset1((char *)head->link,0,sizeof(struct inode *)*NLINKS);
+		    strcpy(head->name,"/");
+		}
+		int li;
+		if((li=link_alloc(head)) < 0){
+			printf("maximum number of directory entries(50) exceeded\n");
+			for(;;)
+				;
+		}	   
 		/* goto next file header by adding size of header and header->size */
 		/* header->size should be rounded up next 512 multiple */
 		//printf("%s->%u",oct_to_dec("00000 0000 0000"))
 		p=(struct posix_header_ustar *)((char *)p+sizeof(struct posix_header_ustar ) + round_up(oct_to_dec(p->size),512));
 	}
-	for(;;)
-		;
 	
 	
 }
+

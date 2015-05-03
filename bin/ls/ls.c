@@ -26,6 +26,8 @@ void print_dir(char *dir){
     perror("opendir failed\n");
     exit(1);
   }
+  if((uint64_t)dirp==1)
+	  return;
   struct dirent *ptr;
   while((ptr=readdir(dirp))){
     printf("%s\n",ptr->d_name);

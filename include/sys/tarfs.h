@@ -9,6 +9,17 @@
 #define DIRTYPE '5'
 
 
+#define NAME_MAX 255
+struct dirent
+{
+	long d_ino;
+	uint64_t d_off;
+	unsigned short d_reclen;
+	char d_name [NAME_MAX+1];
+};
+#define DIR_BUF_SIZE  1024
+
+
 /* tarfs */
 
 extern char _binary_tarfs_start;

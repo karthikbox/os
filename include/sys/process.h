@@ -13,7 +13,7 @@
 #define MAXARG 32				/* max exec arguments */
 #define NFILE 100				/* maximum files open in entire system */
 #define NCHARS 100				/* maximum inode childrene */
-
+#define NLINKS 30
 #define USTACK 0xfffffeff70000000ul /* maps to 509 entry of pml4, can be anything as long as not 511 entry */
 #define STACK_THRESH 0x10000
 
@@ -130,6 +130,7 @@ struct file{
 	uint64_t *addr;				/* pointer to the first byte of content, directory->first directory tarfs hdr, file, exec->first content byte */
 	struct pipe *pipe;			/* pointer to pipe struct */
 	uint64_t offset; 			/* stores the offset */
+	char inode_name[NCHARS];	/* name of directory or file */
 };
 struct file * filealloc();
 int pipealloc(struct file **f0,struct file **f1);
@@ -139,6 +140,9 @@ int piperead(struct pipe *p, char *addr, size_t n);
 int fdalloc(struct file *f);
 void fileclose(struct file *f);
 struct file * filedup(struct file *f);
+
+int add_root(struct file *fd,int mustBeEmpty,char *buf,size_t len);
+int add_non_root(struct file *fd,char *buf,size_t len);
 /* stdin */
 
 struct proc *fgproc;
@@ -182,6 +186,12 @@ struct proc{
 
 void swtch(struct context **cpu,struct context *new );
 
+
+/* inode */
+struct inode{
+    char name[NCHARS];
+	struct inode *link[NLINKS];
+};
 
 
 /* VMA */

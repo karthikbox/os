@@ -34,9 +34,8 @@ void *opendir(const char *name){
     }
     else if(dirp->nreads==0){
 	//no entries in directory
-	perror("end of dirents for in opendir\n");
 	free(dirp);
-	return NULL;
+	return (void *)1;
     }
     //initialize buffer position to start of the buffer
     dirp->bpos=0;

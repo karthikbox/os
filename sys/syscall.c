@@ -521,19 +521,141 @@ int do_open(char *buf, uint64_t flags){
 	fd->writable=0;
 	fd->offset=0;
 	fd->addr=(uint64_t *)tarfs_file;
+	memset1((char *)fd->inode_name,0,sizeof(char)*NCHARS);
+	strcpy(fd->inode_name,kpath);
 	/* return local fd */
-	if((lfd=fdalloc(fd)<0)){
+	if((lfd=fdalloc(fd))<0){
 		kfree(kpath);
 		fileclose(fd);
 		return -1;
 	}
+	kfree(kpath);
 	return lfd;
 }
 
 int do_getdents(int fd, char* buf, size_t len){
 
 	/* sanity check */
-	if(fd<0 || fd>=NOFILE || proc->ofile[fd]==NULL || proc->ofile[fd]->type!=FD_DIR || valid_addr((uint64_t *)buf)==0 ){
+	if(fd<0 || fd>=NOFILE || proc->ofile[fd]==NULL || proc->ofile[fd]->type!=FD_DIR || !valid_addr((uint64_t)buf) ){
 		return -1;
 	}
+	int mustBeEmpty=0;
+	int nreads=0;
+	if(strcmp(proc->ofile[fd]->inode_name,"")==0){
+		/* root directory */
+		mustBeEmpty=1;
+		nreads=add_root(proc->ofile[fd],mustBeEmpty,buf,len);
+	}
+	else{
+		/* non root directory */
+		nreads=add_non_root(proc->ofile[fd],buf,len);
+	}
+	return nreads;
 }
+
+
+int add_root(struct file *fd,int mustBeEmpty,char *buf,size_t len){
+	char **tokens;	
+	int token_len;
+	uint64_t *p_e= (uint64_t *)&_binary_tarfs_end;
+	int nreads=0;
+	struct posix_header_ustar *p;
+	struct dirent *dirent;
+	while((((char *)fd->addr+fd->offset) < (char *)p_e)){
+		p=(struct posix_header_ustar *)((char *)fd->addr+fd->offset);
+		if(strlen(p->name)==0)
+			break;
+		printf("%p\n",(fd->offset+(char *)fd->addr));
+		/* tokenize the string in addr+offset , tarfs header */
+		tokens=strtoken(p->name,"/",&token_len );
+		/* if tk_len =2, and if tk[1]="" , since root directory*/
+		if((token_len == mustBeEmpty) && (tokens[mustBeEmpty]==NULL)){
+			/* root dir entry */
+			/* form linux struct */
+			/* check if new entry fits in buf */
+			if((buf+nreads) + sizeof(struct dirent) < (buf+len)){
+				/* space available for new dentry */
+
+				/* initialize dirent  */
+				dirent=(struct dirent *)(buf+nreads);
+				dirent->d_ino=999; /* dummy */
+				dirent->d_reclen=sizeof(struct dirent);
+				dirent->d_off=sizeof(struct dirent);
+				strcpy(dirent->d_name,tokens[mustBeEmpty-1]);
+				nreads+=sizeof(struct dirent);
+				
+			}
+			else{
+				/* no space for dirent */
+				/*  return, free before return  */
+				free_array(tokens,token_len);
+				return nreads;
+			}
+		}
+		fd->offset+=(sizeof(struct posix_header_ustar)+round_up(oct_to_dec(p->size),512));
+		free_array(tokens,token_len);
+	}
+	return nreads;
+	
+
+}
+
+int add_non_root(struct file *fd,char *buf,size_t len){
+	char **tokens;	
+	int token_len;
+	uint64_t *p_e= (uint64_t *)&_binary_tarfs_end;
+	int nreads=0;
+	struct posix_header_ustar *p;
+	struct dirent *dirent;
+	while((((char *)fd->addr+fd->offset) < (char *)p_e)){
+		p=(struct posix_header_ustar *)((char *)fd->addr+fd->offset);
+		if(strlen(p->name)==0)
+			break;
+		printf("%p\n",(fd->offset+(char *)fd->addr));
+		/* tokenize the string in addr+offset , tarfs header */
+		tokens=strtoken(p->name,"/",&token_len );
+		/* if tk_len =2, and if tk[1]="" , since root directory*/
+
+		if((token_len >= 2) && (tokens[0]!=NULL) && (tokens[1]!=NULL)){
+			strcat(tokens[0],"/");
+			if((strcmp(tokens[0],fd->inode_name)==0)){
+				/* root dir entry */
+				/* form linux struct */
+				/* check if new entry fits in buf */
+				if((buf+nreads) + sizeof(struct dirent) < (buf+len)){
+					/* space available for new dentry */
+					
+					/* initialize dirent  */
+					dirent=(struct dirent *)(buf+nreads);
+					dirent->d_ino=999; /* dummy */
+					dirent->d_reclen=sizeof(struct dirent);
+					dirent->d_off=sizeof(struct dirent);
+					strcpy(dirent->d_name,tokens[1]);
+					nreads+=sizeof(struct dirent);
+					
+				}
+				else{
+					/* no space for dirent */
+					/*  return, free before return  */
+					free_array(tokens,token_len);
+					return nreads;
+				}
+			}
+		}
+		fd->offset+=(sizeof(struct posix_header_ustar)+round_up(oct_to_dec(p->size),512));
+		free_array(tokens,token_len);
+	}
+	return nreads;
+	
+
+}
+
+
+			/* while(p<p_e && !(strlen(p->name)==0)){ */
+			/* 	printf("cur name->%s, is of type->%c, size is %x\n",p->name,*p->typeflag,round_up(oct_to_dec(p->size),512)); */
+			/* 	/\* add all directories *\/ */
+			/* 	/\* goto next file header by adding size of header and header->size *\/ */
+			/* 	/\* header->size should be rounded up next 512 multiple *\/ */
+			/* 	//printf("%s->%u",oct_to_dec("00000 0000 0000")) */
+			/* 	p=(struct posix_header_ustar *)((char *)p+sizeof(struct posix_header_ustar ) + round_up(oct_to_dec(p->size),512)); */
+			/* } */
