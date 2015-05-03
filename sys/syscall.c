@@ -612,7 +612,7 @@ int add_non_root(struct file *fd,char *buf,size_t len){
 		p=(struct posix_header_ustar *)((char *)fd->addr+fd->offset);
 		if(strlen(p->name)==0)
 			break;
-		printf("%p\n",(fd->offset+(char *)fd->addr));
+
 		/* tokenize the string in addr+offset , tarfs header */
 		tokens=strtoken(p->name,"/",&token_len );
 		/* if tk_len =2, and if tk[1]="" , since root directory*/
