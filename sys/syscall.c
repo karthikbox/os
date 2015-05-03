@@ -529,3 +529,11 @@ int do_open(char *buf, uint64_t flags){
 	}
 	return lfd;
 }
+
+int do_getdents(int fd, char* buf, size_t len){
+
+	/* sanity check */
+	if(fd<0 || fd>=NOFILE || proc->ofile[fd]==NULL || proc->ofile[fd]->type!=FD_DIR || valid_addr((uint64_t *)buf)==0 ){
+		return -1;
+	}
+}
