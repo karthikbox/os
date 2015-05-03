@@ -602,6 +602,7 @@ int add_root(struct file *fd,int mustBeEmpty,char *buf,size_t len){
 
 int add_non_root(struct file *fd,char *buf,size_t len){
 	char **tokens;	
+	char *prev=NULL;
 	int token_len;
 	uint64_t *p_e= (uint64_t *)&_binary_tarfs_end;
 	int nreads=0;
@@ -618,7 +619,8 @@ int add_non_root(struct file *fd,char *buf,size_t len){
 
 		if((token_len >= 2) && (tokens[0]!=NULL) && (tokens[1]!=NULL)){
 			strcat(tokens[0],"/");
-			if((strcmp(tokens[0],fd->inode_name)==0)){
+			printf("Before the prev condition\n");
+			if((strcmp(tokens[0],fd->inode_name)==0) && (strcmp(tokens[1],prev)!=0)){
 				/* root dir entry */
 				/* form linux struct */
 				/* check if new entry fits in buf */
@@ -632,7 +634,7 @@ int add_non_root(struct file *fd,char *buf,size_t len){
 					dirent->d_off=sizeof(struct dirent);
 					strcpy(dirent->d_name,tokens[1]);
 					nreads+=sizeof(struct dirent);
-					
+					prev=tokens[1];
 				}
 				else{
 					/* no space for dirent */

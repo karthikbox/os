@@ -54,6 +54,9 @@ unsigned char inportb (unsigned short _port)
 
 int strcmp(const char *s1,const char * s2) {
     int i=0;
+	if(s1==NULL || s2==NULL){
+		return -1;
+	}
     for(i=0; s1[i]==s2[i]; i++) {
         if(s1[i]=='\0')
             return 0;
