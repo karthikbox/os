@@ -24,6 +24,7 @@ pid_t waitpid(pid_t pid, int *status, int options);
 unsigned int sleep(unsigned int seconds);
 unsigned int alarm(unsigned int seconds);
 void yield();
+void ps();
 // paths
 char *getcwd(char *buf, size_t size);
 int chdir(const char *path);

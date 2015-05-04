@@ -47,3 +47,7 @@ unsigned int sleep(unsigned int seconds){
 void yield(){
 	syscall_0(SYS_yield);
 }
+
+void ps(){
+	syscall_0(SYS_ps);
+}

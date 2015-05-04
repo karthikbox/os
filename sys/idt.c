@@ -389,6 +389,9 @@ void isr_handler(struct stack_frame *s){
 		else if(s->rax==SYS_getdents){
 			s->rax=do_getdents((int)s->rdi, (char *)s->rsi, (size_t)s->rdx);
 		}
+		else if(s->rax==SYS_ps){
+			do_ps();
+		}
 		else{
 			printf("incorrect syscall number\nproc pid->%d\n",proc->pid);
 		}

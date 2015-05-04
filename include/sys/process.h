@@ -270,4 +270,7 @@ void dequeue_waitpid(struct waitpid_entry *p);
 void cli();
 void sti();
 void ltr(uint16_t v);
+
+void do_ps();
+
 #endif

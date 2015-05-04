@@ -818,3 +818,12 @@ void init_inodes(){
 	
 }
 
+void do_ps(){
+	struct proc *p;
+	printf("PID    CMD\n");
+	for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+		if(p->state!=UNUSED){
+			printf("%d      %s\n",p->pid, p->name);
+		}
+	}
+}

@@ -619,7 +619,6 @@ int add_non_root(struct file *fd,char *buf,size_t len){
 
 		if((token_len >= 2) && (tokens[0]!=NULL) && (tokens[1]!=NULL)){
 			strcat(tokens[0],"/");
-			printf("Before the prev condition\n");
 			if((strcmp(tokens[0],fd->inode_name)==0) && (strcmp(tokens[1],prev)!=0)){
 				/* root dir entry */
 				/* form linux struct */
@@ -648,8 +647,6 @@ int add_non_root(struct file *fd,char *buf,size_t len){
 		free_array(tokens,token_len);
 	}
 	return nreads;
-	
-
 }
 
 
@@ -661,3 +658,4 @@ int add_non_root(struct file *fd,char *buf,size_t len){
 			/* 	//printf("%s->%u",oct_to_dec("00000 0000 0000")) */
 			/* 	p=(struct posix_header_ustar *)((char *)p+sizeof(struct posix_header_ustar ) + round_up(oct_to_dec(p->size),512)); */
 			/* } */
+
