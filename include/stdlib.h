@@ -6,6 +6,8 @@
 extern __thread int errno;
 
 void exit(int status);
+void atoi(char *numberString, int *number, int base);
+void itoa(int number, char *str, int base);
 
 // memory
 typedef uint64_t size_t;
@@ -25,6 +27,7 @@ unsigned int sleep(unsigned int seconds);
 unsigned int alarm(unsigned int seconds);
 void yield();
 void ps();
+int kill(int pid);
 // paths
 char *getcwd(char *buf, size_t size);
 int chdir(const char *path);

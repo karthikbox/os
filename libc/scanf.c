@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-void atoi(char *numberString, int *number, int base);
-
 int scanf(const char *format, ...) {
 
 	char buf[1];

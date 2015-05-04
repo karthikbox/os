@@ -51,3 +51,7 @@ void yield(){
 void ps(){
 	syscall_0(SYS_ps);
 }
+
+int kill(int pid){
+	return syscall_1(SYS_kill, pid);
+}

@@ -26,6 +26,7 @@ struct proc;
 #define SYS_getdents   78
 #define SYS_yield      24
 #define SYS_ps         58
+#define SYS_kill       62
 
 #define T_SYSCALL 128
 

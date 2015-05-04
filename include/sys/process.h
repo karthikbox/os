@@ -272,5 +272,5 @@ void sti();
 void ltr(uint16_t v);
 
 void do_ps();
-
+int do_kill(int pid);
 #endif

@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-void itoa(int number, char *str, int base);
 void printarg(char *str,int fd);
 
 int printf(const char *format, ...) {

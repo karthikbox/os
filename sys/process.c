@@ -827,3 +827,15 @@ void do_ps(){
 		}
 	}
 }
+
+int do_kill(int pid){
+	/* return 0 on success, -1 on failure */
+	struct proc *p;
+	for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+		if(p->pid==pid && p->state!=UNUSED){
+			/* exit the process */
+			do_exit(0,p);
+		}
+	}
+	return -1;
+}
