@@ -5,12 +5,12 @@
 #include<sys/pmmgr.h>
 #include<sys/tarfs.h>
 #include<sys/memory.h>
-
+#include<errno.h>
 uint64_t round_down(uint64_t addr,int n);
 void clear_gpr(struct trapframe *s);
 
 int exec(char *path,char **argv,char **envp){
-
+	/* path, argv,envp address range checking done in syscall.c */
 	/* path is being used below */
 	//char *s,*last;
 	uint64_t i;
@@ -21,14 +21,17 @@ int exec(char *path,char **argv,char **envp){
 	Elf64_Ehdr *elf;
 	Elf64_Phdr *ph;
 	pml4 *pml4_t,*old_pml4_t;
-
 	/* copy path to kernel memory */
 	char *kpath = (char*)kmalloc(NCHARS*sizeof(char));
+	if(kpath==NULL){
+		return -ENOMEM;			/* NO KERNEL MEMORY */
+	}
+		
 	strcpy(kpath, (char *)path);
 
 	if(get_absolute_path(kpath) == NULL){
 		kfree(kpath);
-		return -1;
+		return -ENAMETOOLONG;
 	}
 	/* files don't have trailing slash */
 	kpath[strlen(kpath)-1]='\0';
@@ -36,13 +39,15 @@ int exec(char *path,char **argv,char **envp){
 	kfree(kpath);
 	/* if elf is null, then no file exists with that name */
 	if(elf==NULL)
-		return -1;
+		return -ENOENT;			/* NO FILE FOUND */
+	/* if not  elf header or not #! */
+	/* return ENOEXEC */
 	/* assume it's ELF header */
 	/* allocate  page table*/
 	pml4_t = load_kern_vm();
 	if(!pml4_t){
 		printf("no space for pml4\n");
-		return -1;
+		return -ENOMEM;				/* NO KERN MEMORY */
 	}
 	sz=0;
 	struct vma *head=NULL;
@@ -58,7 +63,7 @@ int exec(char *path,char **argv,char **envp){
 				free_uvm(pml4_t);
 			}
 			free_vma_list(&head); /* free new vma */
-			return -1;
+			return -ENOEXEC;	  /* BAD FORMAT */
 		}
 		/* get the elf flags for this segment */
 		/* ignore elf's read,execute flags cuz no meaning in page tables */
@@ -76,7 +81,7 @@ int exec(char *path,char **argv,char **envp){
 				free_uvm(pml4_t);				
 			}
 			free_vma_list(&head); /* free new vma */
-			return -1;
+			return -ENOMEM;			  /* NO KERN MEMORY */
 		}
 		sz+=ph->p_memsz;
 		/* copy bytes from [p_offset,p_offset+p_filesz] to [p_vaddr,p_vaddr+p_filesz] */
@@ -99,7 +104,7 @@ int exec(char *path,char **argv,char **envp){
 				free_uvm(pml4_t);				
 			}
 			free_vma_list(&head); /* free new vma */
-			return -1;
+			return -ENOMEM;		  /* NO KERN MEMORY */
 		}
 			
 		/* initialze vma.start to p_vaddr virtual addr */
@@ -125,7 +130,7 @@ int exec(char *path,char **argv,char **envp){
 			free_uvm(pml4_t);				
 		}
 		free_vma_list(&head); /* free new vma */
-		return -1;
+		return -ENOMEM;		  /* NO KERN MEMORY */
 	}
 	sz+=FRAME_SIZE;
 
@@ -141,7 +146,7 @@ int exec(char *path,char **argv,char **envp){
 			free_uvm(pml4_t);				
 		}
 		free_vma_list(&head); /* free new vma */
-		return -1;
+		return -ENOMEM;		  /* NO KERN MEMORY */
 	}
 	/* initiaize */
 	/* vma.start= USTACK-0x1000 */
@@ -164,7 +169,7 @@ int exec(char *path,char **argv,char **envp){
 			free_uvm(pml4_t);				
 		}
 		free_vma_list(&head); /* free new vma */
-		return -1;
+		return -ENOMEM;
 	}
 	/* initializee */
 	/* initially heap has no memory. so vma.start and end point to same address */
@@ -186,7 +191,7 @@ int exec(char *path,char **argv,char **envp){
 				free_uvm(pml4_t);
 			}
 			free_vma_list(&head); /* free new vma */
-			return -1;
+			return -E2BIG;
 		}
 		sp=round_down(sp-(strlen(argv[argc])+1),8); /* round down to 8 byte boundary */
 		load_base(get_phys_addr((uint64_t)pml4_t)); /* loaded process page tables */
@@ -206,7 +211,7 @@ int exec(char *path,char **argv,char **envp){
 				free_uvm(pml4_t);
 			}
 			free_vma_list(&head); /* free new vma */
-			return -1;
+			return -E2BIG;
 		}
 		sp=round_down(sp-(strlen(envp[envp_c])+1),8); /* round down to 8 byte boundary */
 		load_base(get_phys_addr((uint64_t)pml4_t)); /* loaded process page tables */

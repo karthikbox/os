@@ -222,6 +222,9 @@ void userinit();
 struct proc * alloc_proc();
 void forkret();
 
+int valid_addr(uint64_t addr);
+int valid_addr_range(uint64_t addr, uint64_t size);
+
 pml4 *load_kern_vm();
 void scheduler();
 void sched();

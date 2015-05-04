@@ -1,6 +1,13 @@
 NOTES
 ######
 >>>>>>
+kernel page faults on COW pages
+set cr0 some bit
+execve #! and elf magic number check
+execve envp and argvp lenghts
+return errno.h  values
+
+>>>>>>
 pml4_base initially holds physical addr of kernel pml4 table, i.e 0x100000
 this is okay during setting up kernel page tables
 

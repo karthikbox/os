@@ -37,6 +37,32 @@ uint64_t getErrorCode(uint64_t error);
 /* 1  1  0 - User process tried to write to a non-present page entry */
 /* 1  1  1 - User process tried to write a page and caused a protection faultUS RW  P - Description */
 
+int valid_addr(uint64_t addr){
+	/* return 1, if valid addr */
+	/* return 0, if not valid addr */
+	/* valid addr is if within user address space and thats it */
+	/* check if above kernel base */
+	if(addr >= KERNBASE){
+		return 0;
+	}
+	return 1;
+}
+
+int valid_addr_range(uint64_t addr, uint64_t size){
+	/* check if the range is whithin user address space */
+	/* return 1, if valid addr */
+	/* return 0, if not valid addr */
+
+	if(valid_addr(addr)==0){
+		/* not within user va */
+		return 0;
+	}
+	if(valid_addr(addr+size - 1)==0){
+		return 0;
+	}
+	return 1;
+}
+
 
 void handle_pf(uint64_t error){
 	/* DONT FORGET TO FLUSH TLB */
@@ -193,8 +219,6 @@ void handle_pf(uint64_t error){
 		/* segmentaion fault */
 		printf("segmentation fault\n");		
 		/* kill proc  */
-		for(;;)
-			;
 		return;
 	}	
 	printf("unable to match any error in page fault handler\n");
