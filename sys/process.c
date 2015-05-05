@@ -139,17 +139,7 @@ void userinit(){
 	ltr(0x2Bu);
 
 	/* set WP bit in cr0 */
-	/* get cro register */
-	uint64_t res=0;
-	__asm__ __volatile__("movq %%cr0,%0;"
-						 :"=r"(res)
-						 );
-	
-	/* update cr0 register with 16th bit set */
-	__asm__ __volatile__("movq %0,%%cr0;"
-						 :
-						 :"r"(res | (1ul<<16) )
-						 );
+	set_wp_bit();
 
 
 	/* clear ftable */
@@ -854,4 +844,34 @@ int do_kill(int pid){
 		}
 	}
 	return -1;
+}
+
+void set_wp_bit(){
+	/* get cro register */
+	uint64_t res=0;
+	__asm__ __volatile__("movq %%cr0,%0;"
+						 :"=r"(res)
+						 );
+	
+	/* update cr0 register with 16th bit set */
+	__asm__ __volatile__("movq %0,%%cr0;"
+						 :
+						 :"r"(res | (1ul<<16) )
+						 );
+	
+}
+
+void clear_wp_bit(){
+	/* get cro register */
+	uint64_t res=0;
+	__asm__ __volatile__("movq %%cr0,%0;"
+						 :"=r"(res)
+						 );
+	
+	/* update cr0 register with 16th bit cleared */
+	__asm__ __volatile__("movq %0,%%cr0;"
+						 :
+						 :"r"(res & ~(1ul<<16) )
+						 );
+	
 }

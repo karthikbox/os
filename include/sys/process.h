@@ -232,7 +232,8 @@ void switchuvm(struct proc *p);
 void wakeup1(void *chan);
 void wakeup(void *chan);
 void sleep(void *chan);
-
+void set_wp_bit();
+void clear_wp_bit();
 
 /* VMA related */
 void free_vma_list(struct vma **p);

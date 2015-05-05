@@ -89,13 +89,17 @@ int exec(char *path,char **argv,char **envp){
 		load_base(get_phys_addr((uint64_t)pml4_t)); /* loaded process page tables */
 		/* proc page tables already have kernel pagte tables mapped */
 		/* do mempcy(des,src,sizse) */
+		/* disable wp bit of kernel */
+		/* so that we can copy contents to rad only regions */
+		clear_wp_bit();
 		memcpy((void *)ph->p_vaddr,(void *)(ph->p_offset+(char *)elf),ph->p_filesz);
 		/* if filesz < memsz, then remainder is alreadey cleared(0) during inituvm's allocation of pages. */
-
+		
 		/* load pml4 base of kernel page table */
 		/* pml4_base is a physical address of 0x100000 */
 		load_base((uint64_t)pml4_base); 
-
+		/* enable wp bit pf kernel, needed got kernel COW */
+		set_wp_bit();
 		/* vma inits */
 		/* create a vma for this program section */
 		struct vma *vma_temp=(struct vma *)kmalloc(sizeof(struct vma));
