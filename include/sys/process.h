@@ -123,7 +123,7 @@ struct pipe{
 /* FILE */
 
 struct file{
-	enum{FD_NONE,FD_PIPE,FD_INODE,FD_STDIN,FD_STDOUT,FD_STDERR,FD_DIR} type; /* type of file */
+	enum{FD_NONE,FD_PIPE,FD_INODE,FD_STDIN,FD_STDOUT,FD_STDERR,FD_DIR,FD_FILE} type; /* type of file */
 	int ref;					/* refernce count */
 	char readable;				/* file is readable?? */
 	char writable;				/* file is writable?? */

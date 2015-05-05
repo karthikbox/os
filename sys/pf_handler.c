@@ -83,6 +83,7 @@ void handle_pf(uint64_t error){
 		if(pf_va >= KERNBASE){
 			printf("segmentation fault\n");
 			/* kill proc */
+			do_exit(0,proc);
 			return ;
 		}
 
@@ -108,6 +109,8 @@ void handle_pf(uint64_t error){
 				if(new_frame==NULL){
 					printf("unable to allocate memory during COW\n");
 					/* kill proc, what should kernel do? */
+					printf("out of memory.Killing current proc\n");
+					do_exit(0,proc);
 					return ;
 				}
 				/* copy the contents of the old frame into new frame */			
@@ -144,6 +147,7 @@ void handle_pf(uint64_t error){
 			/* if, cow is not set,writing to READ ONLY section */
 			/* segmentation fault */
 			printf("segmentation fault\n");
+			do_exit(0,proc);
 			/* kill current proc */
 		}
 		return ;
@@ -156,6 +160,7 @@ void handle_pf(uint64_t error){
 		
 		printf("segmentation fault\n");
 		/* kill current proc */
+		do_exit(0,proc);
 		return;
 	}
 	else if( (err_code == 6) || (err_code == 4) || (err_code == 2) || (err_code == 0)){
@@ -195,8 +200,9 @@ void handle_pf(uint64_t error){
 					/* get a new frame and give it to this virt addr */
 					/* with perms PT_USER|PT_WRITABLE */
 					if(allocuvm(proc->pml4_t,pf_va,1,PT_WRITABLE|PT_USER)==0){
-						printf("out of memory...unable to sticth in page for this va..\n");
+						printf("out of memory\n");
 						/* kill process ?? */
+						do_exit(0,proc);
 					}
 					return;
 				}
@@ -209,8 +215,9 @@ void handle_pf(uint64_t error){
 					/* then allocate frame for stack, increase(lower) stack vma.start  */
 					/* give permissions as PT_USER|PT_WRITBALE to page */
 					if(allocuvm(proc->pml4_t,pf_va,1,PT_WRITABLE|PT_USER)==0){
-						printf("out of memory...unable to esticth in page for this va..\n");
+						printf("out of memory\n");
 						/* kill process ?? */
+						do_exit(0,proc);
 					}
 					/* extend heap vma by one page downwards*/
 					p->start -= STACK_THRESH; /* DO */
@@ -219,8 +226,9 @@ void handle_pf(uint64_t error){
 				if((pf_va < p->end) && (pf_va >= p->start)){
 					/* USE CASE */
 					if(allocuvm(proc->pml4_t,pf_va,1,PT_WRITABLE|PT_USER)==0){
-						printf("out of memory...unable to esticth in page for this va..\n");
+						printf("out of memory\n");
 						/* kill process ?? */
+						do_exit(0,proc);
 					}
 					return ;
 				}
@@ -231,6 +239,7 @@ void handle_pf(uint64_t error){
 		/* segmentaion fault */
 		printf("segmentation fault\n");		
 		/* kill proc  */
+		do_exit(0,proc);
 		return;
 	}	
 	printf("PANIC!!!. RESTART\n");
