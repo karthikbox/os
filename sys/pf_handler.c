@@ -26,16 +26,16 @@ uint64_t getErrorCode(uint64_t error);
 /* Bit 2 (U/S) is the User/Supervisor flag. */
 
 /* US RW  P - Description */
-/* 0  0  0 - Supervisory process tried to read a non-present page entry */
-/* 0  0  1 - Supervisory process tried to read a page and caused a protection fault */
-/* 0  1  0 - Supervisory process tried to write to a non-present page entry */
-/* 0  1  1 - Supervisory process tried to write a page and caused a protection fault */
+/* 0  0  0 - Supervisory process tried to read a non-present page entry              0 ->DEMAND PAGING*/
+/* 0  0  1 - Supervisory process tried to read a page and caused a protection fault  1 ->PANIC */
+/* 0  1  0 - Supervisory process tried to write to a non-present page entry          2 ->DEMAND PAGING */
+/* 0  1  1 - Supervisory process tried to write a page and caused a protection fault 3 ->COW */
 
 
-/* 1  0  0 - User process tried to read a non-present page entry */
-/* 1  0  1 - User process tried to read a page and caused a protection fault */
-/* 1  1  0 - User process tried to write to a non-present page entry */
-/* 1  1  1 - User process tried to write a page and caused a protection faultUS RW  P - Description */
+/* 1  0  0 - User process tried to read a non-present page entry                     4->DEMAND PAGING */
+/* 1  0  1 - User process tried to read a page and caused a protection fault         5->KILL PROC  */
+/* 1  1  0 - User process tried to write to a non-present page entry                 6->DEMAND PAGING      */
+/* 1  1  1 - User process tried to write a page and caused a protection fault        7->COW */
 
 int valid_addr(uint64_t addr){
 	/* return 1, if valid addr */
@@ -73,12 +73,13 @@ void handle_pf(uint64_t error){
 					   : "=r"(pf_va)
 					   :
 					   );
-	//printf("proc -> %d -> page fault -> err is %d->pf_va is %p\n",proc->pid,(int)error,pf_va);
-	if (err_code==7){
+	printf("proc -> %d -> page fault -> err is %d->pf_va is %p\n",proc->pid,(int)error,pf_va);
+	if ( (err_code==7) || (err_code==3)){
 		/* if 111 */
 		/* illegal write on existing pages */
 
-		/* ILLEGAL ACCES ON KERNEL VA SPACE*/
+		/* if 011 */
+		/* kernel writing to read only pages */
 		if(pf_va >= KERNBASE){
 			printf("segmentation fault\n");
 			/* kill proc */
@@ -157,7 +158,7 @@ void handle_pf(uint64_t error){
 		/* kill current proc */
 		return;
 	}
-	else if( (err_code == 6) || (err_code == 4) || (err_code == 2) ){
+	else if( (err_code == 6) || (err_code == 4) || (err_code == 2) || (err_code == 0)){
 		/* if 110 */
 		/* this could be, user writing heap or stack. */
 		/* This could be a valid(in heap or near stack vma) or invalid(not in heap and not near stack vma ) */
@@ -170,6 +171,17 @@ void handle_pf(uint64_t error){
 		/* if valid, then allocate page frame */
 		/* if invalid, segmentation fault */
 		/* flush TLB */
+
+		/* if 010 */
+		/* this could because, kernel tried to write to non prosent page */
+		/* demand pageing if the va is in any valid vma */
+		/* if not kill proc */
+
+		/* if 000 */
+		/* this could be because kernel tried to read a non present page */
+		/* arises due to read on an allocated but mallocd address */
+		/* stitch page into address and redo if valid addr */
+		/* if invalid, then kill proc */
 		load_base(get_phys_addr((uint64_t)proc->pml4_t));		
 		struct vma *p=proc->vma_head;
 		while(p!=NULL){
@@ -221,7 +233,7 @@ void handle_pf(uint64_t error){
 		/* kill proc  */
 		return;
 	}	
-	printf("unable to match any error in page fault handler\n");
+	printf("PANIC!!!. RESTART\n");
 	while(1);
 }
 

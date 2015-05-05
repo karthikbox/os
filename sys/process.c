@@ -131,11 +131,27 @@ void userinit(){
 	envp[5]="envp5";
 	envp[6]=NULL;
 	cli();
+
 	exec("bin/hello",argv,envp);
 	//p->tf->cs=(SEG_);
 	/* ltr(0x2Bu); */
 	/* ltr 0x2B   with RPL of 3 for user??? */
 	ltr(0x2Bu);
+
+	/* set WP bit in cr0 */
+	/* get cro register */
+	uint64_t res=0;
+	__asm__ __volatile__("movq %%cr0,%0;"
+						 :"=r"(res)
+						 );
+	
+	/* update cr0 register with 16th bit set */
+	__asm__ __volatile__("movq %0,%%cr0;"
+						 :
+						 :"r"(res | (1ul<<16) )
+						 );
+
+
 	/* clear ftable */
 	memset1((char *)ftable.file,0,sizeof(struct file)*NFILE);
 	/* clear file descriptor table of proc,i.e initproc */
