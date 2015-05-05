@@ -29,3 +29,4 @@ void* alloc_addr(size_t size);
 void* new_page_mgr_alloc(size_t size);
 void* init_page(p_fmgr node,size_t size);
 void* add_mgr_node(p_fmgr node, size_t size);
+void kmallocTest();

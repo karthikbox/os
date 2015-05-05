@@ -205,3 +205,21 @@ void kfree(void* addr)
 		temp = temp->next;
 	}
 }
+
+void kmallocTest(){
+	p_fmgr temp;
+	int used=0, free=0, total=0;
+	temp=pfmgr_head;
+
+	while(temp!=NULL){
+		if(temp->free==1){
+			free++;
+		}
+		else if(temp->free==0){
+			used++;
+		}
+		total++;
+		temp=temp->next;
+	}
+	printf("Total: %d, used: %d, free: %d\n",total, used, free);
+}

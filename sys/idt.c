@@ -395,6 +395,9 @@ void isr_handler(struct stack_frame *s){
 		else if(s->rax==SYS_kill){
 			s->rax=do_kill((int)s->rdi);
 		}
+		else if(s->rax==SYS_ktest){
+			kmallocTest();
+		}
 		else{
 			printf("incorrect syscall number\nproc pid->%d\n",proc->pid);
 		}

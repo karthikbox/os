@@ -4,6 +4,9 @@
 #include <sys/syscall.h>
 
 
+void mallocTest(){
+	syscall_0(SYS_ktest);
+}
 int brk(void *end_data_segment){
     void * ret = (void *) syscall_1(SYS_brk,(uint64_t)end_data_segment);
     if((uint64_t)ret==(uint64_t)end_data_segment){
