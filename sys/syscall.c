@@ -418,9 +418,6 @@ int do_dup2(int old_fd, int new_fd){
 	return new_fd;
 }
 
-int valid_addr(uint64_t addr){
-	return 1;
-}
 
 char *do_getcwd(char *buf,size_t size){
 	/* check if buf is a valid addr */

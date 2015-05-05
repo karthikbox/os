@@ -1,6 +1,15 @@
 NOTES
 ######
 >>>>>>
+kernel page faults on COW pages-DONE
+set cr0 some bit-DONE
+execve #! and elf magic number check
+read file 
+execve envp and argvp lenghts
+return errno.h  values-DONE
+problem in kfree->kfree leads to 0 errcode page fault
+preemptive time slice is 1/20 sec-DONE
+>>>>>>
 pml4_base initially holds physical addr of kernel pml4 table, i.e 0x100000
 this is okay during setting up kernel page tables
 

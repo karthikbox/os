@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <sys/syscall.h>
 #include <syscall.h>
+#include<errno.h>
 
 pid_t fork(void) {
 	return  (pid_t) syscall_0(SYS_fork);
@@ -19,8 +20,12 @@ pid_t getppid(void) {
 int execve(const char *filename, char *const argv[], char *const envp[]) {
   
   int ret= (int) syscall_3(SYS_execve, (uint64_t) filename, (uint64_t) argv, (uint64_t) envp);
-  if(ret < 0)
-    return -1;
+  if(ret < 0){
+	  /* error */
+	  errno=-ret;
+	  return -1;
+  }
+  /* else 0 was returned, which is success */
   return 0;
 }
 

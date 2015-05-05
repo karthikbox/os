@@ -3,6 +3,7 @@
 #include<sys/syscall.h>
 #include<sys/process.h>
 #include<sys/memory.h>
+#include<errno.h>
 /* definition of idt entry */
 int exec(char *filename,char **kargv,char **kenvp);
 struct idt_entry{
@@ -306,21 +307,60 @@ void isr_handler(struct stack_frame *s){
 			char **envp=(char **)s->rdx;
 			int argc=0;
 			int envc=0;
-
+			
 			while(argv[argc]){
+				/* check valid addr */
+				if( (valid_addr((uint64_t)(argv[argc])) == 0) ||  ( valid_addr_range((uint64_t)(argv[argc]),strlen(argv[argc])+1) ==0) ){
+					s->rax=-EFAULT;
+					return;
+				}
+				
 				argc++;
 			}
 			argc++;
+			if(argc >= MAXARG ){
+				s->rax=-E2BIG;
+				return ;	/* MORE THAN MAX NUMBER OF ARGUMENTS */
+			}
 			while(envp[envc]){
+				if( (valid_addr((uint64_t)(envp[envc])) == 0) ||  ( valid_addr_range((uint64_t)(envp[envc]),strlen(envp[envc])+1) ==0) ){
+					s->rax=-EFAULT;
+					return ;
+				}
 				envc++;
 			}
 			envc++;
+			if(envc >= MAXARG ){
+				s->rax=-E2BIG;
+				return ;	/* MORE THAN MAX NUMBER OF ARGUMENTS */
+			}
+			if(valid_addr((uint64_t)filename)==0){
+				/* not a valid address */		
+				s->rax=-EFAULT;
+				return;
+			}
+			if(valid_addr_range((uint64_t)filename,strlen(filename)+1)==0){
+				/* not a valid range */
+				s->rax=-EFAULT;
+				return ;
+			}
+
 
 			char *kfilename=(char *)kmalloc(sizeof(char)*(strlen(filename)+1));
+			if(kfilename==NULL){
+				s->rax=-ENOMEM;	/* NO KERNEL MEMORY */
+				return ;
+			}
 			strcpy(kfilename,filename);
 
 			char **kargv=(char **)kmalloc(argc*sizeof(char *));
 			char **kenvp=(char **)kmalloc(envc*sizeof(char*));
+			if( (kargv==NULL) || (kenvp==NULL) ){
+				s->rax=-ENOMEM;	/* NO KERNEL MEMORY */
+				kfree(kfilename);
+				return ;
+			}
+
 			/* clear kargv and kenvp */
 			memset1((char *)kargv,0,8*argc);
 			memset1((char *)kenvp,0,8*envc);
