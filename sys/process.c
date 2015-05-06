@@ -839,8 +839,11 @@ int do_kill(int pid){
 	struct proc *p;
 	for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
 		if(p->pid==pid && p->state!=UNUSED){
+			/* make the current process RUNNABLE */
+			proc->state=RUNNABLE;
 			/* exit the process */
 			do_exit(0,p);
+			return 0;
 		}
 	}
 	return -1;
