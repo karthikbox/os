@@ -32,7 +32,7 @@ void timer_handler(){
 	}
 	if((time_slice % 20)==0 ){
 		time_slice=0;
-		do_yield();
+		//do_yield();
 	}
 }
 

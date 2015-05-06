@@ -7,7 +7,7 @@
 #include<sys/syscall.h>
 
 #define KERNBASE 0xffffffff80000000ul
-#define NPROC 64				/* maximum number of processes */
+#define NPROC 30000				/* maximum number of processes */
 #define KSTACKSIZE 4096			/* size of per-process kernel stack */
 #define NOFILE 16				/* open files per process */
 #define MAXARG 32				/* max exec arguments */

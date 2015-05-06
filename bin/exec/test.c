@@ -5,16 +5,22 @@ void foo();
 
 int main(int argc, char* argv[], char* envp[]) {
 	/* foo(); */
-	for(int i=0;i<1000;i++){
+	for(int i=0;i<4000;i++){
 		int pid=fork();
 		if(pid>0){
-			;
+			printf("%d\n",i);
+			mallocTest();
 		}
 		else if(pid==0){
+			/* return ; */
+			/* while(1); */
 			return 0;
 		}
 		else{
 			printf("fork failed\n");
+			printf("%d\n",i);
+			mallocTest();
+
 		}
 	}
 	return 0;
