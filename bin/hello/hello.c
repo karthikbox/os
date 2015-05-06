@@ -17,14 +17,21 @@ int main(int argc, char* argv[], char* envp[]) {
 	new_argv[1]=NULL;
 	int b=fork();
 	if(b>0){
+		/* char a[1000]; */
+		/* scanf("%s",a); */
+		/* printf("%s\n",a); */
 		while(1){
-			yield();
+			/* printf("proc 1->%s\n",a); */
+			;
 		}
 	}
 	else if(b==0){
 		int ret=execve("bin/exec",new_argv,envp);
 		if(ret==-1)
 			printf("exec failed\n");
+		/* while(1){ */
+		/* 	printf("proc 2\n"); */
+		/* } */
 	}
 	else{
 		printf("fork failed\n");

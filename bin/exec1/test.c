@@ -2,9 +2,10 @@
 #include <stdlib.h>
 
 int main(int argc, char* argv[], char* envp[]) {
-	char str[100];
-	printf("test exec1 successful\n");
-	scanf("%s", str);
-	printf("%s\n",str);
+	int n;
+	/* printf("test exec1 successful\n"); */
+	scanf("%d", &n);
+	n++;
+	printf("%d\n",n);
 	return 0;
 }

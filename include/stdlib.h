@@ -3,7 +3,7 @@
 
 #include <sys/defs.h>
 
-extern __thread int errno;
+int errno;
 
 void exit(int status);
 void atoi(char *numberString, int *number, int base);

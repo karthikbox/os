@@ -180,7 +180,7 @@ void cmd_binary(char** tokens,int token_len,char *envp[]) {
 
       if(is_path(tokens[0])){
 	if(execve(tokens[0],tokens,envp)==-1){
-	  perror("unable to execute %s\n",tokens[0]);
+		perror("unable to execute %s->errno->%d\n",tokens[0],errno);
 	  exit(1);
 	}
       }

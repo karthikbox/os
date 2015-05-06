@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include <stdlib.h>
+
 void foo();
 int main(int argc, char* argv[], char* envp[]) {
 	int status=0;
@@ -32,10 +33,7 @@ int main(int argc, char* argv[], char* envp[]) {
 	}
 	while(1)
 		yield();
-	return 0;
 }
-
 void foo(){
-	mallocTest();
 	foo();
 }

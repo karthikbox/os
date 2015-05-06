@@ -4,12 +4,14 @@
 #define BUFF_SIZE 20
 
 int timer_ticks = 0;
+int time_slice=0;
 int hh = 0, mm = 0, ss = 0;
 
 void timer_handler(){
 
 /*TODO:	Implement RTC afer everything is done*/
 	timer_ticks++;
+	time_slice++;
 	if((timer_ticks % 100) == 0){
 		timer_ticks = 0;
 		//		printf("One second passed\n");
@@ -27,6 +29,10 @@ void timer_handler(){
 		
 		print_time(hh,mm,ss);
 		update_sleep_queue();
+	}
+	if((time_slice % 20)==0 ){
+		time_slice=0;
+		do_yield();
 	}
 }
 

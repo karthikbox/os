@@ -131,11 +131,17 @@ void userinit(){
 	envp[5]="envp5";
 	envp[6]=NULL;
 	cli();
+
 	exec("bin/hello",argv,envp);
 	//p->tf->cs=(SEG_);
 	/* ltr(0x2Bu); */
 	/* ltr 0x2B   with RPL of 3 for user??? */
 	ltr(0x2Bu);
+
+	/* set WP bit in cr0 */
+	set_wp_bit();
+
+
 	/* clear ftable */
 	memset1((char *)ftable.file,0,sizeof(struct file)*NFILE);
 	/* clear file descriptor table of proc,i.e initproc */
@@ -518,6 +524,11 @@ void update_waitpid_queue(struct proc *p){
 				t->parent_proc->state=RUNNABLE;
 			}
 		}
+		else if(t->parent_proc->pid==p->pid){
+			
+			/* remove from waitpid Q */
+				dequeue_waitpid(t);
+		}
 	}
 }
 
@@ -833,9 +844,42 @@ int do_kill(int pid){
 	struct proc *p;
 	for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
 		if(p->pid==pid && p->state!=UNUSED){
+			/* make the current process RUNNABLE */
+			proc->state=RUNNABLE;
 			/* exit the process */
 			do_exit(0,p);
+			return 0;
 		}
 	}
 	return -1;
+}
+
+void set_wp_bit(){
+	/* get cro register */
+	uint64_t res=0;
+	__asm__ __volatile__("movq %%cr0,%0;"
+						 :"=r"(res)
+						 );
+	
+	/* update cr0 register with 16th bit set */
+	__asm__ __volatile__("movq %0,%%cr0;"
+						 :
+						 :"r"(res | (1ul<<16) )
+						 );
+	
+}
+
+void clear_wp_bit(){
+	/* get cro register */
+	uint64_t res=0;
+	__asm__ __volatile__("movq %%cr0,%0;"
+						 :"=r"(res)
+						 );
+	
+	/* update cr0 register with 16th bit cleared */
+	__asm__ __volatile__("movq %0,%%cr0;"
+						 :
+						 :"r"(res & ~(1ul<<16) )
+						 );
+	
 }
