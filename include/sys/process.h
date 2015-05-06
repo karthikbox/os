@@ -108,7 +108,7 @@ struct trapframe{
 };
 
 /* PIPE */
-#define PIPESIZE 1024
+#define PIPESIZE 0x1000
 
 struct pipe{
 	char data[PIPESIZE];

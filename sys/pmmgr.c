@@ -17,12 +17,16 @@ void mem_map_set(uint64_t bit){
 	memory_map[bit/64] |=(1ul<<(bit%64));
 }
 
-void mem_map_clear(uint64_t bit){
+int mem_map_clear(uint64_t bit){
 	if(mem_map_test(bit) == 0){
 		/* if already clear */
 		printf("already clear\n");
+		/* if it was already clear, return 0 */
+		return 0;
 	}
 	memory_map[bit/64] &= ~(1ul<<(bit%64));
+	/* if it was previously set, return 1 */
+	return 1;
 }
 
 int mem_map_test(uint64_t bit){
@@ -133,9 +137,17 @@ void free_frame(void *a){
 	/* a is phys addr */
 	uint64_t addr=(uint64_t)a;
 	uint64_t bit = addr/FRAME_SIZE;
+	if(bit > (memory_size_in_frames + 2) ){
+		printf("kfree issued on a non existent physical frame\n");
+		return ;
+	}
+		
 	if(a){
-		mem_map_clear(bit);
-		memory_used_frames--;
+		if(mem_map_clear(bit)==1){
+			/* if it was previously set and now it is clear */
+			memory_used_frames--;
+		}
+		/* if it was preciously clear, then dont decr count */
 	}	
 
 }

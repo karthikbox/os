@@ -31,7 +31,7 @@ uint64_t* memory_map;
 //set bitmap
 void mem_map_set(uint64_t bit);
 
-void mem_map_clear(uint64_t bit);
+int mem_map_clear(uint64_t bit);
 
 
 int mem_map_test(uint64_t bit);

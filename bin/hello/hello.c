@@ -22,7 +22,6 @@ int main(int argc, char* argv[], char* envp[]) {
 		/* printf("%s\n",a); */
 		while(1){
 			/* printf("proc 1->%s\n",a); */
-			yield();
 			;
 		}
 	}
