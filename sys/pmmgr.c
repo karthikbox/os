@@ -18,6 +18,10 @@ void mem_map_set(uint64_t bit){
 }
 
 void mem_map_clear(uint64_t bit){
+	if(mem_map_test(bit) == 0){
+		/* if already clear */
+		printf("already clear\n");
+	}
 	memory_map[bit/64] &= ~(1ul<<(bit%64));
 }
 
@@ -140,12 +144,12 @@ int init_ref_map(struct ref_map *p){
 	/* return 0 on failure, 1 on success */
 	/* allocate 1 byte for every frame */
 	/* number of frames is get_memory_frame_count */
-	p->entries=(char *)kmalloc(get_memory_frame_count()*sizeof(char));
+	p->entries=(int *)kmalloc(get_memory_frame_count()*sizeof(int));
 	if(!p->entries){
 		return 0;
 	}
 	/* set all ref counts to 0 */
-	memset1((char *)p->entries,0,get_memory_frame_count()*sizeof(char));	
+	memset1((char *)p->entries,0,get_memory_frame_count()*sizeof(int));	
 	/* set ref_count,global var as p->entries */
 	ref_count=p->entries;
 	return 1;
@@ -153,7 +157,7 @@ int init_ref_map(struct ref_map *p){
 }
 
 
-char get_ref_count(uint64_t phys_addr){
+int get_ref_count(uint64_t phys_addr){
 	/* return current ref value of frame */
 	/* takes in phys addr of frame */
 
@@ -163,7 +167,7 @@ char get_ref_count(uint64_t phys_addr){
 	return ref_count[bit];
 }
 
-void set_ref_count(uint64_t phys_addr,char val){
+void set_ref_count(uint64_t phys_addr,int val){
 	/* takes in phys address and value of ref_count */
 	uint64_t bit=phys_addr/FRAME_SIZE;
 	ref_count[bit]=val;

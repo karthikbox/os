@@ -11,11 +11,11 @@
 
 /* for frame ref_map */
 struct ref_map{
-	char *entries;
+	int *entries;
 };
 
 /* global pointer to array of ref_counts */
-char *ref_count;
+int *ref_count;
 
 //size of physical memory
 uint64_t memory_size;//uint64_t is same as size_t
@@ -61,9 +61,9 @@ void kfree(void* addr);
 /* frame ref counts */
 int init_ref_map(struct ref_map *p);
 
-char get_ref_count(uint64_t phys_addr);
+int get_ref_count(uint64_t phys_addr);
 
-void set_ref_count(uint64_t phys_addr,char val);
+void set_ref_count(uint64_t phys_addr,int val);
 
 void incr_ref_count(uint64_t phys_addr);
 

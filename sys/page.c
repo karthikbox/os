@@ -376,7 +376,7 @@ void free_pt(pt *pt_t){
 	for(;i<512;i++){
 		/* if an entry of pd is present */
 		if(pt_entry_present(pt_t->m_entries[i])){
-			char c=0;
+			int c=0;
 			if((c=get_ref_count(pt_entry_get_frame(pt_t->m_entries[i]))) ==0){
 				/* free only when */
 				/* ref count of frame reaches 0 */

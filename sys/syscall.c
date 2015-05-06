@@ -45,6 +45,7 @@ void do_yield(){
 void do_fork(){
 	/* alloc_proc finds a spot in pcb array and allocates kstack and sets sp and tf pointers and gives a pid*/
 	printf("proc -> %d -> fork syscall\n",proc->pid);
+	load_base(get_phys_addr((uint64_t)proc->pml4_t)); /* flush tlb */
 	struct proc *p=alloc_proc();
 	if(!p){
 		/* p is null, alloc_proc couldnt find a spot in pcb array */
