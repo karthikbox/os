@@ -6,9 +6,9 @@ void foo(){
 }
 
 int main(int argc, char* argv[], char* envp[]) {
-	printf("test exec successful\n");
+	printf("5\n");
 	perror("test after sleep\n");
-	foo();
+	/* foo(); */
 	return 0;
 }
 

@@ -524,6 +524,11 @@ void update_waitpid_queue(struct proc *p){
 				t->parent_proc->state=RUNNABLE;
 			}
 		}
+		else if(t->parent_proc->pid==p->pid){
+			
+			/* remove from waitpid Q */
+				dequeue_waitpid(t);
+		}
 	}
 }
 
