@@ -18,7 +18,7 @@ enum PF_ERROR_CODE_FLAGS{
 
 
 uint64_t getErrorCode(uint64_t error);
-
+void kmallocTest();
 /* FROM OSDEV WIKI http://wiki.osdev.org/Paging */
 
 /* Bit 0 (P) is the Present flag. */
@@ -73,7 +73,7 @@ void handle_pf(uint64_t error){
 					   : "=r"(pf_va)
 					   :
 					   );
-	printf("proc -> %d -> page fault -> err is %d->pf_va is %p\n",proc->pid,(int)error,pf_va);
+	//printf("proc -> %d -> page fault -> err is %d->pf_va is %p\n",proc->pid,(int)error,pf_va);
 	if ( (err_code==7) || (err_code==3)){
 		/* if 111 */
 		/* illegal write on existing pages */
@@ -110,6 +110,7 @@ void handle_pf(uint64_t error){
 					printf("unable to allocate memory during COW\n");
 					/* kill proc, what should kernel do? */
 					printf("out of memory.Killing current proc\n");
+					kmallocTest();
 					do_exit(0,proc);
 					return ;
 				}
@@ -217,6 +218,7 @@ void handle_pf(uint64_t error){
 					if(allocuvm(proc->pml4_t,pf_va,1,PT_WRITABLE|PT_USER)==0){
 						printf("out of memory\n");
 						/* kill process ?? */
+						kmallocTest();
 						do_exit(0,proc);
 					}
 					/* extend heap vma by one page downwards*/
@@ -228,6 +230,7 @@ void handle_pf(uint64_t error){
 					if(allocuvm(proc->pml4_t,pf_va,1,PT_WRITABLE|PT_USER)==0){
 						printf("out of memory\n");
 						/* kill process ?? */
+						kmallocTest();
 						do_exit(0,proc);
 					}
 					return ;
@@ -239,10 +242,12 @@ void handle_pf(uint64_t error){
 		/* segmentaion fault */
 		printf("segmentation fault\n");		
 		/* kill proc  */
+		kmallocTest();
 		do_exit(0,proc);
 		return;
 	}	
 	printf("PANIC!!!. RESTART\n");
+	kmallocTest();
 	while(1);
 }
 

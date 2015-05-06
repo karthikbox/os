@@ -15,16 +15,30 @@ p_fmgr frame_manager_start = NULL;
 void* kmalloc(size_t size)
 {
 
-	if(size <= 0)
+	/* if(size <= 0) */
+	/* 	return NULL; */
+	/* //allign the size in multiples of 8 */
+	/* size = ALIGN(size); */
+	/* void* ret_addr = alloc_addr(size); */
+	/* if(ret_addr != NULL){ */
+	/*   memset1((char*)ret_addr, 0, size); */
+	/* } */
+	/* return ret_addr; */
+
+
+	/* SIMPLE */
+	/* alloc_frame returns phys address */
+	/* returns (void *)0 on failure */
+	/* returns (void *)addr on success */
+
+
+	uint64_t ret;
+	if((ret=(uint64_t)alloc_frame(size)) == 0){
 		return NULL;
-	//allign the size in multiples of 8
-	size = ALIGN(size);
-	void* ret_addr = alloc_addr(size);
-	if(ret_addr != NULL){
-	  memset1((char*)ret_addr, 0, size);
 	}
-	return ret_addr;
-	
+	else{
+		return (void *)get_virt_addr(ret);
+	}
 }
 
 void* alloc_addr(size_t size)
@@ -127,11 +141,13 @@ void* alloc_addr(size_t size)
 
 void* init_page(p_fmgr node,size_t size)
 {
-	page_phys_addr = (void*) get_virt_addr((uint64_t)alloc_frame(size));	
+	page_phys_addr=alloc_frame(size);	
 	if(!page_phys_addr)
 	{
 		return NULL;
 	}
+   
+	page_phys_addr= (void*) get_virt_addr((uint64_t)page_phys_addr);
 	/* memset1((char *)page_phys_addr,0,size); */
 	node->frame_start_addr = page_phys_addr;
 	node->offset = 0;
@@ -192,18 +208,25 @@ void* new_page_mgr_alloc(size_t size)
 
 void kfree(void* addr)
 {
-	p_fmgr temp;
-	temp = pfmgr_head;
+	/* p_fmgr temp; */
+	/* temp = pfmgr_head; */
 
-	while(temp != NULL)
-	{
-		if((void*)((uint64_t)temp->frame_start_addr + (uint64_t)temp->offset) == addr)
-		{
-			temp->free = 1;
-			break;
-		}
-		temp = temp->next;
-	}
+	/* while(temp != NULL) */
+	/* { */
+	/* 	if((void*)((uint64_t)temp->frame_start_addr + (uint64_t)temp->offset) == addr) */
+	/* 	{ */
+	/* 		temp->free = 1; */
+	/* 		break; */
+	/* 	} */
+	/* 	temp = temp->next; */
+	/* } */
+	
+
+	/* SMPLE */
+	/* free the given addr */
+	/* convert into physical addr */
+	/* free_frame converts phys addr to frame number and frees it */
+	free_frame((void *)get_phys_addr((uint64_t)addr));
 }
 
 void kmallocTest(){
@@ -222,4 +245,6 @@ void kmallocTest(){
 		temp=temp->next;
 	}
 	printf("Total: %d, used: %d, free: %d\n",total, used, free);
+
+	printf("used frames->%d, free frames->%d\n",memory_used_frames,get_free_frame_count());
 }

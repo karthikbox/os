@@ -26,7 +26,7 @@ int main(int argc, char* argv[], char* envp[]) {
 		}
 	}
 	else if(b==0){
-		int ret=execve("bin/exec",new_argv,envp);
+		int ret=execve("bin/sbush",new_argv,envp);
 		if(ret==-1)
 			printf("exec failed\n");
 		/* while(1){ */
