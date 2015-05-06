@@ -599,7 +599,8 @@ int add_root(struct file *fd,int mustBeEmpty,char *buf,size_t len){
 
 int add_non_root(struct file *fd,char *buf,size_t len){
 	char **tokens;	
-	char *prev=NULL;
+	char prev[NCHARS];
+	memset1((char *)prev,0,NCHARS);
 	int token_len;
 	uint64_t *p_e= (uint64_t *)&_binary_tarfs_end;
 	int nreads=0;
@@ -630,7 +631,7 @@ int add_non_root(struct file *fd,char *buf,size_t len){
 					dirent->d_off=sizeof(struct dirent);
 					strcpy(dirent->d_name,tokens[1]);
 					nreads+=sizeof(struct dirent);
-					prev=tokens[1];
+					strcpy(prev,tokens[1]);
 				}
 				else{
 					/* no space for dirent */

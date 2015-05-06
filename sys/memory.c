@@ -37,6 +37,7 @@ void* kmalloc(size_t size)
 		return NULL;
 	}
 	else{
+		memset1((char*)get_virt_addr(ret), 0, size);
 		return (void *)get_virt_addr(ret);
 	}
 }

@@ -159,8 +159,9 @@ void keyboard_handler(){
             clear_kbdglyph();
             print_char('\\');
             print_char('b');
-			if(isBufFull==0 && _stdin->proc!=NULL)
+			if(isBufFull==0 && _stdin->proc!=NULL){
 				add_buf('\b');
+			}
 
         }
         else if(scancode == TABDOWN)

@@ -273,6 +273,16 @@ void putch(char c){
 	else if(c=='\r'){
 		x_con=0;
 	}
+	else if(c=='\b'){
+		/* beginning of the line-> no action */
+		/* otherwise x_con-- and put black */
+		if(x_con!=0){
+			x_con--;
+			uint16_t* pos=vga_buf+serial_addr();
+			*pos=(' ')|(color<<8);
+		}
+
+	}
 	else if(c >= ' '){
 		uint16_t* pos=vga_buf+serial_addr();
 		*pos=c|(color<<8);
