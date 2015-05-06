@@ -123,7 +123,7 @@ void userinit(){
 	char *argv[3];
 	argv[0]=a;argv[1]="os/sbunix";argv[2]=NULL;
 	char *envp[7];
-	envp[0]="PATH=/bin/ls:/bin/cat";
+	envp[0]="PATH=/bin";
 	envp[1]="envp1";
 	envp[2]="envp2";
 	envp[3]="envp3";
