@@ -2,15 +2,55 @@
 #include <stdlib.h>
 
 int main(int argc, char* argv[], char* envp[]) {
-	int n;
-	scanf("%d", &n);
-	n++;
-	printf("%d\n",n);
-	/* char* a=(char *) malloc(1000); */
-	/* for(int i=0;i<1000000000;i=i+0x1000) */
-	/* 	a[i]='a'; */
-	/* int *a=(int*)0xffffffff80000000; */
-	/* *a=1; */
-	/* printf("%d\n",*a); */
+	printf("exec1 says hi\n");
+	int fd=open("mnt/test.txt",O_RDONLY);
+	printf("fd->%d\n",fd);
+	char buf[1000];
+	int a;
+	int pid=fork();
+	if(pid>0){
+		/* parent */
+		printf("parent says hi\n");
+		a=read(fd,buf,10);
+		buf[a]='\0';
+		printf("read %d bytes\n",a);
+		printf("%s\n",buf);
 		
+		a=read(fd,buf,10);
+		buf[a]='\0';
+		printf("read %d bytes\n",a);
+		printf("%s\n",buf);
+
+		sleep(3);
+		
+		a=read(fd,buf,10);
+		buf[a]='\0';
+		printf("read %d bytes\n",a);
+		printf("%s\n",buf);
+		waitpid(pid,0,0);
+	}
+	else if(pid==0){
+		/* child */
+		printf("child says hi\n");
+			a=read(fd,buf,10);
+			buf[a]='\0';	
+			printf("read %d bytes\n",a);
+			printf("%s\n",buf);
+			
+			
+			
+			close(fd);
+			
+			a=read(fd,buf,5);
+			buf[a]='\0';	
+			printf("read %d bytes\n",a);
+			printf("%s\n",buf);
+			return 1;
+	}
+	else{
+		printf("fork failed\n");
+	}
+
+	
+	return 1;
 }

@@ -130,6 +130,7 @@ struct file{
 	uint64_t *addr;				/* pointer to the first byte of content, directory->first directory tarfs hdr, file, exec->first content byte */
 	struct pipe *pipe;			/* pointer to pipe struct */
 	uint64_t offset; 			/* stores the offset */
+	uint64_t size;				/* size of file, for do_read on file */
 	char inode_name[NCHARS];	/* name of directory or file */
 };
 struct file * filealloc();

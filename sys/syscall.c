@@ -5,6 +5,7 @@
 #include<sys/pmmgr.h>
 #include<sys/syscall.h> 
 #include<sys/tarfs.h>
+#include<errno.h>
 
 extern void isr128();
 
@@ -178,7 +179,6 @@ void do_exit(int status, struct proc *p){
 	printf("proc -> %d -> exit syscall\n",proc->pid);
 	/* free vmas free_vma_list(head) */
 	free_vma_list(&(p->vma_head));
-	
 	/* free process page tables free_uvm(pml4_t) */
 	free_uvm(p->pml4_t);
 	
@@ -256,9 +256,26 @@ void do_waitpid(pid_t pid, int* status, int options){
 }
 
 void do_read(int fd, void* buf, size_t count){
+
+	
+	if((valid_addr((uint64_t)buf) ==0 ) || (valid_addr_range((uint64_t)buf,count)==0)){
+		/* above kernbase */
+		/* so return -EFAULT */
+		proc->tf->rax=-EFAULT;
+		return ;
+	}
+
 	/* printf("proc -> %d -> read syscall\n",proc->pid); */
 	if(proc->ofile[fd]==NULL){
-		proc->tf->rax=-1;		/* no local file decriptor */
+		proc->tf->rax=-EBADF;		/* no local file decriptor */
+		return ;
+	}
+	if(proc->ofile[fd]->readable==0){
+		proc->tf->rax=-EBADF;	/* fd is not readable */
+		return ;
+	}
+	if(proc->ofile[fd]->type==FD_DIR){
+		proc->tf->rax=-EISDIR;	/* TRYING TO READ DIR, DO GETDENTS */
 		return ;
 	}
 	/* add check if buf is in any of VMA's */
@@ -297,6 +314,55 @@ void do_read(int fd, void* buf, size_t count){
 	}
 	else if(proc->ofile[fd]->type==FD_PIPE){
 		proc->tf->rax=piperead(proc->ofile[fd]->pipe, (char*)buf, count);
+		return ;
+	}
+	else if(proc->ofile[fd]->type==FD_FILE){
+		uint64_t ret=0;
+		struct file *p=proc->ofile[fd];
+		/* so this is a file */
+		
+		/* p->offset gives amount read until now*/
+		/* (char *)p->addr + p->offset give next byte to be read */
+		
+		/* see if there is anything left to copy */
+		if(p->offset==p->size){
+			/* nothing left ro read */
+			ret=0;			/* read 0 bytes */
+		}
+		else {
+			/* something still left ro read */
+			/* if user requested less than the file size */
+			if( count <= (p->size - p->offset) ){
+				/* copy requested size into the buffer */
+				/* no need to load proc page table, because this is not a blocking system call */
+				memcpy(buf,((char *)p->addr + p->offset),count);
+				/* incr offset by number of bytes read */
+				p->offset+=count;
+				ret=count;
+			}
+			/* if user requested more than available to read */
+			else if(count > (p->size - p->offset)){
+				/* then copy whatevers left in to user buf */
+				memcpy(buf,((char *)p->addr + p->offset),(p->size - p->offset));
+
+				/* return number of bytes read */
+				ret=(p->size - p->offset);
+
+				/* incr offset by number of bytes read */
+				p->offset+=(p->size - p->offset);
+			}
+			else{
+				printf("error in read\n");
+				ret=-1;
+			}
+		}
+		/* return  */
+		proc->tf->rax=ret;
+		return ;
+	}
+	else{
+		proc->tf->rax=-EBADF;		/* fd was not file, pipe, stdin */
+		return ;
 	}
 }
 
@@ -474,61 +540,130 @@ int do_chdir(const char *path){
 int do_open(char *buf, uint64_t flags){
 	uint64_t *tarfs_file;
 	/* copy path to kernel memory */
+	if((valid_addr((uint64_t)buf)==0) || (valid_addr_range((uint64_t)buf,strlen(buf)+1)==0)){
+		return -EFAULT;
+	}
+	if((strlen(buf)+1) > NCHARS){
+		return -ENAMETOOLONG;
+	}
+		
 	char *kpath = (char*)kmalloc(NCHARS*sizeof(char));
+	if(kpath==NULL)
+		return -ENOMEM;
 	strcpy(kpath, (char *)buf);	
+	
 	char type;
 	int lfd;
-	if(flags & O_DIRECTORY){
-		/* is directory */
-		type=DIRTYPE;
-	}
-	/* lookup the path */
-	/* get the absolute path  */
+
 	if(get_absolute_path(kpath) == NULL){
 		kfree(kpath);
-		return -1;
+		return -ENAMETOOLONG;
 	}
 
-	/* if it is not root directory */
-	if(strcmp(kpath, "")){
-		/* check if the path is valid or not */
-		tarfs_file = tarfs_get_file(kpath,type);
-		/* change proc->cwd, if path is valid */
-		if(tarfs_file == NULL){
-			kfree(kpath);
-			return -1;
+
+	if((flags == (O_RDONLY|O_DIRECTORY))){
+		/* is directory */
+		type=DIRTYPE;
+			/* lookup the path */
+		/* get the absolute path  */
+		
+		/* if it is not root directory */
+		if(strcmp(kpath, "")){
+			/* check if the path is valid or not */
+			tarfs_file = tarfs_get_file(kpath,type);
+			/* change proc->cwd, if path is valid */
+			if(tarfs_file == NULL){
+				kfree(kpath);
+				return -ENOENT;		/* N0 SUCH FILE */
+			}
 		}
+		
+		else{
+			/* if it is a root dir */
+			/* points to first tarfs entry */
+			tarfs_file=(uint64_t *)&_binary_tarfs_start;
+		}
+		
+		/* create global file structures */
+		struct file *fd;
+		/* alloc local fd to point global file struct */
+		if((fd=filealloc())<0){
+			kfree(kpath);
+			return -ENFILE;		/* SYSTEM LIMIT ON OPEN FILES */
+		}
+		/* initialise global file struct */
+		fd->type=FD_DIR;
+		fd->readable=1;
+		fd->writable=0;
+		fd->offset=0;
+		fd->addr=(uint64_t *)tarfs_file;
+		memset1((char *)fd->inode_name,0,sizeof(char)*NCHARS);
+		strcpy(fd->inode_name,kpath);
+		/* return local fd */
+		if((lfd=fdalloc(fd))<0){
+			kfree(kpath);
+			fileclose(fd);
+			return -EMFILE;			/* PROCESS LIMIT ON OPEN FILES */
+		}
+		kfree(kpath);
+		return lfd;
+		
 	}
+	else if(flags == O_RDONLY){
+		type=REGTYPE;
+		/* get_virtual_path always returns with a / appended */
+		/* remove this slash as, files are not terminated witha / in tarfs */
+		int len=strlen(kpath);
+		kpath[len-1]='\0';
+		/* get file from tarfs */
+		tarfs_file=tarfs_get_file(kpath,type);
+		/* if it is  null return -ENOFILE */
+		if(tarfs_file==NULL){
+			kfree(kpath);
+			return -ENOENT;		/* no such file */
+		}
+		/* if it is not null continue */
 
+		/* once we have begining of file in tarfs */		
+		/* allocate a global file struct */
+		struct file *fd;
+		if((fd=filealloc()) < 0){
+			/* failed->return -ENFILE */
+			kfree(kpath);
+			return  -ENFILE;
+		}
+		/* allocate local file struct */
+		if((lfd=fdalloc(fd)) < 0 ){
+			/* failed-> return -EMFILE */
+			kfree(kpath);
+			fileclose(fd);
+			return -EMFILE;
+		}
+		/* initialize file struct with FD_FILE  */
+		fd->type=FD_FILE;
+		/* set readable */
+		fd->readable=1;
+		fd->writable=0;
+		/* set addr to addr returned from tarfs */
+		fd->addr=(uint64_t *)tarfs_file;
+		/* set offset to 0 */
+		fd->offset=0x0ul;
+		/* set size of file */
+		/* convert form octol to decimal */
+		fd->size=oct_to_dec(((struct posix_header_ustar *)tarfs_file -1 )->size);
+		/* clear contents of inode_name from the file struct */
+		memset1((char *)fd->inode_name,0,sizeof(char)*NCHARS);
+		/* copy file path into inode_name */
+		strcpy(fd->inode_name,kpath);
+		/* return local fd */
+		kfree(kpath);
+		return lfd;
+	}
 	else{
-		/* if it is a root dir */
-		/* points to first tarfs entry */
-		tarfs_file=(uint64_t *)&_binary_tarfs_start;
+		return -EACCES;			/* requested mode is not allowed */
+		/* only read only and o_directory is allowed */
 	}
 	
-	/* create global file structures */
-	struct file *fd;
-	/* alloc local fd to point global file struct */
-	if((fd=filealloc())<0){
-		kfree(kpath);
-		return -1;
-	}
-	/* initialise global file struct */
-	fd->type=FD_DIR;
-	fd->readable=1;
-	fd->writable=0;
-	fd->offset=0;
-	fd->addr=(uint64_t *)tarfs_file;
-	memset1((char *)fd->inode_name,0,sizeof(char)*NCHARS);
-	strcpy(fd->inode_name,kpath);
-	/* return local fd */
-	if((lfd=fdalloc(fd))<0){
-		kfree(kpath);
-		fileclose(fd);
-		return -1;
-	}
-	kfree(kpath);
-	return lfd;
 }
 
 int do_getdents(int fd, char* buf, size_t len){
