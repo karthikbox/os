@@ -5,7 +5,7 @@ void foo();
 
 int main(int argc, char* argv[], char* envp[]) {
 	/* foo(); */
-	for(int i=0;i<4000;i++){
+	for(int i=0;i<400;i++){
 		int pid=fork();
 		if(pid>0){
 			printf("%d\n",i);

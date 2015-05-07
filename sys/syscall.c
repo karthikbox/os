@@ -239,6 +239,13 @@ void do_nanosleep(struct timespec *req,struct timespec *rem){
 void do_waitpid(pid_t pid, int* status, int options){
 	
 	printf("proc -> %d -> waitpid syscall\n",proc->pid);
+
+	/* checks */
+	/* if pid = -1 */
+	/* check if there is any child of this process */
+
+	/* else  */
+	/* check if there is a child with this  */
 	/* change the process state to SLEEPING */
 	proc->state=SLEEPING;
 	/* add the process to a waitpid Q */
