@@ -314,6 +314,8 @@ void isr_handler(struct stack_frame *s){
 					s->rax=-EFAULT;
 					return;
 				}
+				/* if argv string's strnlen is > ARGV_SIZE then error */
+				/* max size of argv string is ARGV_SIZE */
 				if((strlen(argv[argc])+1) > ARGV_SIZE){
 					s->rax=-E2BIG;
 					return ;
@@ -374,10 +376,21 @@ void isr_handler(struct stack_frame *s){
 			memset1((char *)kargv,0,8*argc);
 			memset1((char *)kenvp,0,8*envc);
 			/* copy every argv into kargv */
-			int i;
+			int i,k;
 			for(i=0;argv[i];i++){
 				/* allocate memory */
 				char *mem=(char *)kmalloc(sizeof(char)*(strlen(argv[i])+1));
+				if(mem==NULL){
+					s->rax=-ENOMEM;
+					for(k=0;k<i;k++){
+						kfree(kargv[k]);
+					}
+					kfree(kargv);
+					/* free filename */
+					kfree(kfilename);
+					
+					return ;
+				}
 				/* copy argv into mem */
 				strcpy(mem,argv[i]);
 				/* put mem into kargv */
@@ -387,6 +400,18 @@ void isr_handler(struct stack_frame *s){
 			for(i=0;envp[i];i++){
 				/* allocate memory */
 				char *mem=(char *)kmalloc(sizeof(char)*(strlen(envp[i])+1));
+				if(mem==NULL){
+					s->rax=-ENOMEM;
+					for(k=0;k<i;k++){
+						kfree(kenvp[k]);
+					}
+					kfree(kenvp);
+					/* free filename */
+					kfree(kfilename);
+					
+					return ;
+				}
+
 				/* copy envp into mem */
 				strcpy(mem,envp[i]);
 				/* put mem into kargv */
