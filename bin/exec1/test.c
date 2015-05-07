@@ -1,12 +1,26 @@
 #include<stdio.h>
 #include <stdlib.h>
-
+#include<string.h>
 int main(int argc, char* argv[], char* envp[]) {
-	printf("exec1 says hi\n");
-	argv[0]=NULL;
-	if(execve("/mnt/test.txt",argv,envp) == -1){
-		printf("exece failed. errno->%d",errno);
+	printf("exec1\n");
+	int i;
+	for(i=0;argv[i];i++){
+		printf("argv[%d]->%s\n",i,argv[i]);
 	}
+	for(i=0;envp[i];i++){
+		printf("envp[%d]->%s\n",i,envp[i]);
+	}
+	strcat(envp[1],":/bin");
+	int ret=execve("/bin/exec1",argv,envp);
+	if(ret==-1){
+		printf("execve failed\n");
+		printf("errno->%d\n",errno);
+	}
+	/* printf("exec1 says hi\n"); */
+	/* argv[0]=NULL; */
+	/* if(execve("/mnt/test.txt",argv,envp) == -1){ */
+	/* 	printf("exece failed. errno->%d",errno); */
+	/* } */
 	/* int fd=open("mnt/test.txt",O_RDONLY); */
 	/* if(fd ==-1){ */
 	/* 	printf("file open failed\n"); */

@@ -314,7 +314,11 @@ void isr_handler(struct stack_frame *s){
 					s->rax=-EFAULT;
 					return;
 				}
-				
+				if((strlen(argv[argc])+1) > ARGV_SIZE){
+					s->rax=-E2BIG;
+					return ;
+				}
+
 				argc++;
 			}
 			argc++;
@@ -327,6 +331,11 @@ void isr_handler(struct stack_frame *s){
 					s->rax=-EFAULT;
 					return ;
 				}
+				if((strlen(envp[envc])+1) > ARGV_SIZE){
+					s->rax=-E2BIG;
+					return ;
+				}
+
 				envc++;
 			}
 			envc++;

@@ -299,7 +299,21 @@ int exec(char *path,char **argv,char **envp){
 				free_vma_list(&head); /* free new vma */
 				return -E2BIG;
 			}
-			sp=round_down(sp-(strlen(argv[argc])+1),8); /* round down to 8 byte boundary */
+			/* if strlen of argv[i] +1  is greater than ARGV_SIZE return -E2BIG */
+			if((strlen(argv[argc])+1) > ARGV_SIZE){
+				if(pml4_t){
+					free_uvm(pml4_t);
+				}
+				free_vma_list(&head); /* free new vma */
+				return -E2BIG;
+			}
+			/* decr sp by ARGV_SIZE and then do copy argv. */
+			/* copy can use strlen(argv[i])+1 . */
+			/* start writing from sp */
+			/* copy only the string onto the stack */
+			/* remaining part of ARGV_SIZE will be left uncopied. user can write into this */
+			/* sp=round_down(sp-(strlen(argv[argc])+1),8); /\* round down to 8 byte boundary *\/ */
+			sp=round_down(sp-ARGV_SIZE,8);
 			load_base(get_phys_addr((uint64_t)pml4_t)); /* loaded process page tables */
 			memcpy((void *)sp,argv[argc],strlen(argv[argc])+1); /* continue here */
 			load_base((uint64_t)pml4_base); /* load kernel page tables */
@@ -319,7 +333,16 @@ int exec(char *path,char **argv,char **envp){
 				free_vma_list(&head); /* free new vma */
 			return -E2BIG;
 			}
-			sp=round_down(sp-(strlen(envp[envp_c])+1),8); /* round down to 8 byte boundary */
+			if((strlen(envp[envp_c])+1) > ARGV_SIZE){
+				if(pml4_t){
+					free_uvm(pml4_t);
+				}
+				free_vma_list(&head); /* free new vma */
+				return -E2BIG;
+			}
+
+			/* sp=round_down(sp-(strlen(envp[envp_c])+1),8); /\* round down to 8 byte boundary *\/ */
+			sp=round_down(sp-ARGV_SIZE,8);			
 			load_base(get_phys_addr((uint64_t)pml4_t)); /* loaded process page tables */
 			memcpy((void *)sp,envp[envp_c],strlen(envp[envp_c])+1); /* continue here */
 			load_base((uint64_t)pml4_base); /* load kernel page tables */
@@ -592,7 +615,22 @@ int exec_new(char *path,char **argv,char **envp){
 				free_vma_list(&head); /* free new vma */
 				return -E2BIG;
 			}
-			sp=round_down(sp-(strlen(argv[argc])+1),8); /* round down to 8 byte boundary */
+			if((strlen(argv[argc])+1) > ARGV_SIZE){
+				if(pml4_t){
+					free_uvm(pml4_t);
+				}
+				free_vma_list(&head); /* free new vma */
+				return -E2BIG;
+			}
+			/* decr sp by ARGV_SIZE and then do copy argv. */
+			/* copy can use strlen(argv[i])+1 . */
+			/* start writing from sp */
+			/* copy only the string onto the stack */
+			/* remaining part of ARGV_SIZE will be left uncopied. user can write into this */
+			/* sp=round_down(sp-(strlen(argv[argc])+1),8); /\* round down to 8 byte boundary *\/ */
+			sp=round_down(sp-ARGV_SIZE,8);
+
+			/* sp=round_down(sp-(strlen(argv[argc])+1),8); /\* round down to 8 byte boundary *\/ */
 			load_base(get_phys_addr((uint64_t)pml4_t)); /* loaded process page tables */
 			memcpy((void *)sp,argv[argc],strlen(argv[argc])+1); /* continue here */
 			load_base((uint64_t)pml4_base); /* load kernel page tables */
@@ -612,7 +650,18 @@ int exec_new(char *path,char **argv,char **envp){
 				free_vma_list(&head); /* free new vma */
 			return -E2BIG;
 			}
-			sp=round_down(sp-(strlen(envp[envp_c])+1),8); /* round down to 8 byte boundary */
+			if((strlen(envp[envp_c])+1) > ARGV_SIZE){
+				if(pml4_t){
+					free_uvm(pml4_t);
+				}
+				free_vma_list(&head); /* free new vma */
+				return -E2BIG;
+			}
+
+			/* sp=round_down(sp-(strlen(envp[envp_c])+1),8); /\* round down to 8 byte boundary *\/ */
+			sp=round_down(sp-ARGV_SIZE,8);			
+
+			/* sp=round_down(sp-(strlen(envp[envp_c])+1),8); /\* round down to 8 byte boundary *\/ */
 			load_base(get_phys_addr((uint64_t)pml4_t)); /* loaded process page tables */
 			memcpy((void *)sp,envp[envp_c],strlen(envp[envp_c])+1); /* continue here */
 			load_base((uint64_t)pml4_base); /* load kernel page tables */

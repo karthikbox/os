@@ -16,6 +16,7 @@
 #define NLINKS 30
 #define USTACK 0xfffffeff70000000ul /* maps to 509 entry of pml4, can be anything as long as not 511 entry */
 #define STACK_THRESH 0x10000
+#define ARGV_SIZE 200
 
 #define FL_IF 0x0000000000000200 /* interrupt enable */
 
