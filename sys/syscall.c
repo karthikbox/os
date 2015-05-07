@@ -344,7 +344,7 @@ void do_read(int fd, void* buf, size_t count){
 			else if(count > (p->size - p->offset)){
 				/* then copy whatevers left in to user buf */
 				memcpy(buf,((char *)p->addr + p->offset),(p->size - p->offset));
-
+				
 				/* return number of bytes read */
 				ret=(p->size - p->offset);
 
