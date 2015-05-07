@@ -10,12 +10,53 @@ int main(int argc, char* argv[], char* envp[]) {
 	for(i=0;envp[i];i++){
 		printf("envp[%d]->%s\n",i,envp[i]);
 	}
-	strcat(envp[1],":/bin");
-	int ret=execve("/bin/exec1",argv,envp);
-	if(ret==-1){
-		printf("execve failed\n");
-		printf("errno->%d\n",errno);
+	int fd=open("mnt/test.txt",O_RDONLY);
+	char a[100];
+	int r=read(fd+1,a,10);
+	if(r<0){
+		printf("read failed\n");
+		printf("errno %d \n",errno);
 	}
+	a[r]='\0';
+	printf("read %d bytes\n",r);
+	printf("%s\n",a);
+
+	r=read(fd,a,10);
+	if(r<0){
+		printf("read failed\n");
+		printf("errno %d \n",errno);
+	}
+	a[r]='\0';
+	printf("read %d bytes\n",r);
+	printf("%s\n",a);
+
+	int ret=lseek(fd+1,100,SEEK_END);	
+	if(ret<0)
+		printf("lseek errno->%d\n",errno);
+	printf("lseek return value-> %d\n",ret);
+
+	r=read(fd,a,10);
+	if(r<0){
+		printf("read failed\n");
+		printf("errno %d \n",errno);
+	}
+	a[r]='\0';
+	printf("read %d bytes\n",r);
+	printf("%s\n",a);
+	close(fd);
+	r=read(fd,a,10);
+	if(r<0){
+		printf("read failed\n");
+		printf("errno %d \n",errno);
+	}
+
+
+	/* strcat(envp[1],":/bin"); */
+	/* int ret=execve("/bin/exec1",argv,envp); */
+	/* if(ret==-1){ */
+	/* 	printf("execve failed\n"); */
+	/* 	printf("errno->%d\n",errno); */
+	/* } */
 	/* printf("exec1 says hi\n"); */
 	/* argv[0]=NULL; */
 	/* if(execve("/mnt/test.txt",argv,envp) == -1){ */

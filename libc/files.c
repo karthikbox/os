@@ -34,7 +34,16 @@ ssize_t write(int fd, const void *buf, size_t count) {
 }
 
 off_t lseek(int fd, off_t offset, int whence) {
-	return (off_t) syscall_3(SYS_lseek, (uint64_t) fd, (uint64_t) offset, (uint64_t) whence);
+	off_t ret= (off_t) syscall_3(SYS_lseek, (uint64_t) fd, (uint64_t) offset, (uint64_t) whence);
+	if(ret < 0){
+		/* ret is less than zero */
+		errno=-(ssize_t)ret;
+		return -1;
+	}
+	else{
+		/* ret is >= 0 */
+		return ret;
+	}
 }
 
 int close(int fd) {

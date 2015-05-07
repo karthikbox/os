@@ -332,7 +332,7 @@ void do_read(int fd, void* buf, size_t count){
 		/* (char *)p->addr + p->offset give next byte to be read */
 		
 		/* see if there is anything left to copy */
-		if(p->offset==p->size){
+		if(p->offset >= p->size){	/* if offset is greater than file size then nothing to read */
 			/* nothing left ro read */
 			ret=0;			/* read 0 bytes */
 		}
@@ -791,12 +791,35 @@ int add_non_root(struct file *fd,char *buf,size_t len){
 }
 
 
-			/* while(p<p_e && !(strlen(p->name)==0)){ */
-			/* 	printf("cur name->%s, is of type->%c, size is %x\n",p->name,*p->typeflag,round_up(oct_to_dec(p->size),512)); */
-			/* 	/\* add all directories *\/ */
-			/* 	/\* goto next file header by adding size of header and header->size *\/ */
-			/* 	/\* header->size should be rounded up next 512 multiple *\/ */
-			/* 	//printf("%s->%u",oct_to_dec("00000 0000 0000")) */
-			/* 	p=(struct posix_header_ustar *)((char *)p+sizeof(struct posix_header_ustar ) + round_up(oct_to_dec(p->size),512)); */
-			/* } */
+int64_t do_lseek(int fd,int64_t off,int whence){
+	if((fd<0) || (fd >= NOFILE) ){
+		return -EBADF;
+	}
+	/* check if fd exeists */
+	if(proc->ofile[fd]==NULL){
+		return -EBADF;
+	}
 
+	if(proc->ofile[fd]->type==FD_PIPE){
+		return -ESPIPE;
+	}
+	/* p points to file struct */
+	struct file *p=proc->ofile[fd];
+	if(whence==SEEK_SET){
+		p->offset=off;			/* set file offset to given off*/
+		return p->offset;
+	}
+	else if(whence==SEEK_CUR){
+		p->offset=p->offset+off; /* the offset is set to its current location plus offset bytes */
+		return p->offset;		
+	}
+	else if(whence==SEEK_END){
+		p->offset=p->size+off;	/* the offset is set to the file size plus offset bytes */
+		return p->offset;
+	}
+	else{
+		/* invalid whence */
+		return -EINVAL;
+	}
+	
+}

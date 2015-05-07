@@ -58,4 +58,5 @@ char * do_getcwd(char *buf,size_t size);
 int do_chdir(const char *path);
 int do_open(char *path, uint64_t flags);
 int do_getdents(int fd, char* buf, size_t len);
+int64_t do_lseek(int fd,int64_t off,int whence);
 #endif

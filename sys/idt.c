@@ -472,6 +472,9 @@ void isr_handler(struct stack_frame *s){
 		else if(s->rax==SYS_ktest){
 			kmallocTest();
 		}
+		else if(s->rax==SYS_lseek){
+			s->rax=do_lseek((int)s->rdi,(int64_t)s->rsi,(int)s->rdx);
+		}
 		else{
 			printf("incorrect syscall number\nproc pid->%d\n",proc->pid);
 		}
