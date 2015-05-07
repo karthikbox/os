@@ -75,6 +75,7 @@ int exec(char *path,char **argv,char **envp){
 		while(argv[arg]){
 			arg++;
 		}
+		arg++;						/* for NULL byte of old argv */
 		arg++;						/* for new filename */
 		arg++;						/* for interpreter path */
 		/* format of argv to interpreter  */
@@ -96,7 +97,7 @@ int exec(char *path,char **argv,char **envp){
 		/* clear new argc */
 		memset1((char *)kargv,0,8*arg);
 		
-		for(k=0;k<arg;k++){
+		for(k=0;k<(arg-1);k++){
 			/* allocate only for interpreter path and script filename */
 			/* remaining will use previous argv values */
 			if(k==0){
@@ -129,6 +130,7 @@ int exec(char *path,char **argv,char **envp){
 				kargv[k]=argv[k-1];
 			}
 		}
+		kargv[k]=NULL;
 
 		int ret=exec_new(tokens[1],kargv,envp);
 
