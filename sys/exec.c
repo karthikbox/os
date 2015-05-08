@@ -64,7 +64,8 @@ int exec(char *path,char **argv,char **envp){
 		char **tokens=strtoken(str," ",&token_len);
 		/* first token has #! */
 		if(strcmp(tokens[0],"#!")==0){
-			printf("check pass\n");
+			/* printf("check pass\n"); */
+			;
 		}
 		/* second token has ELF path */
 
@@ -148,7 +149,7 @@ int exec(char *path,char **argv,char **envp){
 		/* allocate  page table*/
 		pml4_t = load_kern_vm();
 		if(!pml4_t){
-			printf("no space for pml4\n");
+			/* printf("no space for pml4\n"); */
 			return -ENOMEM;				/* NO KERN MEMORY */
 		}
 		sz=0;
@@ -464,7 +465,7 @@ int exec_new(char *path,char **argv,char **envp){
 		/* allocate  page table*/
 		pml4_t = load_kern_vm();
 		if(!pml4_t){
-			printf("no space for pml4\n");
+			/* printf("no space for pml4\n"); */
 			return -ENOMEM;				/* NO KERN MEMORY */
 		}
 		sz=0;

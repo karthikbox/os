@@ -20,7 +20,7 @@ void mem_map_set(uint64_t bit){
 int mem_map_clear(uint64_t bit){
 	if(mem_map_test(bit) == 0){
 		/* if already clear */
-		printf("already clear\n");
+		/* printf("already clear\n"); */
 		/* if it was already clear, return 0 */
 		return 0;
 	}
@@ -40,7 +40,7 @@ long mem_map_first_free(size_t size){
 	int number_of_frames=NUMBER_OF_FRAMES(size);
 	/* sanity check for number_of_frames */
 	if(number_of_frames > 64){
-		printf("sanity check for number_of_frames - %d failed..\n",number_of_frames);
+		/* printf("sanity check for number_of_frames - %d failed..\n",number_of_frames); */
 		return -1;
 	}
 	uint64_t temp=0xffffffffffffffff;
@@ -138,7 +138,7 @@ void free_frame(void *a){
 	uint64_t addr=(uint64_t)a;
 	uint64_t bit = addr/FRAME_SIZE;
 	if(bit > (memory_size_in_frames + 2) ){
-		printf("kfree issued on a non existent physical frame\n");
+		/* printf("kfree issued on a non existent physical frame\n"); */
 		return ;
 	}
 		

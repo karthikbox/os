@@ -47,12 +47,12 @@ void do_yield(){
 
 void do_fork(){
 	/* alloc_proc finds a spot in pcb array and allocates kstack and sets sp and tf pointers and gives a pid*/
-	printf("proc -> %d -> fork syscall\n",proc->pid);
+	/* printf("proc -> %d -> fork syscall\n",proc->pid); */
 	load_base(get_phys_addr((uint64_t)proc->pml4_t)); /* flush tlb */
 	struct proc *p=alloc_proc();
 	if(!p){
 		/* p is null, alloc_proc couldnt find a spot in pcb array */
-		printf("unable to fork. no space for new processs\n");
+		/* printf("unable to fork. no space for new processs\n"); */
 		/* put -1 in proc->tf->rax, this tells parent that fork failed */
 		proc->tf->rax=-ENOMEM;		/* syscall_0 returns "eax"(that's right) as uint32_t to fork(), in user program we cast to int and then check for -1 */
 
@@ -64,7 +64,7 @@ void do_fork(){
 	/* copy parent procs address space into child */
 	if(!(p->pml4_t = copyuvm(proc->pml4_t))){
 		/* p->pml4_t is NULL, copyuvm failed */
-		printf("unable to fork. no space for new process's page tables\n");
+		/* printf("unable to fork. no space for new process's page tables\n"); */
 		/* put -1 in proc->tf->rax, this tells parent that fork failed */
 		proc->tf->rax=-ENOMEM;		/* syscall_0 returns "eax"(that's right) as uint32_t to fork(), in user program we cast to int and then check for -1 */
 
@@ -85,7 +85,7 @@ void do_fork(){
 	/* copy VMAs from parent to child */
 	if((p->vma_head=copyvma(proc->vma_head))==NULL){
 		/* copyvma failed */
-		printf("unable to fork. no space for new processes vmas\n");
+		/* printf("unable to fork. no space for new processes vmas\n"); */
 		proc->tf->rax=-ENOMEM;
 		/* copyvma takes care of freeing new procs vmas */
 		/* if any failure in copyuvm or copyvma, then deallocate p's resources */
@@ -353,7 +353,7 @@ void do_read(int fd, void* buf, size_t count){
 				p->offset+=(p->size - p->offset);
 			}
 			else{
-				printf("error in read\n");
+				/* printf("error in read\n"); */
 				ret=-EINVAL;
 			}
 		}
@@ -411,7 +411,7 @@ void do_copy(){
 
 
 void do_pipe(int *fd_arr){
-	printf("proc -> %d -> pipe syscall\n",proc->pid);
+	/* printf("proc -> %d -> pipe syscall\n",proc->pid); */
 
 	if(valid_addr((uint64_t)fd_arr)==0){
 		proc->tf->rax=-EFAULT;
@@ -428,7 +428,7 @@ void do_pipe(int *fd_arr){
 	/* put those pounters in local pcb ofiles fd table */
 	if((fd0=fdalloc(rf)) < 0 || (fd1=fdalloc(wf)) < 0){
 		/* fd alloc failed */
-		printf("unable to allocate local fd\n");
+		/* printf("unable to allocate local fd\n"); */
 		if(fd0 >= 0){
 			proc->ofile[fd0]=NULL;
 		}
@@ -718,7 +718,7 @@ int add_root(struct file *fd,int mustBeEmpty,char *buf,size_t len){
 		p=(struct posix_header_ustar *)((char *)fd->addr+fd->offset);
 		if(strlen(p->name)==0)
 			break;
-		printf("%p\n",(fd->offset+(char *)fd->addr));
+		/* printf("%p\n",(fd->offset+(char *)fd->addr)); */
 		/* tokenize the string in addr+offset , tarfs header */
 		tokens=strtoken(p->name,"/",&token_len );
 		/* if tk_len =2, and if tk[1]="" , since root directory*/

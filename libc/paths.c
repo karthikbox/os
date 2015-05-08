@@ -9,7 +9,7 @@ char *getcwd(char *buf, size_t size) {
     l = syscall_2(SYS_getcwd, (uint64_t) buf, (uint64_t) size);
 
     if((uint64_t *)l!=NULL){
-    	printf("getcwd->%s\n",buf);
+    	/* printf("getcwd->%s\n",buf); */
 		return buf;
     }
 	else

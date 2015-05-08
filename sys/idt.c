@@ -196,7 +196,7 @@ void idt_init(){
 	pic_init();
 	//clear out idt memory
 	memset1((char *)idt_table,0,sizeof(idt_table));
-	printf("%d\n", sizeof(idt_table));
+	/* printf("%d\n", sizeof(idt_table)); */
 
 	//do idt_entry_set for every interrupt
 	// void idt_entry_set(int n,uint16_t selector,char ist,char gate_type,char dpl,char present,uint64_t *target)

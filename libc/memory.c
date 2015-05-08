@@ -241,7 +241,7 @@ void free(void *ptr){
 
 int remove_last_blk(p_blk t){
     if(brk((void *)t)==-1){
-	printf("unable to decrease brk to remove last blk\n");
+	/* printf("unable to decrease brk to remove last blk\n"); */
 	return 0;
     }
     

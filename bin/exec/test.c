@@ -5,7 +5,7 @@ void foo();
 
 int main(int argc, char* argv[], char* envp[]) {
 	/* infinite recursion test */
-	/* foo();         */
+	/* foo(); */
 
 	/* segmention fault case 1 */
   	/* char *a=(char*) 0xffffffff80000000; */
@@ -22,21 +22,32 @@ int main(int argc, char* argv[], char* envp[]) {
 	/* while(1){ */
 	/* 	int pid=fork(); */
 	/* 	if(pid>0){ */
-	/* 		/\* strcat(envp[0], ":added"); *\/ */
+	/* 		strcat(envp[0], ":added"); */
 	/* 		waitpid(-1, &status, 0); */
 	/* 	} */
 	/* 	else if(pid == 0){ */
 	/* 		printf("envp strlen -> %d\n",strlen(envp[0])); */
 	/* 		execve("/bin/kmalloc", argv, envp); */
 	/* 	} */
+	/* 	else{ */
+	/* 		printf("fork failed\n"); */
+	/* 	} */
 	/* } */
 
+	/* printf("%s\n",envp[0]); */
+	/* strcat(envp[0],"bin:"); */
+	/* int ret=execve("/bin/exec",argv,envp); */
+	/* if(ret == -1){ */
+	/* 	printf("exec failed, errno->%d\n",errno); */
+	/* } */
+
+
 	/* infinte malloc */
-	char *a=(char*)malloc(1000000000);
-	int i;
-	for(i=0;i<1000000000;i+=0x1000){
-		a[i]='a';
-	}
+	/* char *a=(char*)malloc(1000000000); */
+	/* int i; */
+	/* for(i=0;i<1000000000;i+=0x1000){ */
+	/* 	a[i]='a'; */
+	/* } */
 	
 	/* ls */
 

@@ -5,13 +5,13 @@
 
 int main(int argc, char* argv[], char* envp[]) {
 	printf("hello\n");
-	int i;
-	for(i=0;argv[i];i++){
-		printf("argv[%d]->%s\n",i,argv[i]);
-	}
-	for(i=0;envp[i];i++){
-		printf("envp[%d]->%s\n",i,envp[i]);
-	}
+	/* int i; */
+	/* for(i=0;argv[i];i++){ */
+	/* 	printf("argv[%d]->%s\n",i,argv[i]); */
+	/* } */
+	/* for(i=0;envp[i];i++){ */
+	/* 	printf("envp[%d]->%s\n",i,envp[i]); */
+	/* } */
 	char *new_argv[2];
 	new_argv[0]="bin/sbush";
 	new_argv[1]=NULL;

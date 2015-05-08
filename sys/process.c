@@ -73,7 +73,8 @@ pml4 *load_kern_vm(){
 void inituvm(pml4 *pml4_t, char *star,uint64_t sz){
 	char *mem;
 	if(sz >= FRAME_SIZE){
-		printf("inituvm: input sz more than a page\n");
+		/* printf("inituvm: input sz more than a page\n"); */
+		;
 	}
 	mem=(char *)kmalloc(FRAME_SIZE);
 	memset1(mem,0,FRAME_SIZE);
@@ -83,7 +84,7 @@ void inituvm(pml4 *pml4_t, char *star,uint64_t sz){
 /* creates the first process */
 void userinit(){
 	struct proc *p;
-	printf("entered userinit\n");
+	/* printf("entered userinit\n"); */
 	/* allocate memory for stdin wait queue */
 	_stdin = (struct read_proc*)kmalloc(sizeof(struct read_proc));
 	memset1((char *)_stdin,0,sizeof(struct read_proc));
@@ -93,7 +94,7 @@ void userinit(){
 	fgproc=initproc;
 	if(!(p->pml4_t=load_kern_vm())){
 		/* panic code goes here*/
-		printf("unable to allocate pml4\n");
+		printf("Kernel Panic: Unable To Create Initproc\n");
 	}
 	//inituvm(p->pml4_t,binary_initcode_start,binary_initcode_size);
 	p->size=FRAME_SIZE;
@@ -115,7 +116,7 @@ void userinit(){
 	p->state=RUNNABLE;
 	
 	
-	printf("calling exec\n");
+	/* printf("calling exec\n"); */
 	
 	/* call exec */
 	proc=p;
@@ -156,7 +157,7 @@ void userinit(){
 	/* give initproc STDIN, STDOUT,STDERR*/
 	proc->ofile[STDIN]=filealloc();
 	if(proc->ofile[STDIN]==NULL){
-		printf("STDIN fiel struct not allocd for initproc\n");
+		printf("Kernel Panic, STDIN fiel struct not allocd for initproc\n");
 		/* panic. kill proc */
 	}
 	fp=proc->ofile[STDIN];
@@ -166,7 +167,7 @@ void userinit(){
 
 	proc->ofile[STDOUT]=filealloc();
 	if(proc->ofile[STDOUT]==NULL){
-		printf("STDOUT file struct not allocd for initproc\n");
+		printf("Kernel Panic: STDOUT file struct not allocd for initproc\n");
 		/* panic. kill proc */
 	}
 	fp=proc->ofile[STDOUT];
@@ -177,7 +178,7 @@ void userinit(){
 
 	proc->ofile[STDERR]=filealloc();
 	if(proc->ofile[STDERR]==NULL){
-		printf("STDERR fiel struct not allocd for initproc\n");
+		printf("Kernel Panic: STDERR fiel struct not allocd for initproc\n");
 		/* panic. kill proc */
 	}
 	fp=proc->ofile[STDERR];
@@ -192,7 +193,7 @@ void userinit(){
 	init_stdin_queue();
 
 	/* initialize inodes */
-	init_inodes();
+	/* init_inodes(); */
 	/* printf writes to <1MB mem region. Now user page tables are loaded. We cannot access <1MB since we did not map that region into user process < 1MB VM aread */
 	/* printf("calling scheduler\n"); */
 	scheduler();
@@ -328,8 +329,9 @@ void switchuvm(struct proc *p){
 	tss.rsp0=(uint64_t)p->kstack+KSTACKSIZE;
 	/* ltr(TSS_ADDRESSS); */
 	if(!p->pml4_t){
-		printf("no page tables allocated for this process. They should have been. Fatal.\n");
+		/* printf("no page tables allocated for this process. They should have been. Fatal.\n"); */
 		/* PANIC */
+		;
 	}
 	load_base(get_phys_addr((uint64_t)p->pml4_t)); /* load process page tables */
 	/* sti(); */
@@ -378,9 +380,10 @@ void free_vma_list(struct vma **p){
 
 struct file * filedup(struct file *f){
 	if(f->ref < 1){
-		printf("file struct ref count less than 1\n. filedup error\nproc pid->%d\n",proc->pid);
+		/* printf("file struct ref count less than 1\n. filedup error\nproc pid->%d\n",proc->pid); */
 		/* panic(filedup) */
 		/* kill proc */
+		;
 	}
 	f->ref++;
 	return f;
@@ -395,7 +398,7 @@ int enqueue_sleep(struct proc *p,struct timespec *rem){
 	t->rem.tv_nsec=rem->tv_nsec;
 	t->next=NULL;
 	if(t==NULL){
-		printf("unable to allocate memory...enqueue_sleep failed\n");
+		/* printf("unable to allocate memory...enqueue_sleep failed\n"); */
 		return 0;
 	}
 	if(sleep_head == NULL ){
@@ -480,7 +483,7 @@ int enqueue_waitpid(struct proc *p, int pid){
 	t->pid=pid;
 	t->next=NULL;
 	if(t==NULL){
-		printf("unable to allocate memory..enqueue_waitpid failed\n");
+		/* printf("unable to allocate memory..enqueue_waitpid failed\n"); */
 		return 0;
 	}
 	if(waitpid_head==NULL){
@@ -566,7 +569,7 @@ int pipealloc(struct file ** f0,struct file ** f1){
 	p=0;
 	*f0=*f1=0;
 	if((*f0=filealloc())==0 || (*f1=filealloc())==0){
-		printf("no free file struct available\n");
+		/* printf("no free file struct available\n"); */
 		/* free pipe structure */
 		if(p)
 			kfree(p);
@@ -581,7 +584,7 @@ int pipealloc(struct file ** f0,struct file ** f1){
 	p=(struct pipe *)kmalloc(sizeof(struct pipe));
 	if(p==NULL){
 		/* kmalloc failed */
-		printf("kmalloc failed. no memory for pipe\n");
+		/* printf("kmalloc failed. no memory for pipe\n"); */
 		/* free pipe structure */
 		if(p)
 			kfree(p);
@@ -644,7 +647,7 @@ void fileclose(struct file *f){
 	struct file ff;
 	/* if ref count of file less than one, panic */
 	if(f->ref < 1){
-		printf("reference count of file less than one..\n");
+		/* printf("reference count of file less than one..\n"); */
 		/* panic. kill proc??? */
 		return ;
 	}
@@ -874,7 +877,7 @@ void clear_wp_bit(){
 
 void do_exit(int status, struct proc *p){
 
-	printf("proc -> %d -> exit syscall\n",p->pid);
+	/* printf("proc -> %d -> exit syscall\n",p->pid); */
 	/* free vmas free_vma_list(head) */
 	/* clear open file descriptors */
 	int fd=0;

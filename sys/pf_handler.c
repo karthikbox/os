@@ -95,7 +95,8 @@ void handle_pf(uint64_t error){
 		pt_entry *pt_ent=NULL;
 		if((pt_ent=get_pt_entry_for_virt(pf_va))==NULL){
 			/* sanity check */
-			printf("sanity check failed...unable to get pt_entry for virt addr\n");
+			/* printf("sanity check failed...unable to get pt_entry for virt addr\n"); */
+			;
 		}
 		/* pt_ent is the page table entry for this pf_va */
 		/* check if cow bit is set */
@@ -107,10 +108,10 @@ void handle_pf(uint64_t error){
 				/* get a new frame  */
 				uint64_t *new_frame=(uint64_t *)kmalloc(FRAME_SIZE);
 				if(new_frame==NULL){
-					printf("unable to allocate memory during COW\n");
+					/* printf("unable to allocate memory during COW\n"); */
 					/* kill proc, what should kernel do? */
-					printf("out of memory.Killing current proc\n");
-					kmallocTest();
+					printf("Out Of Memory. Killing Current Proc\n");
+
 					do_exit(0,proc);
 					return ;
 				}
@@ -127,7 +128,8 @@ void handle_pf(uint64_t error){
 				pt_entry_add_attrib(pt_ent,PT_WRITABLE|PT_USER|PT_PRESENT);
 				/* sanity check: ref count of new frame should be 0 */
 				if(get_ref_count(pt_entry_get_frame((*pt_ent)))!=0){
-					printf("sanity check failed: ref count of new frame should be 0\n");
+					/* printf("sanity check failed: ref count of new frame should be 0\n"); */
+					;
 				}
 				/* set ref count of new frame is 0 */				
 				set_ref_count(pt_entry_get_frame((*pt_ent)),0);
@@ -141,7 +143,8 @@ void handle_pf(uint64_t error){
 				pt_entry_del_attrib(pt_ent,PT_COW);
 			}
 			else{
-				printf("sanity check failed: ref count is < 0\n");
+				/* printf("sanity check failed: ref count is < 0\n"); */
+				;
 			}
 		}
 		else{
@@ -201,7 +204,7 @@ void handle_pf(uint64_t error){
 					/* get a new frame and give it to this virt addr */
 					/* with perms PT_USER|PT_WRITABLE */
 					if(allocuvm(proc->pml4_t,pf_va,1,PT_WRITABLE|PT_USER)==0){
-						printf("out of memory\n");
+						printf("Out Of Memory. Killing Process\n");
 						/* kill process ?? */
 						do_exit(0,proc);
 					}
@@ -216,9 +219,9 @@ void handle_pf(uint64_t error){
 					/* then allocate frame for stack, increase(lower) stack vma.start  */
 					/* give permissions as PT_USER|PT_WRITBALE to page */
 					if(allocuvm(proc->pml4_t,pf_va,1,PT_WRITABLE|PT_USER)==0){
-						printf("out of memory\n");
+						printf("Out Of Memory. Killing Process\n");
 						/* kill process ?? */
-						kmallocTest();
+
 						do_exit(0,proc);
 					}
 					/* extend heap vma by one page downwards*/
@@ -228,9 +231,9 @@ void handle_pf(uint64_t error){
 				if((pf_va < p->end) && (pf_va >= p->start)){
 					/* USE CASE */
 					if(allocuvm(proc->pml4_t,pf_va,1,PT_WRITABLE|PT_USER)==0){
-						printf("out of memory\n");
+						printf("Out Of Memory. Killing Process\n");
 						/* kill process ?? */
-						kmallocTest();
+
 						do_exit(0,proc);
 					}
 					return ;
@@ -242,12 +245,12 @@ void handle_pf(uint64_t error){
 		/* segmentaion fault */
 		printf("segmentation fault\n");		
 		/* kill proc  */
-		kmallocTest();
+		/* kmallocTest(); */
 		do_exit(0,proc);
 		return;
 	}	
 	printf("PANIC!!!. RESTART\n");
-	kmallocTest();
+	/* kmallocTest(); */
 	while(1);
 }
 

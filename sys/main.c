@@ -46,7 +46,7 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	vm_init(physbase,physfree);
 	
 
-	printf("%p\n",(uint64_t)alloc_frame(PAGE_SIZE));
+	/* printf("%p\n",(uint64_t)alloc_frame(PAGE_SIZE)); */
 
 	printf("%p <-> %p\n",physbase,physfree);
 	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
@@ -56,9 +56,10 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
         
 	struct ref_map ref_count_struct;
 	if(!init_ref_map(&ref_count_struct)){
-		printf("unable to allocate mem for ref count array...fatal");
+		/* printf("unable to allocate mem for ref count array...fatal"); */
+		printf("kernel panic, restart\n");
 	}
-	printf("calling userinit\n");
+	/* printf("calling userinit\n"); */
 	userinit();
 	printf("Infinite loop in sys_main.c\n");
 	//while(1);

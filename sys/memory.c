@@ -245,7 +245,7 @@ void kmallocTest(){
 		total++;
 		temp=temp->next;
 	}
-	printf("Total: %d, used: %d, free: %d\n",total, used, free);
+	/* printf("Total: %d, used: %d, free: %d\n",total, used, free); */
 
 	printf("used frames->%d, free frames->%d\n",memory_used_frames,get_free_frame_count());
 }

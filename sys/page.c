@@ -189,7 +189,7 @@ int vm_init(void* physbase,void* physfree){
 	pml4_base=alloc_frame(PAGE_SIZE);
 	
 	if(!pml4_base){
-		printf("unable to allocate frame\n");
+		printf("kernel panic vm_init: unable to allocate frame\n");
 		return 0;
 	}
 	memset1((char *)pml4_base,0,FRAME_SIZE);
@@ -203,7 +203,7 @@ int vm_init(void* physbase,void* physfree){
 	for(i=0;i<0x100000ul;i+=0x1000ul){ /* for every page till 1MB */
 		//printf("%p maps to ",i);
 		if(!vm_page_map(i,i,flags)){		/* identity map */
-			printf("unable to map\n");
+			printf("kernel panic unable to map\n");
 			return 0;
 		}
 	}
@@ -214,7 +214,7 @@ int vm_init(void* physbase,void* physfree){
 	/* physbase if */
 	for(i=(uint64_t)0x000000ul;i<(uint64_t)0x7ffe000ul;i+=0x1000ul){
 		if(!vm_page_map(i,0xffffffff80000000ul+i,flags)){	/* physical addr, virt addr */
-			printf("unable to map\n");
+			printf("kernel panic: unable to map\n");
 			return 0;
 		}
 	}
@@ -311,7 +311,7 @@ int allocuvm(pml4 *pml4_t,uint64_t virt_addr,uint64_t sz,uint64_t flags){
 		/* alloc a frame for this  addr i*/
 		if(!u_alloc_frame_for_va(pml4_t,i,flags)){
 			/* alloc_frame_for_va failed */
-			printf("alloc_frame_for_va failed\n");
+			/* printf("kernel panic: allocuvm: alloc_frame_for_va failed\n"); */
 			return 0;
 		}
 	}
@@ -388,7 +388,8 @@ void free_pt(pt *pt_t){
 				decr_ref_count(pt_entry_get_frame(pt_t->m_entries[i]));
 			}
 			else{
-				printf("ref count is negative...should never happen\n");
+				/* printf("ref count is negative...should never happen\n"); */
+				;
 			}
 			
 		}
@@ -412,7 +413,7 @@ pml4 * copyuvm(pml4 *parent_pml4_t){
 			/* allocate a pdp frame */
 			pd_entry *child_pdp=(pd_entry *)kmalloc(FRAME_SIZE); //confirm conversion
 			if(child_pdp==NULL){
-				printf("out of memory. unable to allocate page tables\n");
+				/* printf("out of memory. unable to allocate page tables\n"); */
 				/* free all the pages assigned to this new process pml4 */
 				free_uvm(child_pml4);
 				/* break */
@@ -535,7 +536,7 @@ struct vma * copyvma(struct vma *p_head){
 		/* allocate new vma for child */
 		struct vma *ptr=(struct vma *)kmalloc(sizeof(struct vma));
 		if(ptr==NULL){
-			printf("unable to clone vmas...no memory\n");
+			/* printf("unable to clone vmas...no memory\n"); */
 			free_vma_list(&c_head); /* frees new vma list */
 			return NULL;
 		}
@@ -559,7 +560,7 @@ pt_entry * get_pt_entry_for_virt(uint64_t virt_addr ){
 	/* get virtual addr of pdp table */
 	if(pd_entry_present(pml4_t->m_entries[offset])==0){
 		/* sanity check */
-		printf("pml4 entry not present, bt should be\n");
+		/* printf("pml4 entry not present, bt should be\n"); */
 		return NULL;
 	}
 	pdp *pdp_t=(pdp *)get_virt_addr(pd_entry_get_frame(pml4_t->m_entries[offset]));
@@ -569,7 +570,7 @@ pt_entry * get_pt_entry_for_virt(uint64_t virt_addr ){
 	/* get virtual addr of pd table */
 	if(pd_entry_present(pdp_t->m_entries[offset])==0){
 		/* sanity check */
-		printf("pdp entry not present, but should be\n");
+		/* printf("pdp entry not present, but should be\n"); */
 		return NULL;
 	}
 	pd *pd_t=(pd *)get_virt_addr(pd_entry_get_frame(pdp_t->m_entries[offset]));
@@ -579,7 +580,7 @@ pt_entry * get_pt_entry_for_virt(uint64_t virt_addr ){
 	/* get virtual addr of pt table */
 	if(pd_entry_present(pd_t->m_entries[offset])==0){
 		/* sanity check */
-		printf("pd entry not present, bt should be\n");
+		/* printf("pd entry not present, bt should be\n"); */
 		return NULL;
 	}
 	pt *pt_t=(pt *)get_virt_addr(pd_entry_get_frame(pd_t->m_entries[offset]));
@@ -589,7 +590,7 @@ pt_entry * get_pt_entry_for_virt(uint64_t virt_addr ){
 	/* get value of pt_entry at this offset in pt table */
 	if(pt_entry_present(pt_t->m_entries[offset])==0){
 		/* sanity check */
-		printf("pt entry not present, bt should be\n");
+		/* printf("pt entry not present, bt should be\n"); */
 		return NULL;
 	}
 	return &pt_t->m_entries[offset];
