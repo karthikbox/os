@@ -976,11 +976,11 @@ int do_waitpid(pid_t pid, int* status, int options){
 					continue;
 				}
 				else{
-					haveKids=1;
 					/* found process with id pid */
 					/* check if this process is my child  */
 					if(p->parent==proc){
 						/* pid is my child */
+						haveKids=1;
 						/* check if it is zombie */
 						/* then mark it UNUSED */
 						if(p->state==ZOMBIE){

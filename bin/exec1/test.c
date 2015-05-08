@@ -11,8 +11,12 @@ int main(int argc, char* argv[], char* envp[]) {
 		printf("envp[%d]->%s\n",i,envp[i]);
 	}
 	int fd=open("mnt/test.txt",O_RDONLY);
+	if(fd < 0){
+		printf("error in open. errno->%d\n",errno);
+	}
+	printf("fd->%d",fd);
 	char a[100];
-	int r=read(fd+1,a,10);
+	int r=read(fd,a,10);
 	if(r<0){
 		printf("read failed\n");
 		printf("errno %d \n",errno);
@@ -30,7 +34,7 @@ int main(int argc, char* argv[], char* envp[]) {
 	printf("read %d bytes\n",r);
 	printf("%s\n",a);
 
-	int ret=lseek(fd+1,100,SEEK_END);	
+	int ret=lseek(fd,-20,SEEK_CUR);	
 	if(ret<0)
 		printf("lseek errno->%d\n",errno);
 	printf("lseek return value-> %d\n",ret);

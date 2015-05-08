@@ -117,15 +117,27 @@ void do_fork(){
 }
 size_t do_write(int fd, const void* bf, size_t len){
 	
+	if((valid_addr((uint64_t)bf) ==0 ) || (valid_addr_range((uint64_t)bf,len)==0)){
+		/* above kernbase */
+		/* so return -EFAULT */
+		return -EFAULT;
+	}
+	
+
 	size_t i=0;
 	const char *buf=(const char *)bf;
+
+	if((fd < 0 ) || (fd >= NOFILE)){
+		return -EBADF;
+	}
+
 	if(proc->ofile[fd]==NULL){
-		return -1;				/* no local file decriptor */
+		return -EBADF;				/* no local file decriptor */
 	}
 
 	/* check if the file is writable or not */	
 	if(proc->ofile[fd]->writable==0){
-		return -1;
+		return -EBADF;
 	}
 
 	/* check the file type */
@@ -134,14 +146,24 @@ size_t do_write(int fd, const void* bf, size_t len){
 		for(i=0;i<len;i++){
 			printf("%c",buf[i]);
 		}
+		return i;
 	}
 
 	/* if file type is pipe, call pipewrite */
 	else if(proc->ofile[fd]->type==FD_PIPE){
-		return pipewrite(proc->ofile[fd]->pipe, (char *)bf, len);
+		int ret= pipewrite(proc->ofile[fd]->pipe, (char *)bf, len);
+		if (ret < 0){
+			return -EPIPE;
+		}
+		else
+			return ret;
+	}
+	else{
+		/* if it is not STDERR,STDOUT, PIPE */
+		return -EBADF;
 	}
 
-	return i;
+
 } 
 void do_brk(void* end_data_segment){
   
@@ -225,6 +247,12 @@ void do_read(int fd, void* buf, size_t count){
 		return ;
 	}
 
+	if((fd < 0 ) || (fd >= NOFILE)){
+		proc->tf->rax=-EBADF;
+		return ;
+	}
+	
+
 	/* printf("proc -> %d -> read syscall\n",proc->pid); */
 	if(proc->ofile[fd]==NULL){
 		proc->tf->rax=-EBADF;		/* no local file decriptor */
@@ -283,7 +311,10 @@ void do_read(int fd, void* buf, size_t count){
 		
 		/* p->offset gives amount read until now*/
 		/* (char *)p->addr + p->offset give next byte to be read */
-		
+		if(p->offset < 0){
+			proc->tf->rax=-EINVAL;
+			return ;
+		}
 		/* see if there is anything left to copy */
 		if(p->offset >= p->size){	/* if offset is greater than file size then nothing to read */
 			/* nothing left ro read */
@@ -313,7 +344,7 @@ void do_read(int fd, void* buf, size_t count){
 			}
 			else{
 				printf("error in read\n");
-				ret=-1;
+				ret=-EINVAL;
 			}
 		}
 		/* return  */
@@ -607,7 +638,7 @@ int do_open(char *buf, uint64_t flags){
 		/* set addr to addr returned from tarfs */
 		fd->addr=(uint64_t *)tarfs_file;
 		/* set offset to 0 */
-		fd->offset=0x0ul;
+		fd->offset=0x0;
 		/* set size of file */
 		/* convert form octol to decimal */
 		fd->size=oct_to_dec(((struct posix_header_ustar *)tarfs_file -1 )->size);

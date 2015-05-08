@@ -30,7 +30,14 @@ int execve(const char *filename, char *const argv[], char *const envp[]) {
 }
 
 pid_t waitpid(pid_t pid, int *status, int options) {
-	return (pid_t) syscall_3(SYS_wait4, (uint64_t) pid, (uint64_t) status, (uint64_t) options);
+	int ret= (pid_t) syscall_3(SYS_wait4, (uint64_t) pid, (uint64_t) status, (uint64_t) options);
+	if(ret < 0){
+		errno=-ret;
+		return -1;
+	}
+	else{
+		return ret;
+	}
 }
 
 unsigned int alarm(unsigned int seconds) {
