@@ -915,7 +915,6 @@ void do_exit(int status, struct proc *p){
 	p->state=ZOMBIE;
 	/* call the sched */
 	sched();
-	printf("PANIC!!! zombie exit!!");
 }
 
 

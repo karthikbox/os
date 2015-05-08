@@ -1,0 +1,15 @@
+#! /bin/sbush
+
+cd bin
+ls .
+cd ../mnt
+ls
+cd /
+ls
+ps
+echo test
+sleep 4
+bin/exec
+sleep 4
+bin/ee
+exit
