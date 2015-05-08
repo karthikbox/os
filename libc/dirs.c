@@ -88,6 +88,12 @@ int closedir(void *dir){
 
 
 int getdents(DIR dirp){
-    return (int)syscall_3((uint64_t)SYS_getdents,(uint64_t)dirp->fd,(uint64_t)dirp->buf,(uint64_t)DIR_BUF_SIZE);
+	
+    int ret= (int)syscall_3((uint64_t)SYS_getdents,(uint64_t)dirp->fd,(uint64_t)dirp->buf,(uint64_t)DIR_BUF_SIZE);
+	if(ret<0){
+		errno=-ret;
+		return -1;
+	}
+	return ret;
 }
 

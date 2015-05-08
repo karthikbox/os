@@ -272,7 +272,7 @@ int isBinary(char** tokens,int len) {
 
 void cmd_cd(char** tokens) {
     if(chdir(tokens[1])<0)
-        perror("error in chdir\n");
+        perror("error in chdir %d\n",errno);
 }
 
 void cmd_set_path(char* cmdpath, char **envp, int path_index, char* envpath)

@@ -55,18 +55,46 @@ off_t lseek(int fd, off_t offset, int whence) {
 }
 
 int close(int fd) {
-	return (int) syscall_1(SYS_close, (uint64_t) fd);
+	int ret= (int) syscall_1(SYS_close, (uint64_t) fd);
+	if(ret < 0){
+		errno=-ret;
+		return -1;
+	}
+	else{
+		return ret;
+	}
 }
 
 int pipe(int filedes[2]) {
-	return (int) syscall_1(SYS_pipe, (uint64_t) filedes);
+	int ret= (int) syscall_1(SYS_pipe, (uint64_t) filedes);
+	if(ret < 0){
+		errno=-ret;
+		return -1;
+	}
+	else{
+		return ret;
+	}
 }
 
 int dup(int oldfd) {
-	return (int) syscall_1(SYS_dup, (uint64_t) oldfd);
+	int ret= (int) syscall_1(SYS_dup, (uint64_t) oldfd);
+	if(ret < 0){
+		errno=-ret;
+		return -1;
+	}
+	else{
+		return ret;
+	}
 }
 
 int dup2(int oldfd, int newfd) {
-	return (int) syscall_2(SYS_dup2, (uint64_t) oldfd, (uint64_t) newfd);
+	int ret= (int) syscall_2(SYS_dup2, (uint64_t) oldfd, (uint64_t) newfd);
+	if(ret < 0){
+		errno=-ret;
+		return -1;
+	}
+	else{
+		return ret;
+	}
 }
 

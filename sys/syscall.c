@@ -212,6 +212,15 @@ pid_t do_getppid(){
 }
 
 void do_nanosleep(struct timespec *req,struct timespec *rem){
+	
+	if((valid_addr((uint64_t)req) ==0 ) || (valid_addr((uint64_t)rem)==0)){
+		/* above kernbase */
+		/* so return -EFAULT */
+		proc->tf->rax=-EFAULT;
+		return ;
+	}
+
+
 	if(req->tv_sec >= 0){
 		/* sleep time is >0 secs */
 		/* set state to SLEEPING */
@@ -223,7 +232,7 @@ void do_nanosleep(struct timespec *req,struct timespec *rem){
 		if(enqueue_sleep(proc,rem)==0){
 			/* enqueue failed */
 			/* sleep returns -1 */
-			proc->tf->rax=-1;
+			proc->tf->rax=-ENOMEM;
 			/* make proc RUNNING */
 			proc->state=RUNNING;
 			return ;
@@ -231,6 +240,7 @@ void do_nanosleep(struct timespec *req,struct timespec *rem){
 		/* enqueue success */
 		/* schedule next process */
 		sched();
+		proc->tf->rax=0;		/* sleep returns 0 on success */
 	}
 }
 
@@ -402,11 +412,16 @@ void do_copy(){
 
 void do_pipe(int *fd_arr){
 	printf("proc -> %d -> pipe syscall\n",proc->pid);
+
+	if(valid_addr((uint64_t)fd_arr)==0){
+		proc->tf->rax=-EFAULT;
+		return ;
+	}
 	/* allocate 2 FILE structs */
 	struct file *rf,*wf;
 	int fd0, fd1;
 	if(pipealloc(&rf,&wf) < 0){
-		proc->tf->rax=-1;
+		proc->tf->rax=-ENFILE;
 		return;
 	}
 	fd0=-1;
@@ -419,7 +434,7 @@ void do_pipe(int *fd_arr){
 		}
 		fileclose(rf);
 		fileclose(wf);
-		proc->tf->rax=-1;
+		proc->tf->rax=-EMFILE;
 		return ;
 	}
 	/* put index of local pcb ofiles fd table in fd_arr[0] and fd_arr[1] */
@@ -430,6 +445,11 @@ void do_pipe(int *fd_arr){
 }
 
 void do_close(int fd){
+
+	if((fd <0) || (fd >=NOFILE) || (proc->ofile[fd]==NULL)){
+		proc->tf->rax=-EBADF;
+		return;
+	}
 
 	/* decrease the reference count of the file by calling fileclose */
 	fileclose(proc->ofile[fd]);
@@ -442,13 +462,13 @@ void do_close(int fd){
 }
 
 int do_dup(int old_fd){
-	if( (old_fd < 0) || (old_fd >= NOFILE))
-		return -1;
+	if( (old_fd < 0) || (old_fd >= NOFILE) || (proc->ofile[old_fd] == NULL))
+		return -EBADF;
 	
 	/* allocate new local fd and make it point to old fd's file struct */
 	int fd;
 	if((fd=fdalloc(proc->ofile[old_fd])) ==-1){
-		return -1;				/* no available local fd */
+		return -EMFILE;				/* no available local fd */
 	}
 	filedup(proc->ofile[old_fd]); /* increment ref count file struct  */
 	return fd;
@@ -456,12 +476,11 @@ int do_dup(int old_fd){
 
 int do_dup2(int old_fd, int new_fd){
 
-	if( (old_fd < 0) || (old_fd >= NOFILE))
-		return -1;
+	if( (old_fd < 0) || (old_fd >= NOFILE) || (proc->ofile[old_fd] == NULL))
+		return -EBADF;
 
 	if( (new_fd < 0) || (new_fd >= NOFILE))
-		return -1;
-
+		return -EBADF;
 
 	/* check if new fd is pointing to some file struct */
 	if(proc->ofile[new_fd]!=NULL){
@@ -477,14 +496,14 @@ int do_dup2(int old_fd, int new_fd){
 }
 
 
-char *do_getcwd(char *buf,size_t size){
+char* do_getcwd(char *buf,size_t size){
 	/* check if buf is a valid addr */
 	/* if it falls in any of the proc's vmas */
 	if(valid_addr((uint64_t)buf)==0){
 		/* not a valid addr */
 		/* kill proc?? */
-		do_exit(0,proc);
-		return NULL;			/* will never return NULL */		
+		/* do_exit(0,proc); */
+		return NULL;
 	}
 	else{
 		/* valid ptr */
@@ -503,13 +522,20 @@ char *do_getcwd(char *buf,size_t size){
 int do_chdir(const char *path){
 	/* On success returns 0, on failure returns -1 */
 	uint64_t *tarfs_file;
+	if(valid_addr((uint64_t)path)==0){
+		/* not a valid addr */
+		/* kill proc?? */
+		/* do_exit(0,proc); */
+		return -EFAULT;
+	}
 	/* copy path to kernel memory */
 	char *kpath = (char*)kmalloc(NCHARS*sizeof(char));
 	strcpy(kpath, (char *)path);
+
 	/* get the absolute path  */
 	if(get_absolute_path(kpath) == NULL){
 		kfree(kpath);
-		return -1;
+		return -ENAMETOOLONG;
 	}
 	/* if it is not root directory */
 	if(strcmp(kpath, "")){
@@ -518,7 +544,7 @@ int do_chdir(const char *path){
 		/* change proc->cwd, if path is valid */
 		if(tarfs_file == NULL){
 			kfree(kpath);
-			return -1;
+			return -ENOENT;
 		}
 	}
 	
@@ -658,10 +684,13 @@ int do_open(char *buf, uint64_t flags){
 }
 
 int do_getdents(int fd, char* buf, size_t len){
-
+	
+	if(!valid_addr((uint64_t)buf)){
+		return -EFAULT;
+	}
 	/* sanity check */
-	if(fd<0 || fd>=NOFILE || proc->ofile[fd]==NULL || proc->ofile[fd]->type!=FD_DIR || !valid_addr((uint64_t)buf) ){
-		return -1;
+	if(fd<0 || fd>=NOFILE || proc->ofile[fd]==NULL || proc->ofile[fd]->type!=FD_DIR) {
+		return -EBADF;
 	}
 	int mustBeEmpty=0;
 	int nreads=0;

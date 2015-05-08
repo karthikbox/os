@@ -53,13 +53,15 @@ unsigned int alarm(unsigned int seconds) {
 
 unsigned int sleep(unsigned int seconds){
     struct timespec req;
-    unsigned int ret;
+    int ret;
     req.tv_sec=seconds;
     req.tv_nsec=0L;
     struct timespec rem;
     ret=syscall_2(SYS_nanosleep,(uint64_t)&req,(uint64_t)&rem);
-    if(ret < 0)
-      ret = -1;
+    if(ret < 0){
+		errno=-ret;
+		ret = -1;
+	}
     return ret;
 }
 
