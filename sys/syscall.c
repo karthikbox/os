@@ -760,7 +760,11 @@ int add_non_root(struct file *fd,char *buf,size_t len){
 
 		if((token_len >= 2) && (tokens[0]!=NULL) && (tokens[1]!=NULL)){
 			strcat(tokens[0],"/");
-			if((strcmp(tokens[0],fd->inode_name)==0) && (strcmp(tokens[1],prev)!=0)){
+			for(int i=1;i<token_len-1;i++){
+				strcat(tokens[0],tokens[i]);
+				strcat(tokens[0],"/");
+			}
+			if((strcmp(tokens[0],fd->inode_name)==0) && (strcmp(tokens[token_len-1],prev)!=0)){
 				/* root dir entry */
 				/* form linux struct */
 				/* check if new entry fits in buf */
@@ -772,9 +776,9 @@ int add_non_root(struct file *fd,char *buf,size_t len){
 					dirent->d_ino=999; /* dummy */
 					dirent->d_reclen=sizeof(struct dirent);
 					dirent->d_off=sizeof(struct dirent);
-					strcpy(dirent->d_name,tokens[1]);
+					strcpy(dirent->d_name,tokens[token_len-1]);
 					nreads+=sizeof(struct dirent);
-					strcpy(prev,tokens[1]);
+					strcpy(prev,tokens[token_len-1]);
 				}
 				else{
 					/* no space for dirent */

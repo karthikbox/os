@@ -62,25 +62,31 @@ uint64_t * get_absolute_path(char *path){
 	char absolute_path[100];
 	char **tokens;
 	int token_len;
-	int i,j,len,flag;
-	i=j=len=flag=0;
+	int i,j,len;
+	i=j=len=0;
 
 	/* return 1 on success, 0 on failure */
 	/* check if it is absolute or not */
 	/* if absolute remove the first slash */
+	memset1((char*)absolute_path, 0, 100);
 	if(path[0] == '/'){
 		strcpy(absolute_path, path+1);
 	}
 	/* if relative append cwd to path */
 	else{
 		strcpy(absolute_path,(char*)(proc->cwd) + 1) ;
-		strcat(absolute_path, "/");
+		/* if(strcmp(proc->cwd, "/")==0){ */
+		/* 	strcat(absolute_path, "/"); */
+		/* } */
 		strcat(absolute_path, path);
 	}
 	
 	/* get all the directories in the path */
 	tokens=strtoken(absolute_path, "/", &token_len);
 	
+	/* printf("absolutepath -> %s\n",absolute_path); */
+	/* printf("token len -> %d\n", token_len); */
+
 	for(i=0;i<token_len;i++){
 		
 		/* directory is '.' skip */
@@ -89,22 +95,13 @@ uint64_t * get_absolute_path(char *path){
 		}
 		/* directory is '..' move backwards */
 		else if(!strcmp(tokens[i],"..")){
-			if(flag == 1){
-				j=-2;
-			}
-			/* consecutive '..' need to move only one step backwards */
-			else if(flag == 0){
-				j=-1;
-			}
-			/* flag is used to identify contiguous '..' */
-			flag=0;
+			j-=1;
 			/* this is the case when you are going below the root */
 			if(j<0){
 				j=0;
 			}
 		}
 		else{
-			flag=1;
 			strcpy(tokens[j],tokens[i]);
 			j++;
 		}
@@ -114,7 +111,6 @@ uint64_t * get_absolute_path(char *path){
 	
 	/* if it is root folder, return empty string */
 	if(j==0){
-		free_array(tokens,token_len);
 		strcpy(path, "");
 	}
 	/* concatenate all the paths */
