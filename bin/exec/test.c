@@ -5,7 +5,7 @@ void foo();
 
 int main(int argc, char* argv[], char* envp[]) {
 	/* infinite recursion test */
-	/* foo(); */        
+	/* foo();         */
 
 	/* segmention fault case 1 */
   	/* char *a=(char*) 0xffffffff80000000; */
@@ -22,8 +22,8 @@ int main(int argc, char* argv[], char* envp[]) {
 	/* while(1){ */
 	/* 	int pid=fork(); */
 	/* 	if(pid>0){ */
-	/* 		/\* strcat(envp[0], ":added"); *\/			 */
-	/* 		waitpid(-1, &status, 0);  */
+	/* 		/\* strcat(envp[0], ":added"); *\/ */
+	/* 		waitpid(-1, &status, 0); */
 	/* 	} */
 	/* 	else if(pid == 0){ */
 	/* 		printf("envp strlen -> %d\n",strlen(envp[0])); */
@@ -31,6 +31,14 @@ int main(int argc, char* argv[], char* envp[]) {
 	/* 	} */
 	/* } */
 
+	/* infinte malloc */
+	char *a=(char*)malloc(1000000000);
+	int i;
+	for(i=0;i<1000000000;i+=0x1000){
+		a[i]='a';
+	}
+	
+	/* ls */
 
 	/* for(int i=0;i<400;i++){ */
 	/* 	int pid=fork(); */

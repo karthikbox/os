@@ -6,9 +6,10 @@ void foo(){
 	foo();
 }
 int main(int argc, char* argv[], char* envp[]) {
-	char a[100];
-	scanf("%s",a);
-	printf("%s\n",a);
+	int a;
+	scanf("%d",&a);
+	a++;
+	printf("%d\n",a);
 
 	
 	/* int ret=dup(STDOUT); */
