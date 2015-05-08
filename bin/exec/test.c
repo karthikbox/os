@@ -1,28 +1,55 @@
 #include<stdio.h>
 #include <stdlib.h>
-
+#include <string.h>
 void foo();
 
 int main(int argc, char* argv[], char* envp[]) {
-	/* foo(); */
-	for(int i=0;i<400;i++){
-		int pid=fork();
-		if(pid>0){
-			printf("%d\n",i);
-			mallocTest();
-		}
-		else if(pid==0){
-			/* return ; */
-			/* while(1); */
-			return 0;
-		}
-		else{
-			printf("fork failed\n");
-			printf("%d\n",i);
-			mallocTest();
+	/* infinite recursion test */
+	/* foo(); */        
 
-		}
-	}
+	/* segmention fault case 1 */
+  	/* char *a=(char*) 0xffffffff80000000; */
+	/* a[0]='f'; */
+	/* printf("%c\n",a); */
+
+	/* segmentation fault case 2 */
+	/* int *a =(int*) 1; */
+	/* printf("%d\n", *a); */
+
+	/* infinite execs and forks*/
+	/* int status = 0; */
+
+	/* while(1){ */
+	/* 	int pid=fork(); */
+	/* 	if(pid>0){ */
+	/* 		/\* strcat(envp[0], ":added"); *\/			 */
+	/* 		waitpid(-1, &status, 0);  */
+	/* 	} */
+	/* 	else if(pid == 0){ */
+	/* 		printf("envp strlen -> %d\n",strlen(envp[0])); */
+	/* 		execve("/bin/kmalloc", argv, envp); */
+	/* 	} */
+	/* } */
+
+
+	/* for(int i=0;i<400;i++){ */
+	/* 	int pid=fork(); */
+	/* 	if(pid>0){ */
+	/* 		printf("%d\n",i); */
+	/* 		mallocTest(); */
+	/* 	} */
+	/* 	else if(pid==0){ */
+	/* 		/\* return ; *\/ */
+	/* 		/\* while(1); *\/ */
+	/* 		return 0; */
+	/* 	} */
+	/* 	else{ */
+	/* 		printf("fork failed\n"); */
+	/* 		printf("%d\n",i); */
+	/* 		mallocTest(); */
+
+	/* 	} */
+	/* } */
 	return 0;
 	/* int status=0; */
 	/* printf("test exec successful\n"); */
