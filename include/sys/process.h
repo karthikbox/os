@@ -186,6 +186,8 @@ struct proc{
 	
 };
 
+
+int free_res(struct proc *p);
 void swtch(struct context **cpu,struct context *new );
 
 
