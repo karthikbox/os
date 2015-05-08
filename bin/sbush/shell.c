@@ -44,34 +44,33 @@ int main(int argc, char *argv[],char *envp[]) {
     while(1)
     {
         //printf("sbush@cse506$ ");
-
+		
         path = getpath(&index, envp); //function to get the 'value' of PATH environment variable; gives the index of the same
-	//free path in every iteration
+		//free path in every iteration
         if(ps1Flag == 0)
-        {
-	  prompt_ret=getcwd(prompt,sizeof(prompt)+1);//no need to free prompt
-	  //prompt_ret is pointer to prompt
-            if(prompt_ret!=NULL)
-            {
-                strcat(prompt,"$ ");
-                printPrompt(prompt,PRINT_PROMPT_FLAG);
-            }
-	    else{
-		perror("getcwd failed.\n");
-		exit(1);
-	    }
-        }
+			{
+				prompt_ret=getcwd(prompt,sizeof(prompt)+1);//no need to free prompt
+				//prompt_ret is pointer to prompt
+				if(prompt_ret!=NULL)
+					{
+						strcat(prompt,"$ ");
+						printPrompt(prompt,PRINT_PROMPT_FLAG);
+					}
+				else{
+					perror("getcwd failed.\n");			
+				}
+			}
         else
-              printPrompt(prompt,PRINT_PROMPT_FLAG);
-
+			printPrompt(prompt,PRINT_PROMPT_FLAG);
+		
         
         if(scanf("%s", name) == -1)
             break;
         if((strlen(name)==0) || (name[0]=='#')){
-	  free(path);
-	  continue;
-	}
-
+			free(path);
+			continue;
+		}
+		
         if(strcmp(name, "exit") == 0)
         {
             break;
@@ -217,13 +216,13 @@ void cmd_binary(char** tokens,int token_len,char *envp[]) {
 			
 			int ret = waitpid(-1,&status,0);
 			if(ret ==-1){
-				perror("error in waitpid. Error no is %d\n",status);
+				perror("error in waitpid. Error no is %d\n",errno);
 			}
 			else{
 				while( pid != ret ){
 					ret=waitpid(-1,&status,0);
 					if(ret ==-1){
-						perror("error in waitpid. Error no is %d\n",status);
+						perror("error in waitpid. Error no is %d\n",errno);
 						break ;
 					}
 				}
@@ -254,11 +253,10 @@ void cmd_script(char** tokens,int token_len,char *envp[]) {
         if(pid == waitpid(pid,&status,0)){ /* wait till child exits */ 
 	    //printf("child exit successful\n");
 	    ;
-	}
-	else{
-	    perror("error in waitpid. Error no is %d\n",status);
-	    exit(1);
-	}
+		}
+		else{
+			perror("error in waitpid. Error no is %d\n",errno);
+		}
     }
     else {
         //error on fork
@@ -268,9 +266,9 @@ void cmd_script(char** tokens,int token_len,char *envp[]) {
 }
 
 int isScript(char** tokens,int len) {
-    if(strcmp(tokens[0],"sbush")==0)
-        return 1;
-    else
+    /* if(strcmp(tokens[0],"sbush")==0) */
+    /*     return 1; */
+    /* else */
         return 0;
 }
 

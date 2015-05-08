@@ -9,7 +9,7 @@ NOTE
 =======
 1. Maximum 30000 processes.
 2. Each process can have 16 open files.
-3. All processes combined can have
+3. All processes combined can have 100 open files
 4. Maximum characeters in a file path is 100 bytes.
 5. Maximum size of each individual argv/envp is 200 bytes.
 6. SCANF BLOCKS UNTIL LINE FEED I.E., CHARACTERS TERMINATED BY '\n'.
@@ -37,6 +37,8 @@ NOTE
 		   During this wait it may reap some zombie background child processes but will continue to wait for foreground child.
 		b. When a foreground process forks a child, the child will become the new foreground process.
 		   Only it is allowed to read STDIN. Anyother process attempting to read STDIN will be killed.
+		   Once the forefround child, dies its parent gets to be the foreground process.
+
 10. Available binaries -- ps, kill -9 <pid>, sleep <secs>, echo <string>, echo $PATH, ls [<path>]
 
 SBUSH MANUAL
@@ -63,31 +65,26 @@ EXECUTE BINARY functionality
 syntax 1:
         <filepath>
 	If given input is a path(i.e contains '/') then it executes given filepath.
-	If given input is just a filename(i.e no '/') then shell searches for given filename in every path dir and tries to execute
+	If given input is just a filename(i.e no '/') then shell searches for given filename in every PATH dir and tries to execute
 	example: sbush-shell$ rootfs/bin/sbush -> since input is a path, shell executes the given filepath.
 	example: sbush-shell$ ls -> looks up ls in every path directory and executes it, if found.
 
 EXECUTE SCRIPT functionality
 syntax 1:
-       Include the following line as the first line of the script and provide executable permissions to the script
-       #! ./rootfs/bin/sbush
+       Include the following line as the first line of the script
+       #! /bin/sbush
        example: bash-shell$ ./script.sh -> Can be run from outside our shell(sbush) as well
        example: sbush-shell$ ./script.sh -> can be given interactively within shell. Please note that it should be a filepath and not just a filename.
-       Please make sure that the given file should have EXECUTE permissions set.
-syntax 2:
-       sbush <filepath>
-       example: sbish-shell$ sbush /rootfs/test.dat -> executes the commands in the file test.dat.
-       Please make sure that the given file should have READ permissions set.
 
 NOTE: file CAN BE ANY extension.
 
 LS functionality
 syntax 1:
-	./rootfs/bin/ls <directory path 1> <directory path 2> ...
-	example: ./rootfs/bin/ls .. ./rootfs
+	/bin/ls <directory path 1> <directory path 2> ...
+	example: /bin/ls ..
 	Prints contents of specified directories
 syntax 2:
-       ./rootfs/bin/ls
+       /bin/ls
        Prints contents of current working directory by default
 NOTE: This is implemented to test our stdlib.h. 
 
