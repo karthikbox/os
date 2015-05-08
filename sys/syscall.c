@@ -279,6 +279,13 @@ void do_read(int fd, void* buf, size_t count){
 	/* add check if buf is in any of VMA's */
 	if(proc->ofile[fd]->type==FD_STDIN){
 		/* check if foreground proc flag is set */
+		if(proc->isBg==1){
+			/* this is BG */
+			/* kill it */
+			printf("Proc -> %d Not Foreground Proc. Killing It\n",proc->pid);
+			do_exit(0,proc);
+		}
+		
 		if(_stdin->proc==NULL){
 			/* if(_stdin->proc!=NULL){ */
 			/* 	printf("_stdin Q is not free, someother process in it which is not fgproc\n"); */

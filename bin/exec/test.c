@@ -43,11 +43,11 @@ int main(int argc, char* argv[], char* envp[]) {
 
 
 	/* infinte malloc */
-	/* char *a=(char*)malloc(1000000000); */
-	/* int i; */
-	/* for(i=0;i<1000000000;i+=0x1000){ */
-	/* 	a[i]='a'; */
-	/* } */
+	char *a=(char*)malloc(1000000000);
+	int i;
+	for(i=0;i<1000000000;i+=0x1000){
+		a[i]='a';
+	}
 	
 	/* ls */
 

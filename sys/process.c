@@ -1050,6 +1050,7 @@ int free_res(struct proc *p){
 	p->name[0]=0;
 	p->killed=0;
 	p->size=0;
+	p->isBg=0;
 	/* return pid of zombie child */
 	return ret;
 	

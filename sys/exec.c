@@ -43,6 +43,11 @@ int exec(char *path,char **argv,char **envp){
 	/* if elf is null, then no file exists with that name */
 	if(elf==NULL)
 		return -ENOENT;			/* NO FILE FOUND */
+
+	if(isBgProc(argv)==1){
+		/* this is a BG */
+		proc->isBg=1;
+	}
 	
 	/*  if file satrts with #! */
 	if((file[0]=='#') && (file[1]=='!')){
@@ -697,4 +702,29 @@ int exec_new(char *path,char **argv,char **envp){
 		return -ENOEXEC;
 	}
 
+}
+
+
+int isBgProc(char **argv){
+	/* returns 0 if not BG */
+	/* returns 1 if BG */
+	
+	int i=0;
+	for(i=0;argv[i];i++){
+		/* argv is not null */
+		;
+	}
+	i--;
+	if(strcmp(argv[i],"&") == 0){
+		/* last argv was & */
+		/* so BG */
+		argv[i]=NULL;
+		return 1;
+	}
+	else{
+		if(proc->parent->isBg==1){
+			return 1;
+		}
+		return 0;
+	}
 }

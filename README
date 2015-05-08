@@ -20,6 +20,24 @@ NOTE
    2 	 idle process		
    3 	 sbush			->		loads shell
    Do not kill any of these three.
+9. FOREGROUND - BACKGROUND
+
+    BG and FG processes will be reaped by parent during waitpid, if not process will become a zombie. If the zombie's parent exits, it makes initproc the parent of all its children. Initproc sits in an infinite waitpid loop, reaping zombies
+
+   BACKGROUND
+   ==========
+   Shell forks a background process when given with an '&' at the end of statement and returns immedialtely for next input. Does not wait for background proc.
+   		 a. Background procs will fork only more background procs
+		 b. Background procs will be terminated when they attempt to use STDIN
+		 c. Background proc will be reaped by parent during waitpid, if not background proc will become a zombie.
+		    If the zombie's parent exits, it makes initproc the parent of all its children. Initproc sits in an infinite waitpid loop, reaping zombies
+   FOREGROUND
+   ==========
+		a. Shell forks a foreground process and waitsfor the foreground child to exit.
+		   During this wait it may reap some zombie background child processes but will continue to wait for foreground child.
+		b. When a foreground process forks a child, the child will become the new foreground process.
+		   Only it is allowed to read STDIN. Anyother process attempting to read STDIN will be killed.
+10. Available binaries -- ps, kill -9 <pid>, sleep <secs>, echo <string>, echo $PATH, ls [<path>]
 
 SBUSH MANUAL
 ============

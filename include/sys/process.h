@@ -180,6 +180,7 @@ struct proc{
 	int killed;					  /* if non-zero then killed */
 	/* struct file *ofile[];		  /\* list of open files *\/ */
 	char name[32];				  /* process name */
+	int isBg;					  /* isBg is set if background process */
 	struct vma *vma_head ;		  /* pointer to the first VMA */
 	struct file *ofile[NOFILE];	  /* pointers to file structs. */
 	char cwd[NCHARS];			  /* name of cwd */
@@ -189,7 +190,7 @@ struct proc{
 
 int free_res(struct proc *p);
 void swtch(struct context **cpu,struct context *new );
-
+int isBgProc(char **argv);
 
 /* inode */
 struct inode{

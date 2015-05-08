@@ -170,57 +170,66 @@ void cmd_binary(char** tokens,int token_len,char *envp[]) {
     int pid=fork();
     if(pid==0) {
         //child
-      /*is_path() then
-	do execve(path)
-	if execve fails then do printf('no such file\n') and exit(1);child
-
-	else
-	then its filename to be searched in path variables
-       */
-
-      if(is_path(tokens[0])){
-	if(execve(tokens[0],tokens,envp)==-1){
-		perror("unable to execute %s->errno->%d\n",tokens[0],errno);
-	  exit(1);
-	}
-      }
-      else{
-	//printf("child\n");
-	//printf("binary file-execve-error  %s\n",tokens[0]);;
-	//trying path directories
-	char* path_raw=getpath(&path_index,envp);
-	trim(path_raw);
-	char** paths=strtoken(path_raw,":",&path_len);
-	char *org=tokens[0];
-	int i;
-	for(i=0; i<path_len; i++) {
-	  strcat(paths[i],"/");
-	  strcat(paths[i],org);
-	  tokens[0]=paths[i];
-	  if(execve(paths[i],tokens,envp)==-1) {
-	    //printf("binary file-execve-error %s\n",paths[i]);
-	    ;
-	  }
-	}
-	perror("cannot execute %s by looking up all directories in PATH\n",org);
-	//free_array(tokens,token_len); //getting error double free
-	//maybe because of copy on write which linux follows
-	tokens[0]=org;
-	free_array(paths,path_len);
-	free(path_raw);
-	exit(1);
-      }
+		/*is_path() then
+		  do execve(path)
+		  if execve fails then do printf('no such file\n') and exit(1);child
+		  
+		  else
+		  then its filename to be searched in path variables
+		*/
+		
+		if(is_path(tokens[0])){
+			if(execve(tokens[0],tokens,envp)==-1){
+				perror("unable to execute %s->errno->%d\n",tokens[0],errno);
+				exit(1);
+			}
+		}
+		else{
+			//printf("child\n");
+			//printf("binary file-execve-error  %s\n",tokens[0]);;
+			//trying path directories
+			char* path_raw=getpath(&path_index,envp);
+			trim(path_raw);
+			char** paths=strtoken(path_raw,":",&path_len);
+			char *org=tokens[0];
+			int i;
+			for(i=0; i<path_len; i++) {
+				strcat(paths[i],"/");
+				strcat(paths[i],org);
+				tokens[0]=paths[i];
+				if(execve(paths[i],tokens,envp)==-1) {
+					//printf("binary file-execve-error %s\n",paths[i]);
+					;
+				}
+			}
+			perror("cannot execute %s by looking up all directories in PATH\n",org);
+			//free_array(tokens,token_len); //getting error double free
+			//maybe because of copy on write which linux follows
+			tokens[0]=org;
+			free_array(paths,path_len);
+			free(path_raw);
+			exit(1);
+		}
     }
     else if(pid > 0) {
-        if(pid == waitpid(pid,&status,0)){ /* pick up all the dead children */ 
-	    //printf("child exit successful\n");
-	    ;
+
+		if(strcmp(tokens[token_len-1],"&")){
+			
+			int ret = waitpid(-1,&status,0);
+			if(ret ==-1){
+				perror("error in waitpid. Error no is %d\n",status);
+			}
+			else{
+				while( pid != ret ){
+					ret=waitpid(-1,&status,0);
+					if(ret ==-1){
+						perror("error in waitpid. Error no is %d\n",status);
+						break ;
+					}
+				}
+			}
+		}
 	}
-	else{
-	    perror("error in waitpid. Error no is %d\n",status);
-	    exit(1);
-	}
-    }
     else {
         //error on fork
         perror("error on fork...try again\n");
