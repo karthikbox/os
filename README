@@ -1,35 +1,25 @@
+70 point project -- Pre-emptive OS
+
 Team: 
 1. Karthik Reddy (109721778)
 2. Sree Harsha Subraveti (109748906)
 3. Pavan Maguluri (109892313)
 
-HOW TO RUN
-===========
-The provided Makefile:
-  1) builds a kernel
-  2) copies it into rootfs/boot/kernel/kernel
-  3) creates an ISO CD image with the rootfs/ contents
-
-To boot the system in QEMU, run:
-  qemu-system-x86_64 -curses -cdrom $USER.iso -drive id=disk,file=$USER.img,if=none -device ahci,id=ahci -device ide-drive,drive=disk,bus=ahci.0 -net nic -net user,hostfwd=tcp::10080-:80 -net user,hostfwd=tcp::10023-:23 --no-reboot -gdb tcp::9998
-
-  Explanation of parameters:
-  -curses         use a text console (omit this to use default SDL/VNC console)
-  -cdrom x.iso    connect a CD-ROM and insert CD with x.iso disk
-  --no-reboot     exit when guest reboots
-  -gdb tcp::9998  listen for "remote" debugging connections on port 9998
-
-  connect a hard drive with x.img disk:
-  -drive id=disk,file=$USER.img,if=none -device ahci,id=ahci -device ide-drive,drive=disk,bus=ahci.0
-  connect a NIC and forward local port 10080 into port 80 and local port 10023 to port 23
-  -net nic -net user,hostfwd=tcp::10080-:80 -net user,hostfwd=tcp::10023-:23
-
-When using the -curses mode, switch to the qemu> console with ESC-2.
-
-To connect a remote debugger to the running qemu VM:
-  gdb ./kernel
-  target remote localhost:9998
-
+NOTE
+=======
+1. Maximum 30000 processes.
+2. Each process can have 16 open files.
+3. All processes combined can have
+4. Maximum characeters in a file path is 100 bytes.
+5. Maximum size of each individual argv/envp is 200 bytes.
+6. SCANF BLOCKS UNTIL LINE FEED I.E., CHARACTERS TERMINATED BY '\n'.
+7. Process which issues scanf first is considered as foreground process and any other process issuing scanf is killed.
+8. There are three processes to begin with 
+   pid 	 process
+   1	 initproc		->		frees orphaned zombies
+   2 	 idle process		
+   3 	 sbush			->		loads shell
+   Do not kill any of these three.
 
 SBUSH MANUAL
 ============
@@ -84,31 +74,3 @@ syntax 2:
 NOTE: This is implemented to test our stdlib.h. 
 
 ===========================================================
-
-
-PAGE TABLES
-===========
-
-PHYSICAL MEMORY
-
-Available Physical Memory [0-9fc00] - [0-158] page frames loosing [159-159.75] availabe but since it's not frame size,we will mark all frames from [159-255] as in use and never free it.
-Available Physical Memory [0x100000-0x7ffe000] - [256-32766] page frames. Mark 32766 as used and never free it. so available memory from [256 - 32765] i.e([0x100000-(0x7ffe000-1)])
-
-159
-654336
-651264
-
-0x0/4KB=0
-
-9fc00/4KB=654336/4KB=159.75
-We can track till 651264/4KB=159
-We have to loose 3KB
-
-0x100000/(4KB)=1048576/4KB = 256
-
-0x7ffe000/4KB = 134209536/4KB=32766=0x7ffe
-
-
-physbase is 0x200000 = 2097152
-physfree is 0x268000 = 2523136 -> 2523136%8=0 , i.e starts from 8 byte boundary
-assuming free memory from physfree(need to confirm this), or should start from next 8 bytes
