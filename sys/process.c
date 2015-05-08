@@ -5,6 +5,9 @@
 #include<sys/page.h>
 #include<sys/pmmgr.h>
 #include<sys/tarfs.h>
+#include<sys/syscall.h>
+#include<errno.h>
+
 extern void trapret();
 extern int exec(char *path,char **argv,char **envp);
 struct proc *initproc;
@@ -372,22 +375,6 @@ void free_vma_list(struct vma **p){
 
 }
 
-void free_pcb(struct proc *p){
-	/* free open files */
-	int fd=0;
-	for(fd=0;fd<NOFILE;fd++){
-		if(p->ofile[fd]){	/* if local fd is present */
-			fileclose(p->ofile[fd]); /* fileclose decrs refcount or marks file strct as unused */
-			p->ofile[fd]=NULL;		/* delink */
-		}
-	}
-
-
-	/* free the process kernel stack */
-	kfree(p->kstack);
-	/* set proc state to UNUSED */
-	p->state=UNUSED;
-}
 
 struct file * filedup(struct file *f){
 	if(f->ref < 1){
@@ -881,5 +868,207 @@ void clear_wp_bit(){
 						 :
 						 :"r"(res & ~(1ul<<16) )
 						 );
+	
+}
+
+
+void do_exit(int status, struct proc *p){
+
+	printf("proc -> %d -> exit syscall\n",p->pid);
+	/* free vmas free_vma_list(head) */
+	/* clear open file descriptors */
+	int fd=0;
+	for(fd=0;fd<NOFILE;fd++){
+		if(p->ofile[fd]){	/* if local fd is present */
+			fileclose(p->ofile[fd]); /* fileclose decrs refcount or marks file strct as unused */
+			p->ofile[fd]=NULL;		/* delink */
+		}
+	}
+	
+	/* clear cwd  */
+	memset1(p->cwd,0,NCHARS);	
+
+	/* wakeup parent sleeping in waitpid */
+	wakeup1(p->parent);
+
+	/* if current process is present in stdin Q, and we decide to kill process */
+	/* then dequeu proc from stdin Q first */
+	/* this use case will mostly occur during page fault in do_copy */
+	if(_stdin->proc == p){
+		/* p is enqued in stdin Q */
+		/* dequue from stdin Q */
+		_stdin->proc=NULL;
+	}
+	
+
+	/* pass abondoned children to initproc */
+	struct proc *t;
+	for(t=ptable.proc; t < &ptable.proc[NPROC];t++ ){
+		if(t->parent == p){
+			/* p is t's parent */
+			t->parent=initproc;
+			if(t->state == ZOMBIE){
+				wakeup1(initproc);
+			}
+		}
+	}
+	p->state=ZOMBIE;
+	/* call the sched */
+	sched();
+}
+
+
+int do_waitpid(pid_t pid, int* status, int options){
+
+	struct proc *p;
+	int haveKids=0;
+	if(pid==-1){
+		
+		/* if not specefic */
+		/* look for any child */
+		/* if it is zombie */
+		/* mark it UNUSED */
+		/* return pid */
+		/* keep running till the end */
+		/* if no zombie found, and a child exists in RUN, goto sleep */
+		/* if no zombie and no child, return -1 */
+		
+		for(;;){
+			/* return zombie if exists */
+			haveKids=0;
+			for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+				if(p->parent != proc){
+					/* not a child of proc */
+					continue;
+				}
+				haveKids=1;
+				if(p->state == ZOMBIE){
+					return free_res(p);
+				}
+			}
+			/* has not found zombie */
+			if(!haveKids){
+				/* no kids, return -1, no point in sleeping */
+				return -ECHILD;
+			}
+			/* some child exists which is running */
+			/* sleep till that child wakes me */
+			sleep(proc);
+			
+		}
+		
+	}
+	else{
+		/* if is specefic */
+		/* then look for this pid */
+		/* if zombie */
+		/* mark it UNUSED */
+		/* return pid */
+		/* if running */
+		/* goto sleep */
+		/* later wake up and reap this one */
+		/* if no child with this pid, then return -1 */
+		for(;;){
+			haveKids=0;
+			for(p=ptable.proc;p<&ptable.proc[NPROC];p++){
+				
+				if(p->pid != pid){
+					continue;
+				}
+				else{
+					haveKids=1;
+					/* found process with id pid */
+					/* check if this process is my child  */
+					if(p->parent==proc){
+						/* pid is my child */
+						/* check if it is zombie */
+						/* then mark it UNUSED */
+						if(p->state==ZOMBIE){
+							return free_res(p);	/* returns pid */
+						}
+						/* else it is in use*/
+						sleep(proc); /* sleep till child wakes u up */
+						/* restart search, because we do not know which child woke me up */
+						/* but we are only intersetd in process pid */
+						/* p=ptable.proc; */
+						/* p--; */
+					}
+					else{
+						/* not my child */
+						return -ECHILD;
+					}
+				}
+			}
+			if(haveKids==0){
+				/* one complete scan done */
+				/* pid proc does not exists */
+				return -ECHILD;
+			}
+
+		}
+		
+	}
+	/* printf("proc -> %d -> waitpid syscall\n",proc->pid); */
+
+	/* /\* checks *\/ */
+	/* /\* if pid = -1 *\/ */
+	/* /\* check if there is any child of this process *\/ */
+
+	/* /\* else  *\/ */
+	/* /\* check if there is a child with this  *\/ */
+	/* /\* change the process state to SLEEPING *\/ */
+	/* proc->state=SLEEPING; */
+	/* /\* add the process to a waitpid Q *\/ */
+	/* if(enqueue_waitpid(proc,pid)==0){ */
+	/* 	/\* enqueue failed *\/ */
+	/* 	/\* waitpid returns -1 *\/ */
+	/* 	proc->tf->rax=-1; */
+	/* 	/\* make process running *\/ */
+	/* 	proc->state=RUNNING; */
+    /* return; */
+	/* } */
+	/* /\* enqueue success *\/ */
+	/* /\* schedule another process *\/ */
+	/* sched(); */
+}
+
+
+int free_res(struct proc *p){
+	/* found a zombie */
+	int ret=p->pid;
+	kfree(p->kstack);
+	p->kstack=NULL;
+	free_vma_list(&(p->vma_head));
+	/* free process page tables free_uvm(pml4_t) */
+	free_uvm(p->pml4_t);
+	p->state=UNUSED;
+	p->pid=0;
+	p->parent=NULL;
+	p->name[0]=0;
+	p->killed=0;
+	p->size=0;
+	/* return pid of zombie child */
+	return ret;
+	
+}
+
+void free_pcb(struct proc *p){
+	/* free open files */
+	int fd=0;
+	for(fd=0;fd<NOFILE;fd++){
+		if(p->ofile[fd]){/* if local fd is present */
+			fileclose(p->ofile[fd]); /* fileclose decrs refcount or marks file strct as unused */
+			p->ofile[fd]=NULL;/* delink */
+		}
+	}
+	/* free the process kernel stack */
+	kfree(p->kstack);	
+	/* set proc state to UNUSED */
+	p->state=UNUSED;
+	p->kstack=NULL;
+	p->pid=0;
+	p->parent=NULL;
+	p->name[0]=0;
+	p->killed=0;
 	
 }

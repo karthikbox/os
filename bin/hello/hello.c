@@ -13,16 +13,25 @@ int main(int argc, char* argv[], char* envp[]) {
 		printf("envp[%d]->%s\n",i,envp[i]);
 	}
 	char *new_argv[2];
-	new_argv[0]="bin/exec";
+	new_argv[0]="bin/sbush";
 	new_argv[1]=NULL;
 	int b=fork();
 	if(b>0){
 		/* char a[1000]; */
 		/* scanf("%s",a); */
 		/* printf("%s\n",a); */
-		while(1){
-			/* printf("proc 1->%s\n",a); */
-			;
+		int c=fork();
+		if(c > 0){
+			/* initproc */
+			int status;
+			while(1){
+				waitpid(-1,&status,0);
+			}
+		}
+		else{
+			/* idle process */
+			while(1)
+				;
 		}
 	}
 	else if(b==0){

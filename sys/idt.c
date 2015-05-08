@@ -298,7 +298,7 @@ void isr_handler(struct stack_frame *s){
 			do_nanosleep((struct timespec *)s->rdi,(struct timespec *)s->rsi);
 		}
 		else if(s->rax==SYS_wait4){
-			do_waitpid((pid_t)s->rdi, (int*)s->rsi, (int)s->rdx);
+			s->rax=do_waitpid((pid_t)s->rdi, (int*)s->rsi, (int)s->rdx);
 		}
 		else if(s->rax==SYS_execve){
 			/* copy the contents of argv and envp to kernel stack */

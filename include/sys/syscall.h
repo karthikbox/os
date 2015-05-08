@@ -47,7 +47,7 @@ void do_exit(int status,struct proc *p);
 pid_t do_getpid();
 pid_t do_getppid();
 void do_nanosleep(struct timespec *req,struct timespec *rem);
-void do_waitpid(pid_t pid, int *status, int options);
+int do_waitpid(pid_t pid, int *status, int options);
 void do_execve(char *filename, char* argv[], char* envp[]);
 void do_read(int fd, void *buf, size_t count);
 void do_pipe(int * fd_arr);

@@ -16,6 +16,8 @@ extern void isr128();
 #define LO_MASK 0x00000000FFFFFFFFul
 #define HI_MASK 0xFFFFFFFF00000000ul
 
+
+
 void init_syscall(){
 
   /* activate extended syscall instructions */
@@ -174,31 +176,6 @@ void do_brk(void* end_data_segment){
 	proc->tf->rax=(uint64_t)end_data_segment;
 }
 
-void do_exit(int status, struct proc *p){
-
-	printf("proc -> %d -> exit syscall\n",proc->pid);
-	/* free vmas free_vma_list(head) */
-	free_vma_list(&(p->vma_head));
-	/* free process page tables free_uvm(pml4_t) */
-	free_uvm(p->pml4_t);
-	
-	/* update waitpid Q */
-	update_waitpid_queue(p);
-
-	/* if current process is present in stdin Q, and we decide to kill process */
-	/* then dequeu proc from stdin Q first */
-	/* this use case will mostly occur during page fault in do_copy */
-	if(_stdin->proc == p){
-		/* p is enqued in stdin Q */
-		/* dequue from stdin Q */
-		_stdin->proc=NULL;
-	}
-	/* free pcb */
-	free_pcb(p);
-	
-	/* call the sched */
-	sched();
-}
 
 pid_t do_getpid(){
 	return (pid_t)(proc->pid);
@@ -213,7 +190,6 @@ pid_t do_getppid(){
 }
 
 void do_nanosleep(struct timespec *req,struct timespec *rem){
-	printf("proc -> %d -> sleep syscall\n",proc->pid);
 	if(req->tv_sec >= 0){
 		/* sleep time is >0 secs */
 		/* set state to SLEEPING */
@@ -236,31 +212,8 @@ void do_nanosleep(struct timespec *req,struct timespec *rem){
 	}
 }
 
-void do_waitpid(pid_t pid, int* status, int options){
-	
-	printf("proc -> %d -> waitpid syscall\n",proc->pid);
 
-	/* checks */
-	/* if pid = -1 */
-	/* check if there is any child of this process */
 
-	/* else  */
-	/* check if there is a child with this  */
-	/* change the process state to SLEEPING */
-	proc->state=SLEEPING;
-	/* add the process to a waitpid Q */
-	if(enqueue_waitpid(proc,pid)==0){
-		/* enqueue failed */
-		/* waitpid returns -1 */
-		proc->tf->rax=-1;
-		/* make process running */
-		proc->state=RUNNING;
-    return;
-	}
-	/* enqueue success */
-	/* schedule another process */
-	sched();
-}
 
 void do_read(int fd, void* buf, size_t count){
 
