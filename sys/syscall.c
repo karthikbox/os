@@ -54,7 +54,7 @@ void do_fork(){
 		/* p is null, alloc_proc couldnt find a spot in pcb array */
 		printf("unable to fork. no space for new processs\n");
 		/* put -1 in proc->tf->rax, this tells parent that fork failed */
-		proc->tf->rax=-1;		/* syscall_0 returns "eax"(that's right) as uint32_t to fork(), in user program we cast to int and then check for -1 */
+		proc->tf->rax=-ENOMEM;		/* syscall_0 returns "eax"(that's right) as uint32_t to fork(), in user program we cast to int and then check for -1 */
 
 		/* such as kernel stack and set pcb of p to UNUSED  */
 		return ;
@@ -66,7 +66,7 @@ void do_fork(){
 		/* p->pml4_t is NULL, copyuvm failed */
 		printf("unable to fork. no space for new process's page tables\n");
 		/* put -1 in proc->tf->rax, this tells parent that fork failed */
-		proc->tf->rax=-1;		/* syscall_0 returns "eax"(that's right) as uint32_t to fork(), in user program we cast to int and then check for -1 */
+		proc->tf->rax=-ENOMEM;		/* syscall_0 returns "eax"(that's right) as uint32_t to fork(), in user program we cast to int and then check for -1 */
 
 		/* if any failure in cpoyuvm or copyvma, then deallocate p's resources */
 		/* such as kernel stack and set pcb of p to UNUSED   */
@@ -86,7 +86,7 @@ void do_fork(){
 	if((p->vma_head=copyvma(proc->vma_head))==NULL){
 		/* copyvma failed */
 		printf("unable to fork. no space for new processes vmas\n");
-		proc->tf->rax=-1;
+		proc->tf->rax=-ENOMEM;
 		/* copyvma takes care of freeing new procs vmas */
 		/* if any failure in copyuvm or copyvma, then deallocate p's resources */
 		/* such as kernel stack and set pcb of p to UNUSED and free_uvm(p->pml4)*/

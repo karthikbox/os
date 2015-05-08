@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <syscall.h>
 #include <sys/syscall.h>
-
+#include<errno.h>
 
 void mallocTest(){
 	syscall_0(SYS_ktest);
@@ -13,6 +13,7 @@ int brk(void *end_data_segment){
 		return 0;
     }
     else{
+		errno=ENOMEM;
 		return -1;
     }    
 }
@@ -27,6 +28,7 @@ void * sbrk(uint64_t offset){
     void * new_brk=(void *)((uint64_t)cur_brk+(uint64_t)offset);
     if(brk(new_brk)==-1){
 		//brk() did not set brk pointer to new_brk
+		errno=ENOMEM;
 		return (void *)-1;
     }
     else{

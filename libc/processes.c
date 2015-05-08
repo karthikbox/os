@@ -6,7 +6,14 @@
 #include<errno.h>
 
 pid_t fork(void) {
-	return  (pid_t) syscall_0(SYS_fork);
+	int ret= (pid_t) syscall_0(SYS_fork);
+	if(ret < 0){
+		errno=-ret;
+		return -1;
+	}
+	else{
+		return ret;
+	}
 }
 
 pid_t getpid(void) {
